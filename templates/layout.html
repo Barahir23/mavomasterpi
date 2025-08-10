@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>
+        {% block title %} Django App {% endblock %}
+        </title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet"  href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/messung.css' %}">
+        {% block headscripts %} {% endblock %}
+    </head>
+    <body data-device-warning="{% if device_warning %}true{% else %}false{% endif %}">
+        <nav>
+            <div class="nav-links">
+                <a href="/">🏠</a>
+                <a href="{% url 'messung:page' %}">💡</a>
+            </div>
+            <div class="nav-controls">
+                <button id="globalRebootBtn" class="btn-warning nav-control-btn" title="Neustart">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"></path><path d="M3.5 22v-6h6"></path><path d="M22 11.5A10 10 0 0 1 12 22a10 10 0 0 1-10-10.5"></path><path d="M2 12.5a10 10 0 0 1 10-10.5A10 10 0 0 1 22 12"></path></svg>
+                </button>
+                <button id="globalShutdownBtn" class="btn-danger nav-control-btn" title="Herunterfahren">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
+                </button>
+            </div>
+        </nav>
+        
+        <!-- KORRIGIERT: Der main-Tag umschliesst jetzt den content-Block -->
+        <main>
+            {% block content%}
+            {% endblock %}
+        </main>
+
+        <div id="globalConfirmModal" class="modal">
+            <div class="modal-content">
+                <h3 id="globalConfirmTitle">Bestätigung</h3>
+                <p id="globalConfirmText" style="margin: 1.5rem 0;"></p>
+                <div class="button-group">
+                    <button id="globalConfirmCancelBtn" class="btn-secondary btn-text">Abbrechen</button>
+                    <button id="globalConfirmOkBtn" class="btn-danger btn-text">OK</button>
+                </div>
+            </div>
+        </div>
+        
+        <div id="systemOverlay" class="system-overlay">
+            <h1 id="systemOverlayMessage"></h1>
+        </div>
+        
+        <script>
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            var csrftoken = getCookie('csrftoken');
+
+            var confirmModal = document.getElementById('globalConfirmModal');
+            var confirmOkBtn = document.getElementById('globalConfirmOkBtn');
+            var confirmCancelBtn = document.getElementById('globalConfirmCancelBtn');
+            var confirmTitle = document.getElementById('globalConfirmTitle');
+            var confirmText = document.getElementById('globalConfirmText');
+            var currentConfirmCallback = null;
+
+            function showConfirm(title, text, onOk) {
+                confirmTitle.textContent = title;
+                confirmText.textContent = text;
+                currentConfirmCallback = onOk;
+                confirmModal.style.display = 'block';
+            }
+
+            confirmCancelBtn.onclick = function() { confirmModal.style.display = 'none'; }
+            confirmOkBtn.onclick = function() {
+                if (currentConfirmCallback) { currentConfirmCallback(); }
+                confirmModal.style.display = 'none';
+            }
+
+            document.getElementById('globalRebootBtn').addEventListener('click', function() {
+                showConfirm('Neustart', 'Sind Sie sicher, dass Sie den Raspberry Pi neu starten möchten?', function() {
+                    var overlay = document.getElementById('systemOverlay');
+                    var messageEl = document.getElementById('systemOverlayMessage');
+                    messageEl.innerHTML = 'Neustart-Befehl gesendet... Seite lädt in <span id="countdown">30</span> Sekunden neu.';
+                    overlay.classList.add('show');
+                    
+                    var countdown = 30;
+                    var countdownInterval = setInterval(function() {
+                        countdown--;
+                        var countdownEl = document.getElementById('countdown');
+                        if (countdownEl) {
+                            countdownEl.textContent = countdown;
+                        }
+                        if (countdown <= 0) {
+                            clearInterval(countdownInterval);
+                            setTimeout(function() { window.location.reload(true); }, 2000);
+                        }
+                    }, 1000);
+
+                    fetch('/api/system/reboot/', { method: 'POST', headers: {'X-CSRFToken': csrftoken }})
+                        .catch(function(error) {
+                            console.warn("Fetch-Fehler beim Neustart (erwartet):", error);
+                        });
+                });
+            });
+
+            document.getElementById('globalShutdownBtn').addEventListener('click', function() {
+                showConfirm('Herunterfahren', 'Sind Sie sicher, dass Sie den Raspberry Pi herunterfahren möchten?', function() {
+                    var overlay = document.getElementById('systemOverlay');
+                    var messageEl = document.getElementById('systemOverlayMessage');
+                    messageEl.textContent = 'Herunterfahren-Befehl gesendet. Sobald die LED dunkel ist, kann das Gerät ausgesteckt werden.';
+                    overlay.classList.add('show');
+                    
+                    fetch('/api/system/shutdown/', { method: 'POST', headers: {'X-CSRFToken': csrftoken }})
+                        .catch(function(error) {
+                            console.warn("Fetch-Fehler beim Herunterfahren (erwartet):", error);
+                        });
+                });
+            });
+        </script>
+        {% block footerscripts %}{% endblock %}
+    </body>
+</html>

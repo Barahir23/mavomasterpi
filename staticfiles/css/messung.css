@@ -1,0 +1,229 @@
+/* Spezifische Stile für die Mess-App, die die globalen Variablen verwenden */
+.control-group {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1.5rem;
+    background-color: var(--color-surface);
+}
+
+.control-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.device-control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+}
+.device-control-row + .device-control-row {
+    margin-top: 1rem;
+}
+
+.device-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#status-bar { 
+    font-style: italic; 
+    color: var(--color-text-medium);
+    height: 1.5em;
+    transition: opacity 1s ease-in-out 4s;
+}
+
+#status-bar.fade-out {
+    opacity: 0;
+}
+
+#status-bar.error {
+    color: var(--color-danger);
+    opacity: 1;
+    transition: none;
+}
+
+#realtime-display {
+    font-size: 2rem;
+    color: var(--color-accent-yellow);
+    height: 1.5em;
+}
+
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-text-medium);
+}
+
+#table-container {
+    overflow-x: auto;
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    margin-top: 1rem;
+}
+th, td { 
+    border: 1px solid var(--color-border); 
+    padding: 0.75rem; 
+    text-align: center; 
+}
+th { 
+    background-color: var(--color-surface-medium); 
+}
+
+.expandable-form-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out, margin-top 0.5s ease-in-out, padding-top 0.5s ease-in-out;
+    border-top: 1px solid transparent;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.expandable-form-container.open {
+    max-height: 500px;
+    border-top: 1px solid var(--color-border);
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.select-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.select-wrapper select {
+    flex-grow: 1;
+}
+.expand-button {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    padding: 0;
+    background-color: var(--color-surface-medium);
+    border: 1px solid var(--color-border);
+}
+
+.expand-button svg {
+    width: 24px;
+    height: 24px;
+    stroke: var(--color-text-medium);
+}
+
+.expand-button:not(:disabled):hover svg {
+    stroke: var(--color-text-light);
+}
+
+.expand-button.open svg {
+    stroke: var(--color-primary-orange);
+}
+
+/* Stile für Modals/Popups */
+.modal { 
+    display: none; 
+    position: fixed; 
+    z-index: 1000; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.7); 
+}
+.modal-content { 
+    background-color: var(--color-surface); 
+    margin: 15% auto; 
+    padding: 20px; 
+    border: 1px solid var(--color-border); 
+    width: 90%; 
+    max-width: 500px; 
+    border-radius: 8px; 
+}
+.modal .button-group {
+    justify-content: flex-end;
+}
+
+/* Styling für Titel mit Zusatzinfo */
+.title-with-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-with-info .info {
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: var(--color-text-medium);
+    text-align: right;
+    line-height: 1.2;
+    margin-left: 1rem;
+}
+
+/* Styling für die Seitenleiste */
+#menuToggleButton {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1002;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+}
+
+#controls-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    height: 100%;
+    background-color: var(--color-background);
+    z-index: 1001;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    padding: 1rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    border-right: 1px solid var(--color-border);
+}
+
+#controls-sidebar.open {
+    transform: translateX(0);
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+}
+
+#main-content {
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* Media Query für breitere Bildschirme */
+@media (min-width: 900px) {
+    #menuToggleButton {
+        display: none;
+    }
+    #controls-sidebar {
+        transform: translateX(0);
+    }
+    #main-content {
+        margin-left: 300px;
+    }
+}

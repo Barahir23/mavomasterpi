@@ -1,0 +1,165 @@
+/* Globale Farbpalette basierend auf Ihren Vorgaben */
+:root {
+    /* Orange-Töne */
+    --color-logo-orange: rgb(248, 174, 75);
+    --color-primary-orange: rgb(243, 146, 0);
+    --color-accent-yellow: rgb(250, 185, 99);
+    --color-light-orange: rgb(253, 220, 179);
+
+    /* Grau-Töne */
+    --color-logo: rgb(135, 135, 135);
+    --color-border: rgb(100, 100, 100);
+    --color-text-medium: rgb(192, 192, 192);
+    --color-text-light: rgb(235, 235, 235);
+
+    /* Basis-Farben */
+    --color-background: rgb(20, 20, 20);
+    --color-surface: rgb(34, 34, 34);
+    --color-surface-medium: rgb(51, 51, 51);
+
+    /* Funktions-Farben */
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-secondary: #6c757d;
+}
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--color-background);
+    color: var(--color-text-light);
+    font-size: 1.2rem;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Styling für die Navigationsleiste */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.nav-links a, .nav-controls a {
+    margin: 0 0.5rem;
+}
+
+.nav-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+main {
+    padding: 1rem;
+}
+
+section {
+    display: flex;
+    flex-flow: column;
+    gap: 2rem;
+}
+
+h1, h2, h3 {
+    font-size: 2rem;
+    color: var(--color-primary-orange);
+    margin-bottom: 1rem;
+}
+
+input, select, textarea, button {
+    font-size: 1rem;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface-medium);
+    color: var(--color-text-light);
+    width: 100%;
+    font-family: inherit;
+}
+
+button {
+    cursor: pointer;
+    background-color: var(--color-primary-orange);
+    border-color: var(--color-primary-orange);
+    font-weight: bold;
+    color: var(--color-background);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+button:hover {
+    opacity: .85;
+}
+
+button:disabled {
+    background-color: var(--color-surface-medium);
+    border-color: var(--color-border);
+    color: var(--color-text-medium);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn-primary { background-color: var(--color-success); color: var(--color-text-light); }
+.btn-danger { background-color: var(--color-danger); color: var(--color-text-light); }
+.btn-secondary { background-color: var(--color-secondary); color: var(--color-text-light); }
+.btn-warning { background-color: var(--color-accent-yellow); color: var(--color-background); }
+
+.btn-text {
+    max-width: 188px;
+}
+.btn-icon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    flex-shrink: 0;
+}
+.btn-icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+.nav-control-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-control-btn svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+/* Klasse für Systemmeldungen */
+.system-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    color: whitesmoke;
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.system-overlay.show {
+    display: flex;
+}
+.system-overlay h1 {
+    padding: 2rem;
+}
