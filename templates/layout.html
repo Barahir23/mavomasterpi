@@ -1,133 +1,52 @@
-<!DOCTYPE html>
 {% load static %}
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>
-        {% block title %} Django App {% endblock %}
-        </title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet"  href="{% static 'css/style.css' %}">
-        <link rel="stylesheet" href="{% static 'css/messung.css' %}">
-        {% block headscripts %} {% endblock %}
-    </head>
-    <body data-device-warning="{% if device_warning %}true{% else %}false{% endif %}">
-        <nav>
-            <div class="nav-links">
-                <a href="/">🏠</a>
-                <a href="{% url 'messung:page' %}">💡</a>
-            </div>
-            <div class="nav-controls">
-                <button id="globalRebootBtn" class="btn-warning nav-control-btn" title="Neustart">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"></path><path d="M3.5 22v-6h6"></path><path d="M22 11.5A10 10 0 0 1 12 22a10 10 0 0 1-10-10.5"></path><path d="M2 12.5a10 10 0 0 1 10-10.5A10 10 0 0 1 22 12"></path></svg>
-                </button>
-                <button id="globalShutdownBtn" class="btn-danger nav-control-btn" title="Herunterfahren">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path><line x1="12" y1="2" x2="12" y2="12"></line></svg>
-                </button>
-            </div>
-        </nav>
-        
-        <!-- KORRIGIERT: Der main-Tag umschliesst jetzt den content-Block -->
-        <main>
-            {% block content%}
-            {% endblock %}
-        </main>
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MavoMaster{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="theme-dark">
+  <aside id="app-sidebar" aria-label="Hauptnavigation">
+    <div class="sidebar-header">
+      <button id="collapseToggle" class="icon-btn" aria-expanded="true" title="Seitenleiste ein/ausklappen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
+    </div>
 
-        <div id="globalConfirmModal" class="modal">
-            <div class="modal-content">
-                <h3 id="globalConfirmTitle">Bestätigung</h3>
-                <p id="globalConfirmText" style="margin: 1.5rem 0;"></p>
-                <div class="button-group">
-                    <button id="globalConfirmCancelBtn" class="btn-secondary btn-text">Abbrechen</button>
-                    <button id="globalConfirmOkBtn" class="btn-danger btn-text">OK</button>
-                </div>
-            </div>
-        </div>
-        
-        <div id="systemOverlay" class="system-overlay">
-            <h1 id="systemOverlayMessage"></h1>
-        </div>
-        
-        <script>
-            function getCookie(name) {
-                var cookieValue = null;
-                if (document.cookie && document.cookie !== '') {
-                    var cookies = document.cookie.split(';');
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = cookies[i].trim();
-                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                            break;
-                        }
-                    }
-                }
-                return cookieValue;
-            }
-            var csrftoken = getCookie('csrftoken');
+    <nav class="sidebar-nav" aria-label="Statische Seiten">
+      <a href="/" class="nav-item" title="Home">
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 12l9.75-9 9.75 9" /><path d="M4.5 12V20.25A2.25 2.25 0 0 0 6.75 22.5H17.25A2.25 2.25 0 0 0 19.5 20.25V12" /></svg></span><span class="label">Home</span>
+      </a>
+      <a href="/messung/" class="nav-item" title="Messung">
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.25 8.25 3 21 15.75 15.75 21 3 8.25z" /><path d="M7.5 10.5l2.25 2.25M10.5 7.5l2.25 2.25M13.5 4.5l2.25 2.25M4.5 13.5l2.25 2.25" /></svg></span><span class="label">Messung</span>
+      </a>
+      <a href="/projekte/" class="nav-item" title="Projekte">
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 7.5A2.25 2.25 0 0 1 4.5 5.25h5.379a2.25 2.25 0 0 1 1.591.659l1.122 1.121a2.25 2.25 0 0 0 1.591.659H19.5A2.25 2.25 0 0 1 21.75 9v9.75A2.25 2.25 0 0 1 19.5 21H4.5A2.25 2.25 0 0 1 2.25 18.75V7.5z" /></svg></span><span class="label">Projekte</span>
+      </a>
+      <a href="/exporte/" class="nav-item" title="Exporte">
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15.75v3A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75v-3" /><path d="M7.5 10.5 12 6l4.5 4.5" /><path d="M12 6v12" /></svg></span><span class="label">Exporte</span>
+      </a>
+      <a href="/system/" class="nav-item" title="System">
+        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.381.324.694.671.832a9.04 9.04 0 0 1 1.987 1.145c.309.214.72.23 1.05.05l1.13-.623a1.125 1.125 0 0 1 1.5.487l1.296 2.247a1.125 1.125 0 0 1-.285 1.431l-1.002.827c-.3.248-.438.64-.364 1.02.07.36.107.732.107 1.113 0 .38-.037.752-.107 1.112-.074.38.064.772.364 1.02l1.002.828c.45.371.57 1.02.285 1.43l-1.296 2.248a1.125 1.125 0 0 1-1.5.486l-1.13-.622a1.125 1.125 0 0 0-1.05.049 9.06 9.06 0 0 1-1.987 1.145 1.125 1.125 0 0 0-.671.832l-.213 1.28c-.09.543-.56.94-1.11.94h-2.593c-.55 0-1.02-.397-1.11-.94l-.213-1.28a1.125 1.125 0 0 0-.671-.832 9.06 9.06 0 0 1-1.987-1.145 1.125 1.125 0 0 0-1.05-.05l-1.13.623a1.125 1.125 0 0 1-1.5-.486L.978 17.51a1.125 1.125 0 0 1 .285-1.431l1.002-.828c.3-.248.438-.64.364-1.02A8.96 8.96 0 0 1 2.822 12c0-.38.037-.752.107-1.112.074-.38-.064-.772-.364-1.02l-1.002-.828a1.125 1.125 0 0 1-.285-1.431L2.574 5.36a1.125 1.125 0 0 1 1.5-.487l1.13.623c.33.18.741.164 1.05-.05A9.04 9.04 0 0 1 8.241 6.05c.347-.138.608-.45.671-.832l.682-1.28z" /><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /></svg></span><span class="label">System</span>
+      </a>
+    </nav>
 
-            var confirmModal = document.getElementById('globalConfirmModal');
-            var confirmOkBtn = document.getElementById('globalConfirmOkBtn');
-            var confirmCancelBtn = document.getElementById('globalConfirmCancelBtn');
-            var confirmTitle = document.getElementById('globalConfirmTitle');
-            var confirmText = document.getElementById('globalConfirmText');
-            var currentConfirmCallback = null;
+    <div class="sidebar-context">
+      {% block sidebar_context %}{% endblock %}
+    </div>
 
-            function showConfirm(title, text, onOk) {
-                confirmTitle.textContent = title;
-                confirmText.textContent = text;
-                currentConfirmCallback = onOk;
-                confirmModal.style.display = 'block';
-            }
+    <div class="sidebar-footer">
+      <button class="footer-btn" id="action-reboot" title="Raspberry Pi neu starten"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.023 9.348h4.992V4.356M2.985 19.644v-4.992h4.992" /><path d="M20.016 9.36a8.25 8.25 0 0 0-13.803-3.3L2.985 9.36" /><path d="M21.015 14.628l-3.228 3.3A8.25 8.25 0 0 1 3.985 14.64" /></svg></button>
+      <button class="footer-btn" id="action-shutdown" title="Raspberry Pi herunterfahren"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.25v8.25" /><path d="M6.364 6.386a9 9 0 1 0 11.272 0" /></svg></button>
+    </div>
+  </aside>
 
-            confirmCancelBtn.onclick = function() { confirmModal.style.display = 'none'; }
-            confirmOkBtn.onclick = function() {
-                if (currentConfirmCallback) { currentConfirmCallback(); }
-                confirmModal.style.display = 'none';
-            }
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
 
-            document.getElementById('globalRebootBtn').addEventListener('click', function() {
-                showConfirm('Neustart', 'Sind Sie sicher, dass Sie den Raspberry Pi neu starten möchten?', function() {
-                    var overlay = document.getElementById('systemOverlay');
-                    var messageEl = document.getElementById('systemOverlayMessage');
-                    messageEl.innerHTML = 'Neustart-Befehl gesendet... Seite lädt in <span id="countdown">30</span> Sekunden neu.';
-                    overlay.classList.add('show');
-                    
-                    var countdown = 30;
-                    var countdownInterval = setInterval(function() {
-                        countdown--;
-                        var countdownEl = document.getElementById('countdown');
-                        if (countdownEl) {
-                            countdownEl.textContent = countdown;
-                        }
-                        if (countdown <= 0) {
-                            clearInterval(countdownInterval);
-                            setTimeout(function() { window.location.reload(true); }, 2000);
-                        }
-                    }, 1000);
-
-                    fetch('/api/system/reboot/', { method: 'POST', headers: {'X-CSRFToken': csrftoken }})
-                        .catch(function(error) {
-                            console.warn("Fetch-Fehler beim Neustart (erwartet):", error);
-                        });
-                });
-            });
-
-            document.getElementById('globalShutdownBtn').addEventListener('click', function() {
-                showConfirm('Herunterfahren', 'Sind Sie sicher, dass Sie den Raspberry Pi herunterfahren möchten?', function() {
-                    var overlay = document.getElementById('systemOverlay');
-                    var messageEl = document.getElementById('systemOverlayMessage');
-                    messageEl.textContent = 'Herunterfahren-Befehl gesendet. Sobald die LED dunkel ist, kann das Gerät ausgesteckt werden.';
-                    overlay.classList.add('show');
-                    
-                    fetch('/api/system/shutdown/', { method: 'POST', headers: {'X-CSRFToken': csrftoken }})
-                        .catch(function(error) {
-                            console.warn("Fetch-Fehler beim Herunterfahren (erwartet):", error);
-                        });
-                });
-            });
-        </script>
-        {% block footerscripts %}{% endblock %}
-    </body>
+  <script src="{% static 'js/messung.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
 </html>

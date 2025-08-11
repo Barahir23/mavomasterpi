@@ -1,165 +1,181 @@
-/* Globale Farbpalette basierend auf Ihren Vorgaben */
 :root {
-    /* Orange-Töne */
-    --color-logo-orange: rgb(248, 174, 75);
-    --color-primary-orange: rgb(243, 146, 0);
-    --color-accent-yellow: rgb(250, 185, 99);
-    --color-light-orange: rgb(253, 220, 179);
-
-    /* Grau-Töne */
-    --color-logo: rgb(135, 135, 135);
-    --color-border: rgb(100, 100, 100);
-    --color-text-medium: rgb(192, 192, 192);
-    --color-text-light: rgb(235, 235, 235);
-
-    /* Basis-Farben */
-    --color-background: rgb(20, 20, 20);
-    --color-surface: rgb(34, 34, 34);
-    --color-surface-medium: rgb(51, 51, 51);
-
-    /* Funktions-Farben */
-    --color-success: #28a745;
-    --color-danger: #dc3545;
-    --color-secondary: #6c757d;
+  --color-background: #1c1c1c;
+  --color-surface: #242424;
+  --color-border: #3a3a3a;
+  --color-text: #f0f0f0;
+  --color-accent: #ff9900;
+  --sidebar-width: 320px;
+  --sidebar-width-collapsed: 50px; /* per spec */
+  --icon-size: 22px;
+  --icon-size-collapsed: 22px; /* fits 50px width with padding */
+  --gap: .5rem;
 }
 
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
-    min-height: 100vh;
-    background-color: var(--color-background);
-    color: var(--color-text-light);
-    font-size: 1.2rem;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  margin: 0;
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
 }
 
-/* Styling für die Navigationsleiste */
-nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background-color: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
+/* Cards */
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 1rem;
+}
+.card + .card { margin-top: 1rem; }
+.card h2, .card h3 { margin: 0 0 .75rem 0; color: var(--color-accent); }
+
+/* Mobile hamburger */
+#menuToggleButton {
+  position: fixed;
+  left: .5rem;
+  top: .5rem;
+  z-index: 2200;
+  padding: .4rem .6rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  display: none; /* nur mobil */
 }
 
-.nav-links a, .nav-controls a {
-    margin: 0 0.5rem;
+/* Sidebar */
+#app-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: var(--sidebar-width);
+  height: 100%;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  z-index: 2100;
+  display: grid;
+  grid-template-rows: auto auto 1fr auto; /* header, nav, context, footer */
+  transition: width .25s ease, transform .3s ease-in-out;
+  overflow: hidden;
 }
 
-.nav-controls {
-    display: flex;
-    gap: 1rem;
+/* Header: collapse button only (no brand) */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: .5rem;
+  border-bottom: 1px solid var(--color-border);
+  gap: var(--gap);
+}
+#collapseToggle {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: .35rem .5rem;
+  cursor: pointer;
+  line-height: 1;
+  width: 32px;
+  height: 32px;
 }
 
-main {
-    padding: 1rem;
+/* Navigation (static pages) */
+.sidebar-nav {
+  display: flex; flex-direction: column;
+  padding: .4rem;
+  gap: .25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.nav-item {
+  display: flex; align-items: center;
+  gap: .6rem;
+  padding: .45rem .6rem;
+  text-decoration: none;
+  color: var(--color-text);
+  border-radius: 8px;
+  line-height: 1;
+  min-height: 36px;
+}
+.nav-item:hover { background: #2c2c2c; }
+
+/* Icon + Label */
+.icon {
+  display: inline-flex;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  line-height: var(--icon-size);
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--icon-size) - 2px);
+}
+.label { white-space: nowrap; }
+
+/* Context area (page-specific; hidden when collapsed) */
+.sidebar-context {
+  padding: .6rem;
+  overflow-y: auto;
 }
 
-section {
-    display: flex;
-    flex-flow: column;
-    gap: 2rem;
+/* Footer: reboot/shutdown (icons only, bottom; stacked when collapsed) */
+.sidebar-footer {
+  padding: .5rem;
+  border-top: 1px solid var(--color-border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .5rem;
+}
+.footer-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 0; /* icons only */
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: .5rem .6rem;
+  cursor: pointer;
+  width: 100%;
+  height: 38px;
+  font-size: calc(var(--icon-size) - 2px);
+}
+.footer-btn.danger { border-color: #8b2b2b; }
+
+/* Content area */
+#main-content {
+  min-height: 100%;
+  margin-left: var(--sidebar-width);
+  padding: 1rem;
+  transition: margin-left .25s ease;
 }
 
-h1, h2, h3 {
-    font-size: 2rem;
-    color: var(--color-primary-orange);
-    margin-bottom: 1rem;
+/* Collapsed state (Desktop) */
+body.sidebar-collapsed #app-sidebar { width: var(--sidebar-width-collapsed); }
+body.sidebar-collapsed #main-content { margin-left: var(--sidebar-width-collapsed); }
+
+/* Icons scale for collapsed */
+body.sidebar-collapsed .icon {
+  width: var(--icon-size-collapsed);
+  height: var(--icon-size-collapsed);
+  line-height: var(--icon-size-collapsed);
+  font-size: calc(var(--icon-size-collapsed) - 2px);
 }
 
-input, select, textarea, button {
-    font-size: 1rem;
-    padding: 0.75rem;
-    border-radius: 6px;
-    border: 1px solid var(--color-border);
-    background-color: var(--color-surface-medium);
-    color: var(--color-text-light);
-    width: 100%;
-    font-family: inherit;
-}
+/* Hide labels and context when collapsed */
+body.sidebar-collapsed .label,
+body.sidebar-collapsed .sidebar-context,
+body.sidebar-collapsed .sidebar-context > * { display: none !important; }
 
-button {
-    cursor: pointer;
-    background-color: var(--color-primary-orange);
-    border-color: var(--color-primary-orange);
-    font-weight: bold;
-    color: var(--color-background);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
+/* Footer layout collapsed: vertical stack */
+body.sidebar-collapsed .sidebar-footer { grid-template-columns: 1fr; }
 
-button:hover {
-    opacity: .85;
-}
+/* Rotate arrow to indicate collapsed */
+body.sidebar-collapsed #collapseToggle { transform: rotate(180deg); }
 
-button:disabled {
-    background-color: var(--color-surface-medium);
-    border-color: var(--color-border);
-    color: var(--color-text-medium);
-    cursor: not-allowed;
-    opacity: 0.7;
-}
-
-.btn-primary { background-color: var(--color-success); color: var(--color-text-light); }
-.btn-danger { background-color: var(--color-danger); color: var(--color-text-light); }
-.btn-secondary { background-color: var(--color-secondary); color: var(--color-text-light); }
-.btn-warning { background-color: var(--color-accent-yellow); color: var(--color-background); }
-
-.btn-text {
-    max-width: 188px;
-}
-.btn-icon {
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    flex-shrink: 0;
-}
-.btn-icon svg {
-    width: 20px;
-    height: 20px;
-}
-
-.nav-control-btn {
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.nav-control-btn svg {
-    width: 24px;
-    height: 24px;
-    stroke: currentColor;
-}
-
-/* Klasse für Systemmeldungen */
-.system-overlay {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    color: whitesmoke;
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-.system-overlay.show {
-    display: flex;
-}
-.system-overlay h1 {
-    padding: 2rem;
+/* Mobile overlay behavior */
+@media (max-width: 900px) {
+  #menuToggleButton { display: inline-block; }
+  #app-sidebar { transform: translateX(-102%); }
+  body.sidebar-open #app-sidebar { transform: translateX(0); }
+  #main-content { margin-left: 0; }
+  body.sidebar-open #main-content { pointer-events: none; }
 }
