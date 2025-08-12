@@ -1,4 +1,25 @@
-<div class="card">
-  <h3>Messung</h3>
-  <p>{{ selected_messung.name }}</p>
-</div>
+<form method="post" action="{% url 'messung_edit' selected_messung.id %}" class="edit-form" id="messung-edit-form">
+  {% csrf_token %}
+  <div class="form-header">
+    <span class="form-title">Messung</span>
+    <div class="form-actions">
+      <button type="submit" class="icon-btn" title="Speichern">
+        <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
+      </button>
+      <button type="button" class="icon-btn accordion-toggle" data-target="#messung-fields" title="Minimieren">
+        <span class="icon">{% include "icons/chevron-up.svg" %}</span>
+      </button>
+    </div>
+  </div>
+  <div id="messung-fields" class="accordion-body">
+    <div class="form-row">
+      {{ messung_form.anforderung.label_tag }} {{ messung_form.anforderung }}
+    </div>
+    <div class="form-row">
+      {{ messung_form.messbedingungen.label_tag }} {{ messung_form.messbedingungen }}
+    </div>
+    <div class="form-row">
+      {{ messung_form.messhoehe.label_tag }} {{ messung_form.messhoehe }}
+    </div>
+  </div>
+</form>
