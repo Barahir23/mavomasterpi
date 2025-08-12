@@ -130,6 +130,11 @@
       saveBtn.disabled = true;
       form.addEventListener('input', () => {
         saveBtn.disabled = false;
+        saveBtn.classList.add('unsaved');
+      });
+      form.addEventListener('submit', () => {
+        saveBtn.classList.remove('unsaved');
+        saveBtn.disabled = true;
       });
     }
   });
