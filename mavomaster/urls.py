@@ -32,6 +32,7 @@ urlpatterns = [
     path('projekte/<int:projekt_id>/objekt/add/', messung.views.objekt_add, name='objekt_add_project'),
     path('objekte/<int:objekt_id>/edit/', messung.views.objekt_edit, name='objekt_edit'),
     path('objekte/<int:objekt_id>/delete/', messung.views.objekt_delete, name='objekt_delete'),
+    path('messungen/<int:messung_id>/edit/', messung.views.messung_edit, name='messung_edit'),
     path('system/reboot/', views.system_reboot, name='system_reboot'),
     path('system/shutdown/', views.system_shutdown, name='system_shutdown'),
 ]

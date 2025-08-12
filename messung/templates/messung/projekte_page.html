@@ -1,18 +1,29 @@
 {% extends "layout.html" %}
 {% block title %}Projekte – MavoMaster{% endblock %}
 {% block sidebar_context %}
-  <p class="always-visible">
-    <a href="{% url 'projekt_add' %}" class="mm-btn" title="Projekt hinzufügen">
-      <span class="icon">{% include "icons/folder-plus.svg" %}</span>
-      <span class="label">Projekt hinzufügen</span>
+  <nav class="sidebar-nav always-visible">
+    <a href="{% url 'projekt_add' %}" class="nav-item" title="Projekt hinzufügen">
+      <span class="icon">{% include "icons/folder-plus.svg" %}</span><span class="label">Projekt hinzufügen</span>
     </a>
-  </p>
+    {% if selected_projekt %}
+      <a href="{% url 'objekt_add_project' selected_projekt.id %}" class="nav-item" title="Objekt hinzufügen">
+        <span class="icon">{% include "icons/document-plus.svg" %}</span><span class="label">Objekt hinzufügen</span>
+      </a>
+    {% endif %}
+    {% if selected_objekt %}
+      <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}" class="nav-item" title="Messung hinzufügen">
+        <span class="icon">{% include "icons/document-plus.svg" %}</span><span class="label">Messung hinzufügen</span>
+      </a>
+    {% endif %}
+  </nav>
+  {% if selected_projekt %}
+    {% include "messung/projek_edit.html" %}
+  {% endif %}
+  {% if selected_objekt %}
+    {% include "messung/objekt_edit.html" %}
+  {% endif %}
   {% if selected_messung %}
     {% include "messung/messung_edit.html" %}
-  {% elif selected_objekt %}
-    {% include "messung/objekt_edit.html" %}
-  {% elif selected_projekt %}
-    {% include "messung/projek_edit.html" %}
   {% endif %}
 {% endblock %}
 {% block content %}
