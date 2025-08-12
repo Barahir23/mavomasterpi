@@ -122,12 +122,21 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 }
 
 /* Cards */
-.card { background: var(--color-surface); border:1px solid var(--color-border); border-radius:12px; padding:1rem; position:relative; }
-.card h2, .card h3 { color: var(--primary); margin:0 0 .75rem; }
+.card { background: var(--color-surface); border:1px solid var(--color-border); border-radius:12px; padding:.75rem; position:relative; }
+.card h2, .card h3 { color: var(--primary); margin:0 0 .5rem; }
 .card .edit-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .card .edit-btn:hover { background:#2c2c2c; }
 .card .edit-btn .icon, .card .edit-btn .icon svg { width:20px; height:20px; }
 .card.card-sub { margin-left:1rem; }
+.card.has-delete .edit-btn { right:2.5rem; }
+.card .delete-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
+.card .delete-btn:hover { background:#2c2c2c; }
+.card .delete-btn .icon, .card .delete-btn .icon svg { width:20px; height:20px; }
+
+.projekt-block { margin-bottom:20px; }
+.projekt-card { margin-bottom:10px; }
+.objekt-card { margin-bottom:15px; }
+.objekt-card h3 { color: var(--secondary); }
 
 /* Modal */
 .mm-btn { display:inline-flex; align-items:center; justify-content:center;

@@ -16,6 +16,21 @@
     div.textContent=str||'';
     return div.innerHTML;
   }
+  var modal=document.getElementById('mm-modal');
+  var modalTitle=document.getElementById('mm-modal-title');
+  var modalText=document.getElementById('mm-modal-text');
+  var modalConfirm=document.getElementById('mm-modal-confirm');
+  function confirmModal(opts){
+    if(!modal) return;
+    modalTitle.textContent=opts.title||'Bestätigen';
+    modalText.textContent=opts.text||'';
+    modalConfirm.textContent=opts.okText||'OK';
+    modalConfirm.onclick=function(){
+      modal.setAttribute('aria-hidden','true');
+      if(typeof opts.onConfirm==='function') opts.onConfirm();
+    };
+    modal.setAttribute('aria-hidden','false');
+  }
   var sidebarContext=document.querySelector('.sidebar-context');
   function openProjektEdit(id,card){
     fetch('/messung/api/projekte/'+id+'/details/').then(r=>r.json()).then(function(data){
@@ -52,6 +67,28 @@
       });
     });
   }
+  function deleteProjekt(id,block){
+    confirmModal({
+      title:'Projekt löschen?',
+      text:'Bist du sicher, das du das Projekt und alle dazugehörende Objekte inkl. Messungen löschen möchtest?',
+      okText:'Löschen',
+      onConfirm:function(){
+        fetch('/messung/api/projekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+          .then(function(res){ if(res.ok){ block.remove(); } });
+      }
+    });
+  }
+  function deleteObjekt(id,card){
+    confirmModal({
+      title:'Objekt löschen?',
+      text:'Bist du sicher, das du das Objekt und allen dazugehörenden Messungen löschen möchtest?',
+      okText:'Löschen',
+      onConfirm:function(){
+        fetch('/messung/api/objekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+          .then(function(res){ if(res.ok){ card.remove(); } });
+      }
+    });
+  }
   function loadObjekte(card){
     var pid=card.getAttribute('data-projekt-id');
     var container=card.nextElementSibling;
@@ -69,6 +106,9 @@
         var btn=node.querySelector('.objekt-edit');
         btn.setAttribute('data-objekt-id',o.id);
         btn.addEventListener('click',function(ev){ev.stopPropagation();openObjektEdit(o.id,node);});
+        var del=node.querySelector('.objekt-delete');
+        del.setAttribute('data-objekt-id',o.id);
+        del.addEventListener('click',function(ev){ev.stopPropagation();deleteObjekt(o.id,node);});
         container.appendChild(node);
       });
       container.setAttribute('data-loaded','1');
@@ -77,7 +117,7 @@
   }
   document.querySelectorAll('.projekt-card').forEach(function(card){
     card.addEventListener('click',function(e){
-      if(e.target.closest('.edit-btn')) return;
+      if(e.target.closest('.edit-btn')||e.target.closest('.delete-btn')) return;
       loadObjekte(card);
     });
   });
@@ -86,6 +126,13 @@
       e.stopPropagation();
       var card=e.target.closest('.projekt-card');
       openProjektEdit(btn.getAttribute('data-projekt-id'),card);
+    });
+  });
+  document.querySelectorAll('.projekt-delete').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var block=e.target.closest('.projekt-block');
+      deleteProjekt(btn.getAttribute('data-projekt-id'),block);
     });
   });
 })();
