@@ -8,7 +8,7 @@
   <div id="projekt-list">
     {% for projekt in projekte %}
       <section class="card projekt-card" data-projekt-id="{{ projekt.id }}">
-        <h3>{{ projekt.name }}</h3>
+        <h3>{{ projekt.code }} {{ projekt.name }}</h3>
         <button class="edit-btn projekt-edit" data-projekt-id="{{ projekt.id }}" title="Projekt bearbeiten">
           <span class="icon">{% include "icons/pencil-square.svg" %}</span>
         </button>
