@@ -1,10 +1,15 @@
 {% extends "layout.html" %}
 {% block title %}{% if form.instance.pk %}Projekt bearbeiten{% else %}Projekt anlegen{% endif %} – MavoMaster{% endblock %}
 {% block content %}
-  <h2>{% if form.instance.pk %}Projekt bearbeiten{% else %}Neues Projekt{% endif %}</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="mm-btn mm-btn--primary">Speichern</button>
-  </form>
+  <section class="card">
+    <h2>{% if form.instance.pk %}Projekt bearbeiten{% else %}Neues Projekt{% endif %}</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="mm-btn mm-btn--primary">
+        <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
+        <span class="label">Speichern</span>
+      </button>
+    </form>
+  </section>
 {% endblock %}

@@ -1,44 +1,67 @@
 {% extends "layout.html" %}
 {% block title %}Projekte – MavoMaster{% endblock %}
 {% block sidebar_context %}
-  {% include "messung/projek_edit.html" %}
+  <p class="always-visible">
+    <a href="{% url 'projekt_add' %}" class="mm-btn" title="Projekt hinzufügen">
+      <span class="icon">{% include "icons/folder-plus.svg" %}</span>
+      <span class="label">Projekt hinzufügen</span>
+    </a>
+  </p>
+  {% if selected_messung %}
+    {% include "messung/messung_edit.html" %}
+  {% elif selected_objekt %}
+    {% include "messung/objekt_edit.html" %}
+  {% elif selected_projekt %}
+    {% include "messung/projek_edit.html" %}
+  {% endif %}
 {% endblock %}
 {% block content %}
-  <div id="projekt-list">
-    {% for projekt in projekte %}
-      <div class="projekt-block">
-        <section class="card projekt-card has-delete">
-          <h3>{{ projekt.code }} {{ projekt.name }}</h3>
-          <a href="{% url 'projekt_edit' projekt.id %}" class="edit-btn" title="Projekt bearbeiten">
-            <span class="icon">{% include "icons/pencil-square.svg" %}</span>
-          </a>
-          <form method="post" action="{% url 'projekt_delete' projekt.id %}">
-            {% csrf_token %}
-            <button type="submit" class="delete-btn" title="Projekt löschen">
-              <span class="icon">{% include "icons/trash.svg" %}</span>
-            </button>
-          </form>
-        </section>
-        {% for objekt in projekt.objekte.all %}
-          <section class="card card-sub objekt-card has-delete">
-            <h4>{{ objekt.name }}</h4>
-            <a href="{% url 'objekt_edit' objekt.id %}" class="edit-btn" title="Objekt bearbeiten">
-              <span class="icon">{% include "icons/pencil-square.svg" %}</span>
-            </a>
-            <form method="post" action="{% url 'objekt_delete' objekt.id %}">
-              {% csrf_token %}
-              <button type="submit" class="delete-btn" title="Objekt löschen">
-                <span class="icon">{% include "icons/trash.svg" %}</span>
-              </button>
-            </form>
+  <div class="projekt-columns">
+    <div class="column">
+      {% for projekt in projekte %}
+        <a href="{% url 'projekte_page' %}?projekt={{ projekt.id }}">
+          <section class="card projekt-card{% if selected_projekt and projekt.id == selected_projekt.id %} selected{% endif %}">
+            <h3>{{ projekt.code }} {{ projekt.name }}</h3>
           </section>
+        </a>
+      {% empty %}
+        <section class="card"><p>Keine Projekte vorhanden.</p></section>
+      {% endfor %}
+    </div>
+    <div class="column">
+      {% if selected_projekt %}
+        {% for objekt in objekte %}
+          <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ objekt.id }}">
+            <section class="card objekt-card{% if selected_objekt and objekt.id == selected_objekt.id %} selected{% endif %}">
+              <h4>{{ objekt.name }}</h4>
+            </section>
+          </a>
         {% empty %}
-          <section class="card card-sub"><p>Keine Objekte vorhanden.</p></section>
+          <section class="card"><p>Keine Objekte vorhanden.</p></section>
         {% endfor %}
-      </div>
-    {% empty %}
-      <section class="card"><p>Keine Projekte vorhanden.</p></section>
-    {% endfor %}
-    <section class="card"><a href="{% url 'projekt_add' %}" class="mm-btn">Projekt hinzufügen</a></section>
+      {% endif %}
+    </div>
+    <div class="column">
+      {% if selected_objekt %}
+        {% for messung in messungen %}
+          <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ selected_objekt.id }}&messung={{ messung.id }}">
+            <section class="card{% if selected_messung and messung.id == selected_messung.id %} selected{% endif %}">
+              <h4>{{ messung.name }}</h4>
+            </section>
+          </a>
+        {% empty %}
+          <section class="card"><p>Keine Messungen vorhanden.</p></section>
+        {% endfor %}
+      {% endif %}
+    </div>
   </div>
+{% endblock %}
+{% block extra_js %}
+{% if selected_projekt or selected_objekt or selected_messung %}
+<script>
+  document.documentElement.classList.remove('sidebar-collapsed');
+  document.body.classList.remove('sidebar-collapsed');
+  try { localStorage.setItem('mm.sidebar.collapsed','0'); } catch(e){}
+</script>
+{% endif %}
 {% endblock %}
