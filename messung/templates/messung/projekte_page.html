@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Projekte – MavoMaster{% endblock %}
 {% block sidebar_context %}
-  <div class="card"><h3>Bearbeiten</h3><p>Wähle ein Projekt oder Objekt zum Bearbeiten.</p></div>
+  {% include "messung/projek_edit.html" %}
 {% endblock %}
 {% block content %}
   <div id="projekt-list">
