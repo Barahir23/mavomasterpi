@@ -33,6 +33,8 @@ urlpatterns = [
     path('objekte/<int:objekt_id>/edit/', messung.views.objekt_edit, name='objekt_edit'),
     path('objekte/<int:objekt_id>/delete/', messung.views.objekt_delete, name='objekt_delete'),
     path('messungen/<int:messung_id>/edit/', messung.views.messung_edit, name='messung_edit'),
+    path('messungen/<int:messung_id>/delete/', messung.views.messung_delete, name='messung_delete'),
+
     path('system/reboot/', views.system_reboot, name='system_reboot'),
     path('system/shutdown/', views.system_shutdown, name='system_shutdown'),
 ]

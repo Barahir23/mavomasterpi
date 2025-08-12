@@ -1,17 +1,28 @@
-<h3>Messung</h3>
-<form method="post" action="{% url 'messung_edit' selected_messung.id %}">
+<form method="post" action="{% url 'messung_edit' selected_messung.id %}" class="edit-form" id="messung-edit-form">
   {% csrf_token %}
-  <div class="form-row">
-    {{ messung_form.anforderung.label_tag }} {{ messung_form.anforderung }}
+  <div class="form-header">
+    <span class="form-title">Messung</span>
+    <div class="form-actions">
+      <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}" class="nav-item icon-only" title="Messung hinzufügen">
+        <span class="icon">{% include "icons/document-plus.svg" %}</span>
+      </a>
+      <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
+        <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
+      </button>
+      <button type="button" class="icon-btn accordion-toggle" data-target="#messung-fields" title="Minimieren">
+        <span class="icon">{% include "icons/chevron-up.svg" %}</span>
+      </button>
+    </div>
   </div>
-  <div class="form-row">
-    {{ messung_form.messbedingungen.label_tag }} {{ messung_form.messbedingungen }}
+  <div id="messung-fields" class="accordion-body">
+    <div class="form-row">
+      {{ messung_form.anforderung.label_tag }} {{ messung_form.anforderung }}
+    </div>
+    <div class="form-row">
+      {{ messung_form.messbedingungen.label_tag }} {{ messung_form.messbedingungen }}
+    </div>
+    <div class="form-row">
+      {{ messung_form.messhoehe.label_tag }} {{ messung_form.messhoehe }}
+    </div>
   </div>
-  <div class="form-row">
-    {{ messung_form.messhoehe.label_tag }} {{ messung_form.messhoehe }}
-  </div>
-  <button type="submit" class="mm-btn mm-btn--primary">
-    <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
-    <span class="label">Speichern</span>
-  </button>
 </form>
