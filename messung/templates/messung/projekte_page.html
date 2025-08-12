@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block title %}Projekte – MavoMaster{% endblock %}
+{% block sidebar_context %}
+  <div class="card"><h3>Bearbeiten</h3><p>Wähle ein Projekt oder Objekt zum Bearbeiten.</p></div>
+{% endblock %}
+{% block content %}
+  <div id="projekt-list">
+    {% for projekt in projekte %}
+      <section class="card projekt-card" data-projekt-id="{{ projekt.id }}">
+        <h3>{{ projekt.name }}</h3>
+        <button class="edit-btn projekt-edit" data-projekt-id="{{ projekt.id }}" title="Projekt bearbeiten">
+          <span class="icon">{% include "icons/pencil-square.svg" %}</span>
+        </button>
+      </section>
+      <div class="objekte-container" data-projekt-id="{{ projekt.id }}" style="display:none;"></div>
+    {% empty %}
+      <section class="card"><p>Keine Projekte vorhanden.</p></section>
+    {% endfor %}
+  </div>
+
+  <template id="objekt-template">
+    <section class="card card-sub objekt-card" data-objekt-id="">
+      <h3 class="objekt-name"></h3>
+      <button class="edit-btn objekt-edit" data-objekt-id="" title="Objekt bearbeiten">
+        <span class="icon">{% include "icons/pencil-square.svg" %}</span>
+      </button>
+    </section>
+  </template>
+{% endblock %}
+{% block extra_js %}
+  <script src="{% static 'js/projekte.js' %}"></script>
+{% endblock %}
