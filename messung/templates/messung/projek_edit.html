@@ -1,11 +1,15 @@
 <div class="card">
   <h3>Projekt</h3>
-  <form method="post" action="{% url 'projekt_edit' selected_projekt.id %}">
-    {% csrf_token %}
-    {{ projekt_form.as_p }}
-    <button type="submit" class="mm-btn mm-btn--primary">
-      <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
-      <span class="label">Speichern</span>
-    </button>
-  </form>
+  <p>
+    <a href="{% url 'projekt_edit' selected_projekt.id %}" class="mm-btn">
+      <span class="icon">{% include "icons/pencil-square.svg" %}</span>
+      <span class="label">Projekt bearbeiten</span>
+    </a>
+  </p>
+  <p>
+    <a href="{% url 'objekt_add_project' selected_projekt.id %}" class="mm-btn">
+      <span class="icon">{% include "icons/document-plus.svg" %}</span>
+      <span class="label">Objekt hinzufügen</span>
+    </a>
+  </p>
 </div>
