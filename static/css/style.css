@@ -131,6 +131,7 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 .card .edit-btn .icon, .card .edit-btn .icon svg { width:20px; height:20px; }
 .card.card-sub { margin-left:1rem; }
 .card.has-delete .edit-btn { right:2.5rem; }
+.card.has-delete { padding-right:2.5rem; }
 .card .delete-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .card .delete-btn:hover { background:#2c2c2c; }
 .card .delete-btn .icon, .card .delete-btn .icon svg { width:20px; height:20px; }
@@ -157,6 +158,15 @@ input, textarea, select {
 form p { margin:0 0 1rem; }
 
 .form-row { display:grid; grid-template-columns:max-content 1fr; align-items:center; gap:.5rem; margin:0 0 1rem; }
+
+.icon-btn { background:transparent; border:1px solid var(--color-border); width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; padding:0; cursor:pointer; }
+.icon-btn .icon, .icon-btn .icon svg { width:20px; height:20px; }
+
+.edit-form .form-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+.edit-form .form-actions { display:flex; gap:.25rem; }
+.accordion-body.collapsed { display:none; }
+.accordion-toggle .icon svg { transition:transform .2s; }
+.accordion-toggle.collapsed .icon svg { transform:rotate(180deg); }
 
 /* Modal */
 .mm-btn { display:inline-flex; align-items:center; justify-content:center;
