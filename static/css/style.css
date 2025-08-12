@@ -4,7 +4,29 @@
   --color-surface: #242424;
   --color-border: #3a3a3a;
   --color-text: #f0f0f0;
-  --primary: #ff9900;
+  /* Primary palette */
+  --primary-900: #f39200;
+  --primary-800: #f6a02b;
+  --primary-700: #f8ae4b;
+  --primary-600: #fab963;
+  --primary-500: #fbc27a;
+  --primary-400: #fccb8e;
+  --primary-300: #fcd3a2;
+  --primary-200: #fddcb3;
+  --primary-100: #fff0d9;
+
+  /* Secondary palette */
+  --secondary-800: #878787;
+  --secondary-700: #949494;
+  --secondary-600: #a3a3a3;
+  --secondary-500: #b2b2b2;
+  --secondary-400: #c0c0c0;
+  --secondary-300: #cccccc;
+  --secondary-200: #dadada;
+  --secondary-100: #ebebeb;
+
+  --primary: var(--primary-700);
+  --secondary: var(--secondary-500);
   --svg-icon: var(--primary);
   --sidebar-open-w: min(900px, 100vw);
   --sidebar-collapsed-w: 50px;
