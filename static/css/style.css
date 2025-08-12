@@ -134,9 +134,9 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 .card .delete-btn .icon, .card .delete-btn .icon svg { width:20px; height:20px; }
 
 .projekt-block { margin-bottom:20px; }
-.projekt-card { margin-bottom:10px; }
-.objekt-card { margin-bottom:15px; }
-.objekt-card h3 { color: var(--secondary); }
+.projekt-card { margin-bottom:10px; height: 50px;}
+.objekt-card { margin-bottom:10px; margin-top:10px; height: 50px;}
+.objekt-card h4 { color: var(--secondary); margin-block-start: 0px; margin-block-end: 0px;}
 
 /* Modal */
 .mm-btn { display:inline-flex; align-items:center; justify-content:center;
