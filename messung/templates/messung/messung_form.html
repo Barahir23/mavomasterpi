@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block title %}Messung bearbeiten – MavoMaster{% endblock %}
+{% block content %}
+  <section class="card">
+    <h2>Messung bearbeiten</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-row">
+        {{ form.anforderung.label_tag }} {{ form.anforderung }}
+      </div>
+      <div class="form-row">
+        {{ form.messbedingungen.label_tag }} {{ form.messbedingungen }}
+      </div>
+      <div class="form-row">
+        {{ form.messhoehe.label_tag }} {{ form.messhoehe }}
+      </div>
+      <button type="submit" class="icon-btn" title="Speichern">
+        <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
+      </button>
+    </form>
+  </section>
+{% endblock %}

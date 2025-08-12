@@ -86,10 +86,12 @@ a { color: inherit; text-decoration: none; }
 #sidebar-toggle svg { width:20px; height:20px; display:block; stroke:var(--svg-icon); }
 
 .sidebar-nav { display:flex; flex-direction:column; padding:.5rem; gap:.25rem; border-bottom:1px solid var(--color-border); overflow: hidden auto; }
+.sidebar-context .sidebar-nav { margin:0 -.6rem; border-bottom:none; }
 .nav-item { display:flex; align-items:center; gap:.6rem; padding:.45rem .6rem; border-radius:10px; min-height:36px; }
 .nav-item:hover { background:#2c2c2c; }
 .icon { display:inline-flex; width:20px; height:20px; align-items:center; justify-content:center; }
 .icon svg { width:20px; height:20px; display:block; stroke:var(--svg-icon); }
+.nav-item.icon-only { padding:.45rem; justify-content:center; }
 
 .sidebar-context { padding:.6rem; overflow:auto; flex:1 1 auto; min-height:0; }
 
@@ -130,6 +132,7 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 .card .edit-btn .icon, .card .edit-btn .icon svg { width:20px; height:20px; }
 .card.card-sub { margin-left:1rem; }
 .card.has-delete .edit-btn { right:2.5rem; }
+.card.has-delete { padding-right:2.5rem; }
 .card .delete-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .card .delete-btn:hover { background:#2c2c2c; }
 .card .delete-btn .icon, .card .delete-btn .icon svg { width:20px; height:20px; }
@@ -144,6 +147,12 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 .projekt-columns { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
 .projekt-columns .column { overflow:auto; max-height:80vh; }
 
+.projekt-card h3,
+.objekt-card h4,
+.messung-card h4 {
+  font-size: clamp(10px, 2vw, 15px);
+}
+
 input, textarea, select {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
@@ -154,6 +163,19 @@ input, textarea, select {
 }
 
 form p { margin:0 0 1rem; }
+
+.form-row { display:grid; grid-template-columns:max-content 1fr; align-items:center; gap:.5rem; margin:0 0 1rem; }
+
+.icon-btn { background:transparent; border:1px solid var(--color-border); width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; padding:0; cursor:pointer; }
+.icon-btn .icon, .icon-btn .icon svg { width:20px; height:20px; }
+.icon-btn:disabled { border-color: var(--secondary); cursor:default; }
+.icon-btn:disabled .icon svg { stroke: var(--secondary); }
+
+.edit-form .form-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+.edit-form .form-actions { display:flex; gap:.25rem; }
+.accordion-body.collapsed { display:none; }
+.accordion-toggle .icon svg { transition:transform .2s; }
+.accordion-toggle.collapsed .icon svg { transform:rotate(180deg); }
 
 /* Modal */
 .mm-btn { display:inline-flex; align-items:center; justify-content:center;

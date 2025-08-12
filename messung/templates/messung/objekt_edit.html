@@ -1,9 +1,26 @@
-<div class="card">
-  <h3>Objekt</h3>
-  <p>
-    <a href="{% url 'objekt_edit' selected_objekt.id %}" class="mm-btn">
-      <span class="icon">{% include "icons/pencil-square.svg" %}</span>
-      <span class="label">Objekt bearbeiten</span>
-    </a>
-  </p>
-</div>
+<form method="post" action="{% url 'objekt_edit' selected_objekt.id %}" class="edit-form" id="objekt-edit-form">
+  {% csrf_token %}
+  {{ objekt_form.projekt }}
+  <div class="form-header">
+    <span class="form-title">Objekt</span>
+    <div class="form-actions">
+      <a href="{% url 'objekt_add_project' selected_projekt.id %}" class="nav-item icon-only" title="Objekt hinzufügen">
+        <span class="icon">{% include "icons/document-plus.svg" %}</span>
+      </a>
+      <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
+        <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
+      </button>
+      <button type="button" class="icon-btn accordion-toggle" data-target="#objekt-fields" title="Minimieren">
+        <span class="icon">{% include "icons/chevron-up.svg" %}</span>
+      </button>
+    </div>
+  </div>
+  <div id="objekt-fields" class="accordion-body">
+    <div class="form-row">
+      {{ objekt_form.nummer.label_tag }} {{ objekt_form.nummer }}
+    </div>
+    <div class="form-row">
+      {{ objekt_form.name.label_tag }} {{ objekt_form.name }}
+    </div>
+  </div>
+</form>

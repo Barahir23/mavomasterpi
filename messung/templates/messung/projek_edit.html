@@ -1,15 +1,28 @@
-<div class="card">
-  <h3>Projekt</h3>
-  <p>
-    <a href="{% url 'projekt_edit' selected_projekt.id %}" class="mm-btn">
-      <span class="icon">{% include "icons/pencil-square.svg" %}</span>
-      <span class="label">Projekt bearbeiten</span>
-    </a>
-  </p>
-  <p>
-    <a href="{% url 'objekt_add_project' selected_projekt.id %}" class="mm-btn">
-      <span class="icon">{% include "icons/document-plus.svg" %}</span>
-      <span class="label">Objekt hinzufügen</span>
-    </a>
-  </p>
-</div>
+<form method="post" action="{% url 'projekt_edit' selected_projekt.id %}" class="edit-form" id="projekt-edit-form">
+  {% csrf_token %}
+  <div class="form-header">
+    <span class="form-title">Projekt</span>
+    <div class="form-actions">
+      <a href="{% url 'projekt_add' %}" class="nav-item icon-only" title="Projekt hinzufügen">
+        <span class="icon">{% include "icons/folder-plus.svg" %}</span>
+      </a>
+      <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
+        <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
+      </button>
+      <button type="button" class="icon-btn accordion-toggle" data-target="#projekt-fields" title="Minimieren">
+        <span class="icon">{% include "icons/chevron-up.svg" %}</span>
+      </button>
+    </div>
+  </div>
+  <div id="projekt-fields" class="accordion-body">
+    <div class="form-row">
+      {{ projekt_form.code.label_tag }} {{ projekt_form.code }}
+    </div>
+    <div class="form-row">
+      {{ projekt_form.name.label_tag }} {{ projekt_form.name }}
+    </div>
+    <div class="form-row">
+      {{ projekt_form.beschreibung.label_tag }} {{ projekt_form.beschreibung }}
+    </div>
+  </div>
+</form>
