@@ -157,7 +157,6 @@ def messung_edit(request, messung_id):
         form = MessungForm(instance=messung)
     return render(request, "messung/messung_form.html", {"form": form, "messung": messung})
 
-
 def messung_delete(request, messung_id):
     messung = get_object_or_404(Messdaten, pk=messung_id)
     if request.method == 'POST':
