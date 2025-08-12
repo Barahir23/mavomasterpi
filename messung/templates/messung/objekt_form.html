@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}{% if form.instance.pk %}Objekt bearbeiten{% else %}Objekt anlegen{% endif %} – MavoMaster{% endblock %}
+{% block content %}
+  <h2>{% if form.instance.pk %}Objekt bearbeiten{% else %}Neues Objekt{% endif %}</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="mm-btn mm-btn--primary">Speichern</button>
+  </form>
+{% endblock %}

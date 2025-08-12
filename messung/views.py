@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -11,6 +11,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 
 from .models import Projekt, Objekt, Messdaten, Anforderungen
+from .forms import ProjektForm, ObjektForm
 from .logic import (
     MeasurementThread, MavoMasterDevice, RealtimePollingThread,
     MEASUREMENT_THREAD, DEVICE, POLLING_THREAD
@@ -38,85 +39,71 @@ def projekte_page(request):
     return render(request, 'messung/projekte_page.html', {'projekte': projekte})
 
 
-def projekt_details(request, projekt_id):
-    projekt = get_object_or_404(Projekt, pk=projekt_id)
-    return JsonResponse({'id': projekt.id, 'name': projekt.name, 'code': projekt.code, 'beschreibung': projekt.beschreibung})
-
-
-def create_projekt(request):
+def projekt_add(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        try:
-            projekt = Projekt.objects.create(code=data['code'], name=data['name'], beschreibung=data.get('beschreibung', ''))
-            return JsonResponse({'id': projekt.id, 'name': projekt.name, 'code': projekt.code})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-    return JsonResponse({'error': 'Nur POST erlaubt'}, status=405)
+        form = ProjektForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('projekte_page')
+    else:
+        form = ProjektForm()
+    return render(request, 'messung/projekt_form.html', {'form': form})
 
 
-def update_projekt(request, projekt_id):
-    if request.method == 'PUT':
-        projekt = get_object_or_404(Projekt, pk=projekt_id)
-        data = json.loads(request.body)
-        try:
-            projekt.code, projekt.name, projekt.beschreibung = data['code'], data['name'], data.get('beschreibung', '')
-            projekt.save()
-            return JsonResponse({'id': projekt.id, 'name': projekt.name, 'code': projekt.code})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-    return JsonResponse({'error': 'Nur PUT erlaubt'}, status=405)
+def projekt_edit(request, projekt_id):
+    projekt = get_object_or_404(Projekt, pk=projekt_id)
+    if request.method == 'POST':
+        form = ProjektForm(request.POST, instance=projekt)
+        if form.is_valid():
+            form.save()
+            return redirect('projekte_page')
+    else:
+        form = ProjektForm(instance=projekt)
+    return render(request, 'messung/projekt_form.html', {'form': form, 'projekt': projekt})
 
 
-def delete_projekt(request, projekt_id):
-    if request.method == 'DELETE':
-        projekt = get_object_or_404(Projekt, pk=projekt_id)
+def projekt_delete(request, projekt_id):
+    projekt = get_object_or_404(Projekt, pk=projekt_id)
+    if request.method == 'POST':
         projekt.delete()
-        return HttpResponse(status=204)
-    return JsonResponse({'error': 'Nur DELETE erlaubt'}, status=405)
+        return redirect('projekte_page')
+    return render(request, 'messung/projekt_confirm_delete.html', {'projekt': projekt})
 
 
-def get_objekte_for_projekt(request, projekt_id):
+def objekt_add(request, projekt_id):
     projekt = get_object_or_404(Projekt, pk=projekt_id)
-    objekte = projekt.objekte.all().order_by('name')
-    return JsonResponse(list(objekte.values('id', 'name', 'nummer')), safe=False)
-
-
-def objekt_details(request, objekt_id):
-    objekt = get_object_or_404(Objekt, pk=objekt_id)
-    return JsonResponse({'id': objekt.id, 'name': objekt.name, 'nummer': objekt.nummer})
-
-
-def create_objekt(request, projekt_id):
     if request.method == 'POST':
-        projekt = get_object_or_404(Projekt, pk=projekt_id)
-        data = json.loads(request.body)
-        try:
-            objekt = Objekt.objects.create(projekt=projekt, nummer=data['nummer'], name=data['name'])
-            return JsonResponse({'id': objekt.id, 'name': objekt.name, 'nummer': objekt.nummer})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-    return JsonResponse({'error': 'Nur POST erlaubt'}, status=405)
+        form = ObjektForm(request.POST)
+        if form.is_valid():
+            obj = form.save(commit=False)
+            obj.projekt = projekt
+            obj.save()
+            return redirect('projekte_page')
+    else:
+        form = ObjektForm()
+    return render(request, 'messung/objekt_form.html', {'form': form, 'projekt': projekt})
 
 
-def update_objekt(request, objekt_id):
-    if request.method == 'PUT':
-        objekt = get_object_or_404(Objekt, pk=objekt_id)
-        data = json.loads(request.body)
-        try:
-            objekt.nummer, objekt.name = data['nummer'], data['name']
-            objekt.save()
-            return JsonResponse({'id': objekt.id, 'name': objekt.name, 'nummer': objekt.nummer})
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
-    return JsonResponse({'error': 'Nur PUT erlaubt'}, status=405)
+def objekt_edit(request, objekt_id):
+    objekt = get_object_or_404(Objekt, pk=objekt_id)
+    if request.method == 'POST':
+        form = ObjektForm(request.POST, instance=objekt)
+        if form.is_valid():
+            form.save()
+            return redirect('projekte_page')
+    else:
+        form = ObjektForm(instance=objekt)
+    return render(request, 'messung/objekt_form.html', {'form': form, 'projekt': objekt.projekt})
 
 
-def delete_objekt(request, objekt_id):
-    if request.method == 'DELETE':
-        objekt = get_object_or_404(Objekt, pk=objekt_id)
+def objekt_delete(request, objekt_id):
+    objekt = get_object_or_404(Objekt, pk=objekt_id)
+    if request.method == 'POST':
         objekt.delete()
-        return HttpResponse(status=204)
-    return JsonResponse({'error': 'Nur DELETE erlaubt'}, status=405)
+        return redirect('projekte_page')
+    return render(request, 'messung/objekt_confirm_delete.html', {'objekt': objekt})
+
+
 
 
 def create_anforderung(request):
