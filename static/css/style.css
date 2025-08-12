@@ -122,11 +122,13 @@ html.sidebar-collapsed #sidebar-toggle .closed, body.sidebar-collapsed #sidebar-
   border: 1px solid var(--color-border);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
-  min-width: 220px;
+  width: 50px;
+  min-width: 50px;
   overflow: hidden;
 }
 .flyout__list { list-style: none; margin: 0; padding: .35rem; }
-.flyout__item { display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem; border-radius: 10px; cursor: pointer; }
+.flyout__item { display: flex; align-items: center; justify-content: center; padding: .45rem .6rem; border-radius: 10px; cursor: pointer; }
+.flyout__item .label { display: none; }
 .flyout__item:hover { background: #2c2c2c; }
 .flyout__separator { height: 1px; background: var(--color-border); margin: .35rem .25rem; }
 .flyout__backdrop { position: fixed; inset: 0; background: transparent; }

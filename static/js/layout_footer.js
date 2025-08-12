@@ -77,12 +77,15 @@
 
   function openFlyoutFrom(btn){
     if(!flyout||!btn)return;
+    flyout.style.visibility='hidden';
+    flyout.setAttribute('aria-hidden','false');
     var r=btn.getBoundingClientRect();
-    var left = r.right + 8;
-    var top = Math.min(Math.max(8, r.top), window.innerHeight - 220);
+    var left = r.left;
+    var flyHeight = flyout.offsetHeight;
+    var top = r.top - flyHeight;
     flyout.style.left = left + 'px';
     flyout.style.top = top + 'px';
-    flyout.setAttribute('aria-hidden','false');
+    flyout.style.visibility='visible';
     if(flyBackdrop) flyBackdrop.style.display='block';
   }
   function closeFlyout(){
