@@ -8,6 +8,7 @@
   --svg-icon: var(--primary);
   --sidebar-open-w: min(900px, 100vw);
   --sidebar-collapsed-w: 50px;
+  --shadow-lg: 0 20px 50px rgba(0,0,0,.4);
 }
 
 * { box-sizing: border-box; }
@@ -19,9 +20,9 @@ body {
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
-
 a { color: inherit; text-decoration: none; }
 
+/* Sidebar */
 #app-sidebar {
   position: fixed;
   left: 0; top: 0;
@@ -37,7 +38,6 @@ a { color: inherit; text-decoration: none; }
   padding-bottom: env(safe-area-inset-bottom);
 }
 @supports not (height: 100dvh) { #app-sidebar { height: 100vh; } }
-
 #main-content {
   margin-left: var(--sidebar-open-w);
   min-height: 100dvh;
@@ -71,15 +71,17 @@ a { color: inherit; text-decoration: none; }
 
 .sidebar-context { padding:.6rem; overflow:auto; flex:1 1 auto; min-height:0; }
 
-/* Footer fixed order, one column (same positions open/closed) */
+/* Footer: single column, left aligned */
 .sidebar-footer {
   padding:.5rem; border-top:1px solid var(--color-border);
   display:grid; grid-template-columns:1fr; grid-auto-rows:40px; gap:.5rem;
   flex:0 0 auto;
 }
-.footer-btn { display:inline-flex; align-items:center; justify-content:center;
-  background:transparent; border:none; border-radius:10px; width:100%; height:40px; padding:0;
-  cursor:pointer; touch-action:manipulation; }
+.footer-btn {
+  display:inline-flex; align-items:center; justify-content:flex-start;
+  background:transparent; border:none; border-radius:10px; width:100%; height:40px; padding:0 .6rem;
+  cursor:pointer; touch-action:manipulation;
+}
 .footer-btn .icon, .footer-btn .icon svg { width:20px; height:20px; }
 
 /* Collapsed */
@@ -90,12 +92,18 @@ html.sidebar-collapsed .sidebar-context > *, body.sidebar-collapsed .sidebar-con
 html.sidebar-collapsed #sidebar-toggle .open, body.sidebar-collapsed #sidebar-toggle .open { display:none; }
 html.sidebar-collapsed #sidebar-toggle .closed, body.sidebar-collapsed #sidebar-toggle .closed { display:inline-flex; }
 #sidebar-toggle .closed { display:none; }
+html.sidebar-collapsed .nav-item, body.sidebar-collapsed .nav-item,
+html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
+  justify-content: center;
+  padding-left: .45rem;
+  padding-right: .45rem;
+}
 
 /* Cards */
 .card { background: var(--color-surface); border:1px solid var(--color-border); border-radius:12px; padding:1rem; }
 .card h2, .card h3 { color: var(--primary); margin:0 0 .75rem; }
 
-/* Modal (fixed: hidden by default, flex only when open) */
+/* Modal */
 .mm-btn { display:inline-flex; align-items:center; justify-content:center;
   min-width:96px; height:38px; padding:0 .9rem; border-radius:10px; border:1px solid transparent;
   font:inherit; cursor:pointer; touch-action:manipulation; }
@@ -107,7 +115,27 @@ html.sidebar-collapsed #sidebar-toggle .closed, body.sidebar-collapsed #sidebar-
 .mm-modal__backdrop { position:absolute; inset:0; background:#000; opacity:.5; }
 .mm-modal__dialog { position:relative; max-width:420px; width:100%;
   background:var(--color-surface); border:1px solid var(--color-border); border-radius:14px; padding:1rem 1rem .9rem;
-  color:var(--color-text); box-shadow:0 20px 50px rgba(0,0,0,.4); }
-.mm-modal__title { margin:0 0 .5rem; color:var(--primary); font-size:1.1rem; }
+  color:var(--color-text); box-shadow: var(--shadow-lg); }
+.mm-modal__title { margin:0 0 .5rem; color: var(--primary); font-size:1.1rem; }
 .mm-modal__text { margin:.25rem 0 1rem; line-height:1.35; }
 .mm-modal__countdown { margin-top:.75rem; font-size:.95rem; opacity:.9; }
+
+/* Flyout */
+.flyout { position: fixed; z-index: 3200; display: none; }
+.flyout[aria-hidden="false"] { display:block; }
+.flyout__panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  width: 50px;
+  min-width: 50px;
+  overflow: hidden;
+}
+.flyout__list { list-style: none; margin: 0; padding: .35rem; }
+.flyout__item { display: flex; align-items: center; justify-content: center; padding: .45rem .6rem; border-radius: 10px; cursor: pointer; }
+.flyout__item .icon, .flyout__item .icon svg { cursor: pointer; }
+.flyout__item .label { display: none; }
+.flyout__item:hover { background: #2c2c2c; }
+.flyout__separator { height: 1px; background: var(--color-border); margin: .35rem .25rem; }
+.flyout__backdrop { position: fixed; inset: 0; background: transparent; }
