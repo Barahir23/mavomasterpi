@@ -39,5 +39,6 @@
     {% empty %}
       <section class="card"><p>Keine Projekte vorhanden.</p></section>
     {% endfor %}
+    <section class="card"><a href="{% url 'projekt_add' %}" class="mm-btn">Projekt hinzufügen</a></section>
   </div>
 {% endblock %}
