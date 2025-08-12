@@ -16,6 +16,21 @@
     div.textContent=str||'';
     return div.innerHTML;
   }
+  var modal=document.getElementById('mm-modal');
+  var modalTitle=document.getElementById('mm-modal-title');
+  var modalText=document.getElementById('mm-modal-text');
+  var modalConfirm=document.getElementById('mm-modal-confirm');
+  function confirmModal(opts){
+    if(!modal) return;
+    modalTitle.textContent=opts.title||'Bestätigen';
+    modalText.textContent=opts.text||'';
+    modalConfirm.textContent=opts.okText||'OK';
+    modalConfirm.onclick=function(){
+      modal.setAttribute('aria-hidden','true');
+      if(typeof opts.onConfirm==='function') opts.onConfirm();
+    };
+    modal.setAttribute('aria-hidden','false');
+  }
   var sidebarContext=document.querySelector('.sidebar-context');
   function openProjektEdit(id,card){
     fetch('/messung/api/projekte/'+id+'/details/').then(r=>r.json()).then(function(data){
@@ -53,14 +68,26 @@
     });
   }
   function deleteProjekt(id,block){
-    if(!confirm('Bist du sicher, das du das Projekt und alle dazugehörende Objekte inkl. Messungen löschen möchtest?')) return;
-    fetch('/messung/api/projekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
-      .then(function(res){ if(res.ok){ block.remove(); } });
+    confirmModal({
+      title:'Projekt löschen?',
+      text:'Bist du sicher, das du das Projekt und alle dazugehörende Objekte inkl. Messungen löschen möchtest?',
+      okText:'Löschen',
+      onConfirm:function(){
+        fetch('/messung/api/projekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+          .then(function(res){ if(res.ok){ block.remove(); } });
+      }
+    });
   }
   function deleteObjekt(id,card){
-    if(!confirm('Bist du sicher, das du das Objekt und allen dazugehörenden Messungen löschen möchtest?')) return;
-    fetch('/messung/api/objekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
-      .then(function(res){ if(res.ok){ card.remove(); } });
+    confirmModal({
+      title:'Objekt löschen?',
+      text:'Bist du sicher, das du das Objekt und allen dazugehörenden Messungen löschen möchtest?',
+      okText:'Löschen',
+      onConfirm:function(){
+        fetch('/messung/api/objekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+          .then(function(res){ if(res.ok){ card.remove(); } });
+      }
+    });
   }
   function loadObjekte(card){
     var pid=card.getAttribute('data-projekt-id');
