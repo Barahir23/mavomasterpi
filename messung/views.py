@@ -37,7 +37,34 @@ def messung_page(request):
 
 def projekte_page(request):
     projekte = Projekt.objects.all().order_by('name')
-    return render(request, 'messung/projekte_page.html', {'projekte': projekte})
+    projekt_id = request.GET.get('projekt')
+    objekt_id = request.GET.get('objekt')
+    messung_id = request.GET.get('messung')
+
+    selected_projekt = None
+    selected_objekt = None
+    selected_messung = None
+    objekte = []
+    messungen = []
+
+    if projekt_id:
+        selected_projekt = get_object_or_404(Projekt, pk=projekt_id)
+        objekte = selected_projekt.objekte.all().order_by('name')
+        if objekt_id:
+            selected_objekt = get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
+            messungen = selected_objekt.messungen.all().order_by('-erstellt_am')
+            if messung_id:
+                selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
+
+    context = {
+        'projekte': projekte,
+        'selected_projekt': selected_projekt,
+        'objekte': objekte,
+        'selected_objekt': selected_objekt,
+        'messungen': messungen,
+        'selected_messung': selected_messung,
+    }
+    return render(request, 'messung/projekte_page.html', context)
 
 
 def projekt_add(request):

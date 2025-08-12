@@ -1,4 +1,9 @@
 <div class="card">
   <h3>Objekt</h3>
-  <p>Kontextabhängige Optionen für Objekte.</p>
+  <p>
+    <a href="{% url 'objekt_edit' selected_objekt.id %}" class="mm-btn">
+      <span class="icon">{% include "icons/pencil-square.svg" %}</span>
+      <span class="label">Objekt bearbeiten</span>
+    </a>
+  </p>
 </div>
