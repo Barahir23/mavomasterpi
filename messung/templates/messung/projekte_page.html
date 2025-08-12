@@ -7,29 +7,34 @@
   <div id="projekt-list">
     {% for projekt in projekte %}
       <div class="projekt-block">
-        <section class="card projekt-card">
+        <section class="card projekt-card has-delete">
           <h3>{{ projekt.code }} {{ projekt.name }}</h3>
-          <a href="{% url 'projekt_edit' projekt.id %}" title="Projekt bearbeiten" class="mm-btn mm-btn--small">Bearbeiten</a>
-          <form method="post" action="{% url 'projekt_delete' projekt.id %}" style="display:inline;">
+          <a href="{% url 'projekt_edit' projekt.id %}" class="edit-btn" title="Projekt bearbeiten">
+            <span class="icon">{% include "icons/pencil-square.svg" %}</span>
+          </a>
+          <form method="post" action="{% url 'projekt_delete' projekt.id %}">
             {% csrf_token %}
-            <button type="submit" class="mm-btn mm-btn--danger mm-btn--small">Löschen</button>
+            <button type="submit" class="delete-btn" title="Projekt löschen">
+              <span class="icon">{% include "icons/trash.svg" %}</span>
+            </button>
           </form>
         </section>
         {% for objekt in projekt.objekte.all %}
-          <section class="card card-sub objekt-card">
+          <section class="card card-sub objekt-card has-delete">
             <h4>{{ objekt.name }}</h4>
-            <a href="{% url 'objekt_edit' objekt.id %}" class="mm-btn mm-btn--small">Bearbeiten</a>
-            <form method="post" action="{% url 'objekt_delete' objekt.id %}" style="display:inline;">
+            <a href="{% url 'objekt_edit' objekt.id %}" class="edit-btn" title="Objekt bearbeiten">
+              <span class="icon">{% include "icons/pencil-square.svg" %}</span>
+            </a>
+            <form method="post" action="{% url 'objekt_delete' objekt.id %}">
               {% csrf_token %}
-              <button type="submit" class="mm-btn mm-btn--danger mm-btn--small">Löschen</button>
+              <button type="submit" class="delete-btn" title="Objekt löschen">
+                <span class="icon">{% include "icons/trash.svg" %}</span>
+              </button>
             </form>
           </section>
         {% empty %}
           <section class="card card-sub"><p>Keine Objekte vorhanden.</p></section>
         {% endfor %}
-        <section class="card card-sub">
-          <a href="{% url 'objekt_add' projekt.id %}" class="mm-btn">Objekt hinzufügen</a>
-        </section>
       </div>
     {% empty %}
       <section class="card"><p>Keine Projekte vorhanden.</p></section>

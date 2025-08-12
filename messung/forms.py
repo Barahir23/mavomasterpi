@@ -11,4 +11,4 @@ class ProjektForm(forms.ModelForm):
 class ObjektForm(forms.ModelForm):
     class Meta:
         model = Objekt
-        fields = ['nummer', 'name']
+        fields = ['projekt', 'nummer', 'name']
