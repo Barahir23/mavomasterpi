@@ -12,7 +12,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
 
 from .models import Projekt, Objekt, Messdaten, Anforderungen
-from .forms import ProjektForm, ObjektForm
+from .forms import ProjektForm, ObjektForm, MessungForm
 from .logic import (
     MeasurementThread, MavoMasterDevice, RealtimePollingThread,
     MEASUREMENT_THREAD, DEVICE, POLLING_THREAD
@@ -46,23 +46,34 @@ def projekte_page(request):
     selected_messung = None
     objekte = []
     messungen = []
+    projekt_form = None
+    objekt_form = None
+    messung_form = None
 
     if projekt_id:
         selected_projekt = get_object_or_404(Projekt, pk=projekt_id)
         objekte = selected_projekt.objekte.all().order_by('name')
+        projekt_form = ProjektForm(instance=selected_projekt)
         if objekt_id:
             selected_objekt = get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
             messungen = selected_objekt.messungen.all().order_by('-erstellt_am')
+            objekt_form = ObjektForm(instance=selected_objekt)
+            objekt_form.fields['projekt'].queryset = Projekt.objects.filter(pk=selected_projekt.pk)
+            objekt_form.fields['projekt'].widget = forms.HiddenInput()
             if messung_id:
                 selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
+                messung_form = MessungForm(instance=selected_messung)
 
     context = {
         'projekte': projekte,
         'selected_projekt': selected_projekt,
+        'projekt_form': projekt_form,
         'objekte': objekte,
         'selected_objekt': selected_objekt,
+        'objekt_form': objekt_form,
         'messungen': messungen,
         'selected_messung': selected_messung,
+        'messung_form': messung_form,
     }
     return render(request, 'messung/projekte_page.html', context)
 
@@ -134,7 +145,16 @@ def objekt_delete(request, objekt_id):
     return render(request, 'messung/objekt_confirm_delete.html', {'objekt': objekt})
 
 
-
+def messung_edit(request, messung_id):
+    messung = get_object_or_404(Messdaten, pk=messung_id)
+    if request.method == "POST":
+        form = MessungForm(request.POST, instance=messung)
+        if form.is_valid():
+            form.save()
+            return redirect("projekte_page")
+    else:
+        form = MessungForm(instance=messung)
+    return render(request, "messung/messung_form.html", {"form": form, "messung": messung})
 
 def create_anforderung(request):
     if request.method == 'POST':
