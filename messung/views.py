@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
+from django.urls import reverse
 from django import forms
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
@@ -155,6 +156,15 @@ def messung_edit(request, messung_id):
     else:
         form = MessungForm(instance=messung)
     return render(request, "messung/messung_form.html", {"form": form, "messung": messung})
+
+def messung_delete(request, messung_id):
+    messung = get_object_or_404(Messdaten, pk=messung_id)
+    if request.method == 'POST':
+        projekt_id = messung.objekt.projekt_id
+        objekt_id = messung.objekt_id
+        messung.delete()
+        return redirect(f"{reverse('projekte_page')}?projekt={projekt_id}&objekt={objekt_id}")
+    return render(request, 'messung/messung_confirm_delete.html', {'messung': messung})
 
 def create_anforderung(request):
     if request.method == 'POST':

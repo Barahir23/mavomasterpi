@@ -30,11 +30,17 @@
   <div class="projekt-columns">
     <div class="column">
       {% for projekt in projekte %}
-        <a href="{% url 'projekte_page' %}?projekt={{ projekt.id }}">
-          <section class="card projekt-card{% if selected_projekt and projekt.id == selected_projekt.id %} selected{% endif %}">
+        <section class="card projekt-card has-delete{% if selected_projekt and projekt.id == selected_projekt.id %} selected{% endif %}">
+          <a href="{% url 'projekte_page' %}?projekt={{ projekt.id }}">
             <h3>{{ projekt.code }} {{ projekt.name }}</h3>
-          </section>
-        </a>
+          </a>
+          <form method="post" action="{% url 'projekt_delete' projekt.id %}" onsubmit="return confirm('Möchten Sie wirklich löschen?');">
+            {% csrf_token %}
+            <button type="submit" class="delete-btn" title="Löschen">
+              <span class="icon">{% include "icons/trash.svg" %}</span>
+            </button>
+          </form>
+        </section>
       {% empty %}
         <section class="card"><p>Keine Projekte vorhanden.</p></section>
       {% endfor %}
@@ -42,11 +48,17 @@
     <div class="column">
       {% if selected_projekt %}
         {% for objekt in objekte %}
-          <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ objekt.id }}">
-            <section class="card objekt-card{% if selected_objekt and objekt.id == selected_objekt.id %} selected{% endif %}">
+          <section class="card objekt-card has-delete{% if selected_objekt and objekt.id == selected_objekt.id %} selected{% endif %}">
+            <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ objekt.id }}">
               <h4>{{ objekt.name }}</h4>
-            </section>
-          </a>
+            </a>
+            <form method="post" action="{% url 'objekt_delete' objekt.id %}" onsubmit="return confirm('Möchten Sie wirklich löschen?');">
+              {% csrf_token %}
+              <button type="submit" class="delete-btn" title="Löschen">
+                <span class="icon">{% include "icons/trash.svg" %}</span>
+              </button>
+            </form>
+          </section>
         {% empty %}
           <section class="card"><p>Keine Objekte vorhanden.</p></section>
         {% endfor %}
@@ -55,11 +67,17 @@
     <div class="column">
       {% if selected_objekt %}
         {% for messung in messungen %}
-          <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ selected_objekt.id }}&messung={{ messung.id }}">
-            <section class="card{% if selected_messung and messung.id == selected_messung.id %} selected{% endif %}">
+          <section class="card has-delete{% if selected_messung and messung.id == selected_messung.id %} selected{% endif %}">
+            <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ selected_objekt.id }}&messung={{ messung.id }}">
               <h4>{{ messung.name }}</h4>
-            </section>
-          </a>
+            </a>
+            <form method="post" action="{% url 'messung_delete' messung.id %}" onsubmit="return confirm('Möchten Sie wirklich löschen?');">
+              {% csrf_token %}
+              <button type="submit" class="delete-btn" title="Löschen">
+                <span class="icon">{% include "icons/trash.svg" %}</span>
+              </button>
+            </form>
+          </section>
         {% empty %}
           <section class="card"><p>Keine Messungen vorhanden.</p></section>
         {% endfor %}
@@ -75,4 +93,13 @@
   try { localStorage.setItem('mm.sidebar.collapsed','0'); } catch(e){}
 </script>
 {% endif %}
+<script>
+  document.querySelectorAll('.accordion-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = document.querySelector(btn.dataset.target);
+      target.classList.toggle('collapsed');
+      btn.classList.toggle('collapsed');
+    });
+  });
+</script>
 {% endblock %}
