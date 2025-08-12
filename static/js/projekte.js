@@ -52,6 +52,16 @@
       });
     });
   }
+  function deleteProjekt(id,block){
+    if(!confirm('Bist du sicher, das du das Projekt und alle dazugehörende Objekte inkl. Messungen löschen möchtest?')) return;
+    fetch('/messung/api/projekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+      .then(function(res){ if(res.ok){ block.remove(); } });
+  }
+  function deleteObjekt(id,card){
+    if(!confirm('Bist du sicher, das du das Objekt und allen dazugehörenden Messungen löschen möchtest?')) return;
+    fetch('/messung/api/objekte/'+id+'/delete/',{method:'DELETE',headers:{'X-CSRFToken':getCookie('csrftoken')}})
+      .then(function(res){ if(res.ok){ card.remove(); } });
+  }
   function loadObjekte(card){
     var pid=card.getAttribute('data-projekt-id');
     var container=card.nextElementSibling;
@@ -69,6 +79,9 @@
         var btn=node.querySelector('.objekt-edit');
         btn.setAttribute('data-objekt-id',o.id);
         btn.addEventListener('click',function(ev){ev.stopPropagation();openObjektEdit(o.id,node);});
+        var del=node.querySelector('.objekt-delete');
+        del.setAttribute('data-objekt-id',o.id);
+        del.addEventListener('click',function(ev){ev.stopPropagation();deleteObjekt(o.id,node);});
         container.appendChild(node);
       });
       container.setAttribute('data-loaded','1');
@@ -77,7 +90,7 @@
   }
   document.querySelectorAll('.projekt-card').forEach(function(card){
     card.addEventListener('click',function(e){
-      if(e.target.closest('.edit-btn')) return;
+      if(e.target.closest('.edit-btn')||e.target.closest('.delete-btn')) return;
       loadObjekte(card);
     });
   });
@@ -86,6 +99,13 @@
       e.stopPropagation();
       var card=e.target.closest('.projekt-card');
       openProjektEdit(btn.getAttribute('data-projekt-id'),card);
+    });
+  });
+  document.querySelectorAll('.projekt-delete').forEach(function(btn){
+    btn.addEventListener('click',function(e){
+      e.stopPropagation();
+      var block=e.target.closest('.projekt-block');
+      deleteProjekt(btn.getAttribute('data-projekt-id'),block);
     });
   });
 })();
