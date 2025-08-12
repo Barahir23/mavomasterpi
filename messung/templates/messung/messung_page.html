@@ -1,9 +1,28 @@
 {% extends "layout.html" %}
 {% load static %}
 {% block title %}Messung – MavoMaster{% endblock %}
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/messung.css' %}">
+{% endblock %}
 {% block sidebar_context %}
-  <div class="card"><h3>Einstellungen</h3><p>Seitenabhängige Elemente.</p></div>
+  {% include "messung/messung_edit.html" %}
 {% endblock %}
 {% block content %}
-  <section class="card"><h2>Messung</h2><p>Inhalt hier einfügen.</p></section>
+  <section class="card measurement-card">
+    <div class="measurement-main">
+      <button type="button" class="mm-btn mm-btn--primary" id="single-measure">Einzelmessung</button>
+      <span id="realtime-value">0.00</span>
+    </div>
+    <div class="measurement-controls">
+      <button type="button" class="mm-btn mm-btn--primary" id="sequence-start" title="Messsequenz starten">
+        <span class="icon">{% include "icons/play.svg" %}</span>
+      </button>
+      <button type="button" class="mm-btn mm-btn--ghost" id="sequence-stop" title="Messsequenz stoppen">
+        <span class="icon">{% include "icons/stop.svg" %}</span>
+      </button>
+    </div>
+  </section>
+{% endblock %}
+{% block extra_js %}
+  <script src="{% static 'js/messung.js' %}"></script>
 {% endblock %}
