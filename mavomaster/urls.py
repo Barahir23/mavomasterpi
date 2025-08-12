@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.hompage),
     path('messung/', include('messung.urls')),
+    path('projekte/', messung.views.projekte_page, name='projekte_page'),
     path('system/reboot/', views.system_reboot, name='system_reboot'),
     path('system/shutdown/', views.system_shutdown, name='system_shutdown'),
 ]
