@@ -25,6 +25,13 @@ urlpatterns = [
     path('', views.hompage),
     path('messung/', include('messung.urls')),
     path('projekte/', messung.views.projekte_page, name='projekte_page'),
+    path('projekte/add/', messung.views.projekt_add, name='projekt_add'),
+    path('projekte/<int:projekt_id>/edit/', messung.views.projekt_edit, name='projekt_edit'),
+    path('projekte/<int:projekt_id>/delete/', messung.views.projekt_delete, name='projekt_delete'),
+    path('objekte/add/', messung.views.objekt_add, name='objekt_add'),
+    path('projekte/<int:projekt_id>/objekt/add/', messung.views.objekt_add, name='objekt_add_project'),
+    path('objekte/<int:objekt_id>/edit/', messung.views.objekt_edit, name='objekt_edit'),
+    path('objekte/<int:objekt_id>/delete/', messung.views.objekt_delete, name='objekt_delete'),
     path('system/reboot/', views.system_reboot, name='system_reboot'),
     path('system/shutdown/', views.system_shutdown, name='system_shutdown'),
 ]

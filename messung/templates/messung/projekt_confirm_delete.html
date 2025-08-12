@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}Projekt löschen – MavoMaster{% endblock %}
+{% block content %}
+  <h2>Projekt löschen</h2>
+  <p>Möchten Sie das Projekt "{{ projekt }}" wirklich löschen?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="mm-btn mm-btn--danger">
+      <span class="icon">{% include "icons/trash.svg" %}</span>
+      Löschen
+    </button>
+    <a href="{% url 'projekte_page' %}" class="mm-btn">Abbrechen</a>
+  </form>
+{% endblock %}

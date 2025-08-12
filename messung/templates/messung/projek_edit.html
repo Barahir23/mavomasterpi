@@ -1,4 +1,15 @@
 <div class="card">
-  <h3>Projekt</h3>
-  <p>Kontextabhängige Optionen für Projekte.</p>
+  <h3>Aktionen</h3>
+  <p>
+    <a href="{% url 'projekt_add' %}" class="mm-btn">
+      <span class="icon">{% include "icons/folder-plus.svg" %}</span>
+      <span class="label">Projekt hinzufügen</span>
+    </a>
+  </p>
+  <p>
+    <a href="{% url 'objekt_add' %}" class="mm-btn">
+      <span class="icon">{% include "icons/document-plus.svg" %}</span>
+      <span class="label">Objekt hinzufügen</span>
+    </a>
+  </p>
 </div>
