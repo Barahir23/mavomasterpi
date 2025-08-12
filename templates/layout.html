@@ -5,30 +5,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}MavoMaster{% endblock %}</title>
+  <script src="{% static 'js/layout_header.js' %}"></script>
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
   {% block extra_css %}{% endblock %}
 </head>
 <body class="theme-dark">
+  <!-- Hidden form forces CSRF cookie to be set on initial render -->
+  <form id="csrf-seed" style="display:none;">{% csrf_token %}</form>
+
   <aside id="app-sidebar" aria-label="Hauptnavigation">
     <div class="sidebar-header">
-      <button id="collapseToggle" class="icon-btn" aria-expanded="true" title="Seitenleiste ein/ausklappen"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15.75 19.5 8.25 12l7.5-7.5" /></svg></button>
+      <button id="sidebar-toggle" aria-expanded="true" title="Seitenleiste ein/ausklappen">
+        <span class="icon open">{% include "icons/chevron-left.svg" %}</span>
+        <span class="icon closed">{% include "icons/chevron-right.svg" %}</span>
+      </button>
     </div>
 
     <nav class="sidebar-nav" aria-label="Statische Seiten">
       <a href="/" class="nav-item" title="Home">
-        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 12l9.75-9 9.75 9" /><path d="M4.5 12V20.25A2.25 2.25 0 0 0 6.75 22.5H17.25A2.25 2.25 0 0 0 19.5 20.25V12" /></svg></span><span class="label">Home</span>
+        <span class="icon">{% include "icons/home.svg" %}</span><span class="label">Home</span>
       </a>
       <a href="/messung/" class="nav-item" title="Messung">
-        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.25 8.25 3 21 15.75 15.75 21 3 8.25z" /><path d="M7.5 10.5l2.25 2.25M10.5 7.5l2.25 2.25M13.5 4.5l2.25 2.25M4.5 13.5l2.25 2.25" /></svg></span><span class="label">Messung</span>
+        <span class="icon">{% include "icons/ruler.svg" %}</span><span class="label">Messung</span>
       </a>
       <a href="/projekte/" class="nav-item" title="Projekte">
-        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 7.5A2.25 2.25 0 0 1 4.5 5.25h5.379a2.25 2.25 0 0 1 1.591.659l1.122 1.121a2.25 2.25 0 0 0 1.591.659H19.5A2.25 2.25 0 0 1 21.75 9v9.75A2.25 2.25 0 0 1 19.5 21H4.5A2.25 2.25 0 0 1 2.25 18.75V7.5z" /></svg></span><span class="label">Projekte</span>
+        <span class="icon">{% include "icons/folder.svg" %}</span><span class="label">Projekte</span>
       </a>
       <a href="/exporte/" class="nav-item" title="Exporte">
-        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 15.75v3A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75v-3" /><path d="M7.5 10.5 12 6l4.5 4.5" /><path d="M12 6v12" /></svg></span><span class="label">Exporte</span>
-      </a>
-      <a href="/system/" class="nav-item" title="System">
-        <span class="icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.381.324.694.671.832a9.04 9.04 0 0 1 1.987 1.145c.309.214.72.23 1.05.05l1.13-.623a1.125 1.125 0 0 1 1.5.487l1.296 2.247a1.125 1.125 0 0 1-.285 1.431l-1.002.827c-.3.248-.438.64-.364 1.02.07.36.107.732.107 1.113 0 .38-.037.752-.107 1.112-.074.38.064.772.364 1.02l1.002.828c.45.371.57 1.02.285 1.43l-1.296 2.248a1.125 1.125 0 0 1-1.5.486l-1.13-.622a1.125 1.125 0 0 0-1.05.049 9.06 9.06 0 0 1-1.987 1.145 1.125 1.125 0 0 0-.671.832l-.213 1.28c-.09.543-.56.94-1.11.94h-2.593c-.55 0-1.02-.397-1.11-.94l-.213-1.28a1.125 1.125 0 0 0-.671-.832 9.06 9.06 0 0 1-1.987-1.145 1.125 1.125 0 0 0-1.05-.05l-1.13.623a1.125 1.125 0 0 1-1.5-.486L.978 17.51a1.125 1.125 0 0 1 .285-1.431l1.002-.828c.3-.248.438-.64.364-1.02A8.96 8.96 0 0 1 2.822 12c0-.38.037-.752.107-1.112.074-.38-.064-.772-.364-1.02l-1.002-.828a1.125 1.125 0 0 1-.285-1.431L2.574 5.36a1.125 1.125 0 0 1 1.5-.487l1.13.623c.33.18.741.164 1.05-.05A9.04 9.04 0 0 1 8.241 6.05c.347-.138.608-.45.671-.832l.682-1.28z" /><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" /></svg></span><span class="label">System</span>
+        <span class="icon">{% include "icons/upload.svg" %}</span><span class="label">Exporte</span>
       </a>
     </nav>
 
@@ -37,8 +41,10 @@
     </div>
 
     <div class="sidebar-footer">
-      <button class="footer-btn" id="action-reboot" title="Raspberry Pi neu starten"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.023 9.348h4.992V4.356M2.985 19.644v-4.992h4.992" /><path d="M20.016 9.36a8.25 8.25 0 0 0-13.803-3.3L2.985 9.36" /><path d="M21.015 14.628l-3.228 3.3A8.25 8.25 0 0 1 3.985 14.64" /></svg></button>
-      <button class="footer-btn" id="action-shutdown" title="Raspberry Pi herunterfahren"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.25v8.25" /><path d="M6.364 6.386a9 9 0 1 0 11.272 0" /></svg></button>
+      <!-- System button opens flyout -->
+      <button class="footer-btn" id="action-system" title="System & Aktionen">
+        <span class="icon">{% include "icons/cog-6-tooth.svg" %}</span>
+      </button>
     </div>
   </aside>
 
@@ -46,7 +52,40 @@
     {% block content %}{% endblock %}
   </main>
 
-  <script src="{% static 'js/messung.js' %}"></script>
+  <!-- System flyout (opens right of sidebar) -->
+  <div id="sys-flyout" class="flyout" aria-hidden="true">
+    <div class="flyout__backdrop" id="sys-flyout-backdrop"></div>
+    <div class="flyout__panel">
+      <ul class="flyout__list">
+        <li class="flyout__item" id="sys-act-settings">
+          <span class="icon">{% include "icons/cog-6-tooth.svg" %}</span><span class="label">Einstellungen</span>
+        </li>
+        <div class="flyout__separator"></div>
+        <li class="flyout__item" id="sys-act-reboot">
+          <span class="icon">{% include "icons/arrow-path.svg" %}</span><span class="label">Neu starten</span>
+        </li>
+        <li class="flyout__item" id="sys-act-shutdown">
+          <span class="icon">{% include "icons/power.svg" %}</span><span class="label">Herunterfahren</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="mm-modal" class="mm-modal" aria-hidden="true">
+    <div class="mm-modal__backdrop" data-mm-close></div>
+    <div class="mm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="mm-modal-title">
+      <h3 id="mm-modal-title" class="mm-modal__title">Bestätigen</h3>
+      <p id="mm-modal-text" class="mm-modal__text">Aktion ausführen?</p>
+      <div id="mm-modal-countdown" class="mm-modal__countdown" style="display:none;"></div>
+      <div class="mm-modal__actions">
+        <button type="button" class="mm-btn mm-btn--ghost" data-mm-close>Abbrechen</button>
+        <button type="button" class="mm-btn mm-btn--primary" id="mm-modal-confirm">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{% static 'js/layout_footer.js' %}"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

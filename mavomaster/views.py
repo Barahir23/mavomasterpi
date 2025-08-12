@@ -1,6 +1,7 @@
 # from django.http import HttpResponse
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponse
+from django.views.decorators.http import require_POST
 import subprocess
 
 
@@ -9,22 +10,20 @@ def hompage(request):
     return render(request, 'home.html')
 
 
-def reboot_pi(request):
-    if request.method == 'POST':
-        try:
-            # Führt den Befehl mit sudo aus (erfordert sudoers-Konfiguration)
-            subprocess.run(['sudo', '/sbin/reboot'], check=True)
-            return HttpResponse(status=200)
-        except Exception as e:
-            return HttpResponse(status=500, reason=str(e))
-    return HttpResponse(status=405)
+@require_POST
+def system_reboot(request):
+    try:
+        # nutzt sudo; siehe sudoers-Hinweis unten
+        subprocess.Popen(['sudo', '/sbin/reboot'])
+        return JsonResponse({'ok': True})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)
 
 
-def shutdown_pi(request):
-    if request.method == 'POST':
-        try:
-            subprocess.run(['sudo', '/sbin/shutdown', '-h', 'now'], check=True)
-            return HttpResponse(status=200)
-        except Exception as e:
-            return HttpResponse(status=500, reason=str(e))
-    return HttpResponse(status=405)
+@require_POST
+def system_shutdown(request):
+    try:
+        subprocess.Popen(['sudo', '/sbin/shutdown', '-h', 'now'])
+        return JsonResponse({'ok': True})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=500)

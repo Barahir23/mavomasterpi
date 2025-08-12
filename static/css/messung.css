@@ -1,14 +1,1 @@
-
-/* Messung – seitenbezogene Styles */
-.form-row { display:flex; flex-direction: column; gap: .25rem; margin-bottom: .75rem; }
-.form-row input, .form-row select {
-  background: #1e1e1e; border: 1px solid var(--color-border); color: var(--color-text);
-  padding: .5rem .6rem; border-radius: 8px;
-}
-.table { width: 100%; }
-.th, .td {
-  background: var(--color-surface);
-  color: var(--color-text);
-  padding: .6rem;
-}
-.th { font-weight: 700; color: #e6e6e6; }
+/* page-specific styles placeholder */

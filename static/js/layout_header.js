@@ -1,0 +1,1 @@
+(function(){try{if(localStorage.getItem('mm.sidebar.collapsed')==='1'){document.documentElement.classList.add('sidebar-collapsed');document.addEventListener('DOMContentLoaded',function(){document.body.classList.add('sidebar-collapsed');});}}catch(e){}})();

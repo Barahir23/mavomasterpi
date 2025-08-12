@@ -24,8 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.hompage),
     path('messung/', include('messung.urls')),
-    path('api/system/reboot/', views.reboot_pi),
-    path('api/system/shutdown/', views.shutdown_pi),
+    path('system/reboot/', views.system_reboot, name='system_reboot'),
+    path('system/shutdown/', views.system_shutdown, name='system_shutdown'),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
