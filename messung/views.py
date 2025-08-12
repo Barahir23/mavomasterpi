@@ -118,10 +118,15 @@ def create_anforderung(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         try:
+            avg = data.get('avg')
+            avgmod = data.get('avgmod')
+            u0 = data.get('u0')
             anforderung = Anforderungen.objects.create(
-                ref=data['ref'], typ=data.get('typ', ''),
-                avg=data.get('avg') or None, avgmod=data.get('avgmod') or None,
-                u0=data.get('u0') or None
+                ref=data['ref'],
+                typ=data.get('typ', ''),
+                avg=avg if avg not in (None, '') else None,
+                avgmod=avgmod if avgmod not in (None, '') else None,
+                u0=u0 if u0 not in (None, '') else None,
             )
             return JsonResponse({'id': anforderung.id, 'ref': anforderung.ref})
         except Exception as e:
@@ -227,7 +232,9 @@ def save_messungen(request):
     device_info = data.get('device_info', '')
     anforderung_id = data.get('anforderung_id')
     messbedingungen = data.get('messbedingungen', '')
-    messhoehe = data.get('messhoehe') or None
+    messhoehe = data.get('messhoehe')
+    if messhoehe in (None, ''):
+        messhoehe = None
     if not objekt_id or not messungen_data:
         return JsonResponse({'error': 'Fehlende Daten'}, status=400)
     try:
