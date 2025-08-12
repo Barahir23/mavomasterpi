@@ -5,7 +5,10 @@
   <p>Möchten Sie das Objekt "{{ objekt }}" wirklich löschen?</p>
   <form method="post">
     {% csrf_token %}
-    <button type="submit" class="mm-btn mm-btn--danger">Löschen</button>
+    <button type="submit" class="mm-btn mm-btn--danger">
+      <span class="icon">{% include "icons/trash.svg" %}</span>
+      Löschen
+    </button>
     <a href="{% url 'projekte_page' %}" class="mm-btn">Abbrechen</a>
   </form>
 {% endblock %}

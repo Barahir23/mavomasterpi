@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse, HttpResponse
+from django import forms
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import time
@@ -70,17 +71,19 @@ def projekt_delete(request, projekt_id):
     return render(request, 'messung/projekt_confirm_delete.html', {'projekt': projekt})
 
 
-def objekt_add(request, projekt_id):
-    projekt = get_object_or_404(Projekt, pk=projekt_id)
+def objekt_add(request, projekt_id=None):
+    projekt = get_object_or_404(Projekt, pk=projekt_id) if projekt_id else None
     if request.method == 'POST':
         form = ObjektForm(request.POST)
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj.projekt = projekt
-            obj.save()
+            form.save()
             return redirect('projekte_page')
     else:
-        form = ObjektForm()
+        initial = {'projekt': projekt} if projekt else None
+        form = ObjektForm(initial=initial)
+        if projekt:
+            form.fields['projekt'].queryset = Projekt.objects.filter(pk=projekt.pk)
+            form.fields['projekt'].widget = forms.HiddenInput()
     return render(request, 'messung/objekt_form.html', {'form': form, 'projekt': projekt})
 
 
