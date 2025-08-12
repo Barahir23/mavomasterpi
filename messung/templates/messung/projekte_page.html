@@ -7,30 +7,12 @@
       <span class="label">Projekt hinzufügen</span>
     </a>
   </p>
-  {% if selected_projekt %}
-    <p>
-      <a href="{% url 'objekt_add_project' selected_projekt.id %}" class="mm-btn" title="Objekt hinzufügen">
-        <span class="icon">{% include "icons/document-plus.svg" %}</span>
-        <span class="label">Objekt hinzufügen</span>
-      </a>
-    </p>
-  {% endif %}
-  {% if selected_objekt %}
-    <p>
-      <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}" class="mm-btn" title="Messung hinzufügen">
-        <span class="icon">{% include "icons/document-plus.svg" %}</span>
-        <span class="label">Messung hinzufügen</span>
-      </a>
-    </p>
-  {% endif %}
-  {% if selected_projekt %}
-    {% include "messung/projek_edit.html" %}
-  {% endif %}
-  {% if selected_objekt %}
-    {% include "messung/objekt_edit.html" %}
-  {% endif %}
   {% if selected_messung %}
     {% include "messung/messung_edit.html" %}
+  {% elif selected_objekt %}
+    {% include "messung/objekt_edit.html" %}
+  {% elif selected_projekt %}
+    {% include "messung/projek_edit.html" %}
   {% endif %}
 {% endblock %}
 {% block content %}
