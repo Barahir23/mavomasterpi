@@ -33,6 +33,11 @@ def messung_page(request):
     return render(request, 'messung/messung_page.html', context)
 
 
+def projekte_page(request):
+    projekte = Projekt.objects.all().order_by('name')
+    return render(request, 'messung/projekte_page.html', {'projekte': projekte})
+
+
 def projekt_details(request, projekt_id):
     projekt = get_object_or_404(Projekt, pk=projekt_id)
     return JsonResponse({'id': projekt.id, 'name': projekt.name, 'code': projekt.code, 'beschreibung': projekt.beschreibung})
