@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-{% load static %}
 {% block title %}Projekte – MavoMaster{% endblock %}
 {% block sidebar_context %}
   {% include "messung/projek_edit.html" %}
@@ -8,34 +7,33 @@
   <div id="projekt-list">
     {% for projekt in projekte %}
       <div class="projekt-block">
-        <section class="card projekt-card has-delete" data-projekt-id="{{ projekt.id }}">
+        <section class="card projekt-card">
           <h3>{{ projekt.code }} {{ projekt.name }}</h3>
-          <button class="edit-btn projekt-edit" data-projekt-id="{{ projekt.id }}" title="Projekt bearbeiten">
-            <span class="icon">{% include "icons/pencil-square.svg" %}</span>
-          </button>
-          <button class="delete-btn projekt-delete" data-projekt-id="{{ projekt.id }}" title="Projekt löschen">
-            <span class="icon">{% include "icons/trash.svg" %}</span>
-          </button>
+          <a href="{% url 'projekt_edit' projekt.id %}" title="Projekt bearbeiten" class="mm-btn mm-btn--small">Bearbeiten</a>
+          <form method="post" action="{% url 'projekt_delete' projekt.id %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="mm-btn mm-btn--danger mm-btn--small">Löschen</button>
+          </form>
         </section>
-        <div class="objekte-container" data-projekt-id="{{ projekt.id }}" style="display:none;"></div>
+        {% for objekt in projekt.objekte.all %}
+          <section class="card card-sub objekt-card">
+            <h4>{{ objekt.name }}</h4>
+            <a href="{% url 'objekt_edit' objekt.id %}" class="mm-btn mm-btn--small">Bearbeiten</a>
+            <form method="post" action="{% url 'objekt_delete' objekt.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="mm-btn mm-btn--danger mm-btn--small">Löschen</button>
+            </form>
+          </section>
+        {% empty %}
+          <section class="card card-sub"><p>Keine Objekte vorhanden.</p></section>
+        {% endfor %}
+        <section class="card card-sub">
+          <a href="{% url 'objekt_add' projekt.id %}" class="mm-btn">Objekt hinzufügen</a>
+        </section>
       </div>
     {% empty %}
       <section class="card"><p>Keine Projekte vorhanden.</p></section>
     {% endfor %}
+    <section class="card"><a href="{% url 'projekt_add' %}" class="mm-btn">Projekt hinzufügen</a></section>
   </div>
-
-  <template id="objekt-template">
-    <section class="card card-sub objekt-card has-delete" data-objekt-id="">
-      <h4 class="objekt-name"></h4>
-      <button class="edit-btn objekt-edit" data-objekt-id="" title="Objekt bearbeiten">
-        <span class="icon">{% include "icons/pencil-square.svg" %}</span>
-      </button>
-      <button class="delete-btn objekt-delete" data-objekt-id="" title="Objekt löschen">
-        <span class="icon">{% include "icons/trash.svg" %}</span>
-      </button>
-    </section>
-  </template>
-{% endblock %}
-{% block extra_js %}
-  <script src="{% static 'js/projekte.js' %}"></script>
 {% endblock %}
