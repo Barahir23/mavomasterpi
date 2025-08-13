@@ -1,12 +1,18 @@
-<form method="post" action="{% url 'objekt_edit' selected_objekt.id %}" class="edit-form" id="objekt-edit-form">
+<form method="post" action="{% if selected_objekt %}{% url 'objekt_edit' selected_objekt.id %}{% else %}{% url 'objekt_create' %}{% endif %}" class="edit-form" id="objekt-edit-form" data-create-url="{% url 'objekt_create' %}">
   {% csrf_token %}
   {{ objekt_form.projekt }}
   <div class="form-header">
     <span class="form-title">Objekt</span>
+    <select id="objekt-select">
+      <option value=""{% if not selected_objekt %} selected{% endif %}>Objekt wählen</option>
+      {% for objekt in objekte %}
+      <option value="{{ objekt.id }}"{% if selected_objekt and objekt.id == selected_objekt.id %} selected{% endif %}>{{ objekt.nummer }} {{ objekt.name }}</option>
+      {% endfor %}
+    </select>
     <div class="form-actions">
-      <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}" class="icon-btn" title="Objekt hinzufügen">
+      <button type="button" class="icon-btn add-btn" title="Objekt hinzufügen">
         <span class="icon">{% include "icons/document-plus.svg" %}</span>
-      </a>
+      </button>
       <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
         <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
       </button>

@@ -1,13 +1,11 @@
 {% extends "layout.html" %}
 {% block title %}Projekte – MavoMaster{% endblock %}
 {% block sidebar_context %}
+  {% include "messung/projek_edit.html" %}
   {% if selected_projekt %}
-    {% include "messung/projek_edit.html" %}
-  {% endif %}
-  {% if selected_objekt %}
     {% include "messung/objekt_edit.html" %}
   {% endif %}
-  {% if selected_messung %}
+  {% if selected_objekt %}
     {% include "messung/messung_edit.html" %}
   {% endif %}
 {% endblock %}
@@ -117,5 +115,61 @@
       });
     }
   });
+
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const form = btn.closest('form');
+      if(form){
+        form.setAttribute('action', form.dataset.createUrl);
+        form.querySelectorAll('input:not([type="hidden"]), textarea').forEach(el => {
+          el.value = '';
+        });
+        const saveBtn = form.querySelector('.save-btn');
+        if(saveBtn){
+          saveBtn.disabled = false;
+          saveBtn.classList.add('unsaved');
+        }
+        const toggle = form.querySelector('.accordion-toggle');
+        const body = document.querySelector(toggle.dataset.target);
+        if(body.classList.contains('collapsed')){
+          body.classList.remove('collapsed');
+          toggle.classList.remove('collapsed');
+        }
+      }
+    });
+  });
+
+  const selectedProjektId = {{ selected_projekt.id|default:"null" }};
+  const selectedObjektId = {{ selected_objekt.id|default:"null" }};
+
+  const projektSelect = document.getElementById('projekt-select');
+  if(projektSelect){
+    projektSelect.addEventListener('change', e => {
+      const id = e.target.value;
+      if(id){
+        window.location.href = `?projekt=${id}`;
+      }
+    });
+  }
+
+  const objektSelect = document.getElementById('objekt-select');
+  if(objektSelect){
+    objektSelect.addEventListener('change', e => {
+      const id = e.target.value;
+      if(id){
+        window.location.href = `?projekt=${selectedProjektId}&objekt=${id}`;
+      }
+    });
+  }
+
+  const messungSelect = document.getElementById('messung-select');
+  if(messungSelect){
+    messungSelect.addEventListener('change', e => {
+      const id = e.target.value;
+      if(id){
+        window.location.href = `?projekt=${selectedProjektId}&objekt=${selectedObjektId}&messung=${id}`;
+      }
+    });
+  }
 </script>
 {% endblock %}

@@ -67,28 +67,40 @@ def projekte_page(request):
     objekt_id = request.GET.get('objekt')
     messung_id = request.GET.get('messung')
 
-    selected_projekt = None
-    selected_objekt = None
-    selected_messung = None
-    objekte = []
-    messungen = []
-    projekt_form = None
-    objekt_form = None
-    messung_form = None
+    selected_projekt = get_object_or_404(Projekt, pk=projekt_id) if projekt_id else None
+    selected_objekt = (
+        get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
+        if objekt_id and selected_projekt else None
+    )
+    selected_messung = (
+        get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
+        if messung_id and selected_objekt else None
+    )
 
-    if projekt_id:
-        selected_projekt = get_object_or_404(Projekt, pk=projekt_id)
-        objekte = selected_projekt.objekte.all().order_by('name')
-        projekt_form = ProjektForm(instance=selected_projekt)
-        if objekt_id:
-            selected_objekt = get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
-            messungen = selected_objekt.messungen.all().order_by('-erstellt_am')
-            objekt_form = ObjektForm(instance=selected_objekt)
-            objekt_form.fields['projekt'].queryset = Projekt.objects.filter(pk=selected_projekt.pk)
-            objekt_form.fields['projekt'].widget = forms.HiddenInput()
-            if messung_id:
-                selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
-                messung_form = MessungForm(instance=selected_messung)
+    objekte = selected_projekt.objekte.all().order_by('name') if selected_projekt else []
+    messungen = (
+        selected_objekt.messungen.all().order_by('-erstellt_am')
+        if selected_objekt else []
+    )
+
+    projekt_form = ProjektForm(instance=selected_projekt) if selected_projekt else ProjektForm()
+    objekt_form = None
+    if selected_projekt:
+        objekt_form = (
+            ObjektForm(instance=selected_objekt)
+            if selected_objekt
+            else ObjektForm(initial={'projekt': selected_projekt})
+        )
+        objekt_form.fields['projekt'].queryset = Projekt.objects.filter(pk=selected_projekt.pk)
+        objekt_form.fields['projekt'].widget = forms.HiddenInput()
+
+    messung_form = None
+    if selected_objekt:
+        messung_form = (
+            MessungForm(instance=selected_messung)
+            if selected_messung
+            else MessungForm()
+        )
 
     context = {
         'projekte': projekte,
@@ -102,6 +114,15 @@ def projekte_page(request):
         'messung_form': messung_form,
     }
     return render(request, 'messung/projekte_page.html', context)
+
+
+def projekt_create(request):
+    if request.method == 'POST':
+        form = ProjektForm(request.POST)
+        if form.is_valid():
+            projekt = form.save()
+            return redirect(f"{reverse('projekte_page')}?projekt={projekt.id}")
+    return redirect('projekte_page')
 def projekt_edit(request, projekt_id):
     projekt = get_object_or_404(Projekt, pk=projekt_id)
     if request.method == 'POST':
@@ -134,6 +155,15 @@ def objekt_delete(request, objekt_id):
     return render(request, 'messung/objekt_confirm_delete.html', {'objekt': objekt})
 
 
+def objekt_create(request):
+    if request.method == 'POST':
+        form = ObjektForm(request.POST)
+        if form.is_valid():
+            objekt = form.save()
+            return redirect(f"{reverse('projekte_page')}?projekt={objekt.projekt.id}&objekt={objekt.id}")
+    return redirect('projekte_page')
+
+
 def messung_edit(request, messung_id):
     messung = get_object_or_404(Messdaten, pk=messung_id)
     if request.method == "POST":
@@ -150,6 +180,18 @@ def messung_delete(request, messung_id):
         messung.delete()
         return redirect(f"{reverse('projekte_page')}?projekt={projekt_id}&objekt={objekt_id}")
     return render(request, 'messung/messung_confirm_delete.html', {'messung': messung})
+
+
+def messung_create(request, objekt_id):
+    objekt = get_object_or_404(Objekt, pk=objekt_id)
+    if request.method == 'POST':
+        form = MessungForm(request.POST)
+        if form.is_valid():
+            messung = form.save(commit=False)
+            messung.objekt = objekt
+            messung.save()
+            return redirect(f"{reverse('projekte_page')}?projekt={objekt.projekt.id}&objekt={objekt.id}&messung={messung.id}")
+    return redirect(f"{reverse('projekte_page')}?projekt={objekt.projekt.id}&objekt={objekt.id}")
 
 def create_anforderung(request):
     if request.method == 'POST':
