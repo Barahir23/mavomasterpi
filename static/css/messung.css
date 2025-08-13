@@ -15,22 +15,3 @@
 #realtime-value {
   font-size: 1.5rem;
 }
-
-.measurement-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.measurement-table th,
-.measurement-table td {
-  padding: 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.measurement-table th {
-  text-align: left;
-}
-
-.measurement-table td:last-child {
-  text-align: center;
-}
