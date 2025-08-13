@@ -46,6 +46,9 @@ def messung_page(request):
         if messung_id:
             selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
             messung_form = MessungForm(instance=selected_messung)
+        else:
+            selected_messung = Messdaten.objects.create(objekt=selected_objekt, name="Neue Messung")
+            return redirect(f"{reverse('messung:page')}?objekt={selected_objekt.id}&messung={selected_messung.id}")
 
     context = {
         'projekte': projekte,
