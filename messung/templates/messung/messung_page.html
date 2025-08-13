@@ -5,26 +5,7 @@
   <link rel="stylesheet" href="{% static 'css/messung.css' %}">
 {% endblock %}
 {% block sidebar_context %}
-  <form id="selection-form" class="edit-form">
-    <div class="form-row">
-      <label for="project-select">Projektauswahl</label>
-      <select id="project-select" name="projekt">
-        <option value="">– bitte wählen –</option>
-        {% for projekt in projekte %}
-          <option value="{{ projekt.id }}">{{ projekt.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="form-row">
-      <label for="object-select">Objektauswahl</label>
-      <select id="object-select" name="objekt" disabled>
-        <option value="">– bitte wählen –</option>
-      </select>
-    </div>
-  </form>
-  {% if selected_messung %}
-    {% include "messung/messung_edit.html" %}
-  {% endif %}
+  {% include "messung/messung_edit.html" %}
 {% endblock %}
 {% block content %}
   <section class="card measurement-card">
@@ -40,21 +21,6 @@
         <span class="icon">{% include "icons/stop.svg" %}</span>
       </button>
     </div>
-  </section>
-
-  <section class="card">
-    <table class="measurement-table">
-      <thead>
-        <tr>
-          <th>Zeit</th>
-          <th>Einzelmessung</th>
-          <th>Kommentar</th>
-          <th>Sequenz_xy</th>
-          <th>Löschen</th>
-        </tr>
-      </thead>
-      <tbody id="measurement-table-body"></tbody>
-    </table>
   </section>
 {% endblock %}
 {% block extra_js %}
