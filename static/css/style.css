@@ -126,7 +126,8 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 
 /* Cards */
 .card { background: var(--color-surface); border:1px solid var(--color-border); border-radius:12px; padding:.75rem; position:relative; }
-.card h2, .card h3 { color: var(--primary); margin:0 0 .5rem; }
+.card.selected { border-color: var(--primary); }
+.card h2, .card h3 { color: var(--primary);  }
 .card .edit-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .card .edit-btn:hover { background:#2c2c2c; }
 .card .edit-btn .icon, .card .edit-btn .icon svg { width:20px; height:20px; }
@@ -136,23 +137,17 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 .card .delete-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .card .delete-btn:hover { background:#2c2c2c; }
 .card .delete-btn .icon, .card .delete-btn .icon svg { width:20px; height:20px; }
+.element-card { margin-bottom:10px; min-height:50px; max-height:100px; height:auto; overflow:auto; }
+.element-columns { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+.element-columns .column { overflow:auto; max-height:80vh; }
 
-.projekt-block { margin-bottom:20px; }
-.projekt-card { margin-bottom:10px; min-height:50px; max-height:100px; height:auto; overflow:auto; }
-.objekt-card { margin-bottom:10px; margin-top:10px; min-height:50px; max-height:100px; height:auto; overflow:auto; }
-.messung-card { margin-bottom:10px; margin-top:10px; min-height:50px; max-height:100px; height:auto; overflow:auto; }
-.objekt-card h4 { color: var(--secondary); margin-block-start: 0px; margin-block-end: 0px;}
+.element-card h2,
+.element-card h3,
+.element-card h4 {font-size: clamp(10px, 2vw, 15px); margin:0 0 .5rem;}
 
-.card.selected { border-color: var(--primary); }
-
-.projekt-columns { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
-.projekt-columns .column { overflow:auto; max-height:80vh; }
-
-.projekt-card h3,
-.objekt-card h4,
-.messung-card h4 {
-  font-size: clamp(10px, 2vw, 15px);
-}
+.projekt-card h2 { color: var(--secondary-200);}
+.objekt-card h3 { color: var(--secondary-400);}
+.messung-card h4 { color: var(--secondary-800);}
 
 input, textarea, select {
   background: var(--color-surface);
@@ -169,11 +164,11 @@ form p { margin:0 0 1rem; }
 
 .icon-btn { background:transparent; border:1px solid var(--color-border); width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; padding:0; cursor:pointer; }
 .icon-btn .icon, .icon-btn .icon svg { width:20px; height:20px; }
-.icon-btn:disabled { border-color: var(--secondary); cursor:default; }
+.icon-btn:disabled {cursor:default; }
 .icon-btn:disabled .icon svg { stroke: var(--secondary); }
 .save-btn.unsaved { border-color: red; }
 
-.edit-form .form-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+.edit-form .form-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; color: var(--primary); }
 .edit-form .form-actions { display:flex; gap:.25rem; }
 .accordion-body.collapsed { display:none; }
 .accordion-toggle .icon svg { transition:transform .2s; }
