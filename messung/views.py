@@ -30,9 +30,34 @@ def messung_page(request):
     except (FileNotFoundError, subprocess.CalledProcessError) as e:
         print(f"Fehler bei lsusb: {e}")
         device_warning = True
+
     projekte = Projekt.objects.all().order_by('name')
     anforderungen = Anforderungen.objects.all().order_by('ref')
-    context = {'projekte': projekte, 'anforderungen': anforderungen, 'device_warning': device_warning}
+
+    objekt_id = request.GET.get('objekt')
+    messung_id = request.GET.get('messung')
+
+    selected_objekt = None
+    selected_messung = None
+    messung_form = None
+
+    if objekt_id:
+        selected_objekt = get_object_or_404(Objekt, pk=objekt_id)
+        if messung_id:
+            selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
+            messung_form = MessungForm(instance=selected_messung)
+        else:
+            selected_messung = Messdaten.objects.create(objekt=selected_objekt, name="Neue Messung")
+            return redirect(f"{reverse('messung:page')}?objekt={selected_objekt.id}&messung={selected_messung.id}")
+
+    context = {
+        'projekte': projekte,
+        'anforderungen': anforderungen,
+        'device_warning': device_warning,
+        'selected_objekt': selected_objekt,
+        'selected_messung': selected_messung,
+        'messung_form': messung_form,
+    }
     return render(request, 'messung/messung_page.html', context)
 
 
