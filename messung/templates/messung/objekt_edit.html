@@ -1,12 +1,13 @@
-<form method="post" action="{% url 'objekt_edit' selected_objekt.id %}" class="edit-form" id="objekt-edit-form" data-create-url="{% url 'objekt_create' %}">
+<form method="post" action="{% if selected_objekt %}{% url 'objekt_edit' selected_objekt.id %}{% else %}{% url 'objekt_create' %}{% endif %}" class="edit-form" id="objekt-edit-form" data-create-url="{% url 'objekt_create' %}">
   {% csrf_token %}
   {{ objekt_form.projekt }}
   <div class="form-header">
     <span class="form-title">Objekt</span>
-    <select class="dataset-select">
-      <option value="projekt">Projekt</option>
-      <option value="objekt">Objekt</option>
-      <option value="messung">Messung</option>
+    <select id="objekt-select">
+      <option value=""{% if not selected_objekt %} selected{% endif %}>Objekt wählen</option>
+      {% for objekt in objekte %}
+      <option value="{{ objekt.id }}"{% if selected_objekt and objekt.id == selected_objekt.id %} selected{% endif %}>{{ objekt.nummer }} {{ objekt.name }}</option>
+      {% endfor %}
     </select>
     <div class="form-actions">
       <button type="button" class="icon-btn add-btn" title="Objekt hinzufügen">

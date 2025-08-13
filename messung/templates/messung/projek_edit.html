@@ -1,11 +1,12 @@
-<form method="post" action="{% url 'projekt_edit' selected_projekt.id %}" class="edit-form" id="projekt-edit-form" data-create-url="{% url 'projekt_create' %}">
+<form method="post" action="{% if selected_projekt %}{% url 'projekt_edit' selected_projekt.id %}{% else %}{% url 'projekt_create' %}{% endif %}" class="edit-form" id="projekt-edit-form" data-create-url="{% url 'projekt_create' %}">
   {% csrf_token %}
   <div class="form-header">
     <span class="form-title">Projekt</span>
-    <select class="dataset-select">
-      <option value="projekt">Projekt</option>
-      <option value="objekt">Objekt</option>
-      <option value="messung">Messung</option>
+    <select id="projekt-select">
+      <option value=""{% if not selected_projekt %} selected{% endif %}>Projekt wählen</option>
+      {% for projekt in projekte %}
+      <option value="{{ projekt.id }}"{% if selected_projekt and projekt.id == selected_projekt.id %} selected{% endif %}>{{ projekt.code }} {{ projekt.name }}</option>
+      {% endfor %}
     </select>
     <div class="form-actions">
       <button type="button" class="icon-btn add-btn" title="Projekt hinzufügen">
