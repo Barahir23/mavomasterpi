@@ -1,12 +1,17 @@
-<form method="post" action="{% url 'objekt_edit' selected_objekt.id %}" class="edit-form" id="objekt-edit-form">
+<form method="post" action="{% url 'objekt_edit' selected_objekt.id %}" class="edit-form" id="objekt-edit-form" data-create-url="{% url 'objekt_create' %}">
   {% csrf_token %}
   {{ objekt_form.projekt }}
   <div class="form-header">
     <span class="form-title">Objekt</span>
+    <select class="dataset-select">
+      <option value="projekt">Projekt</option>
+      <option value="objekt">Objekt</option>
+      <option value="messung">Messung</option>
+    </select>
     <div class="form-actions">
-      <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}" class="icon-btn" title="Objekt hinzufügen">
+      <button type="button" class="icon-btn add-btn" title="Objekt hinzufügen">
         <span class="icon">{% include "icons/document-plus.svg" %}</span>
-      </a>
+      </button>
       <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
         <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
       </button>
