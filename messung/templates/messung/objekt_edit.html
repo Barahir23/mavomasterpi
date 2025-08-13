@@ -4,6 +4,9 @@
   <div class="form-header">
     <span class="form-title">Objekt</span>
     <div class="form-actions">
+      <a href="{% url 'objekt_add_project' selected_projekt.id %}" class="icon-btn" title="Objekt hinzufügen">
+        <span class="icon">{% include "icons/document-plus.svg" %}</span>
+      </a>
       <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
         <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
       </button>
