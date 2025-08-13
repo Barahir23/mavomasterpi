@@ -3,12 +3,15 @@ from django.db import models
 
 class Anforderungen(models.Model):
     ref = models.CharField(max_length=100, unique=True)
+    bereich = models.CharField(max_length=255, blank=True, null=True)
     typ = models.TextField(blank=True, null=True)
     avg = models.FloatField(blank=True, null=True)
     avgmod = models.FloatField(blank=True, null=True)
     u0 = models.FloatField(blank=True, null=True)
 
     def __str__(self):
+        if self.typ:
+            return f"{self.ref} {self.typ}"
         return self.ref
 
 
