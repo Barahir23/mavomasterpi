@@ -99,29 +99,13 @@ def projekte_page(request):
         'messung_form': messung_form,
     }
     return render(request, 'messung/projekte_page.html', context)
-
-
-def projekt_add(request):
-    if request.method == 'POST':
-        form = ProjektForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('projekte_page')
-    else:
-        form = ProjektForm()
-    return render(request, 'messung/projekt_form.html', {'form': form})
-
-
 def projekt_edit(request, projekt_id):
     projekt = get_object_or_404(Projekt, pk=projekt_id)
     if request.method == 'POST':
         form = ProjektForm(request.POST, instance=projekt)
         if form.is_valid():
             form.save()
-            return redirect('projekte_page')
-    else:
-        form = ProjektForm(instance=projekt)
-    return render(request, 'messung/projekt_form.html', {'form': form, 'projekt': projekt})
+    return redirect('projekte_page')
 
 
 def projekt_delete(request, projekt_id):
@@ -130,34 +114,13 @@ def projekt_delete(request, projekt_id):
         projekt.delete()
         return redirect('projekte_page')
     return render(request, 'messung/projekt_confirm_delete.html', {'projekt': projekt})
-
-
-def objekt_add(request, projekt_id=None):
-    projekt = get_object_or_404(Projekt, pk=projekt_id) if projekt_id else None
-    if request.method == 'POST':
-        form = ObjektForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('projekte_page')
-    else:
-        initial = {'projekt': projekt} if projekt else None
-        form = ObjektForm(initial=initial)
-        if projekt:
-            form.fields['projekt'].queryset = Projekt.objects.filter(pk=projekt.pk)
-            form.fields['projekt'].widget = forms.HiddenInput()
-    return render(request, 'messung/objekt_form.html', {'form': form, 'projekt': projekt})
-
-
 def objekt_edit(request, objekt_id):
     objekt = get_object_or_404(Objekt, pk=objekt_id)
     if request.method == 'POST':
         form = ObjektForm(request.POST, instance=objekt)
         if form.is_valid():
             form.save()
-            return redirect('projekte_page')
-    else:
-        form = ObjektForm(instance=objekt)
-    return render(request, 'messung/objekt_form.html', {'form': form, 'projekt': objekt.projekt})
+    return redirect('projekte_page')
 
 
 def objekt_delete(request, objekt_id):
@@ -174,10 +137,7 @@ def messung_edit(request, messung_id):
         form = MessungForm(request.POST, instance=messung)
         if form.is_valid():
             form.save()
-            return redirect("projekte_page")
-    else:
-        form = MessungForm(instance=messung)
-    return render(request, "messung/messung_form.html", {"form": form, "messung": messung})
+    return redirect("projekte_page")
 
 def messung_delete(request, messung_id):
     messung = get_object_or_404(Messdaten, pk=messung_id)
