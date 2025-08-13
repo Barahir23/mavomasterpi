@@ -22,7 +22,9 @@
       </select>
     </div>
   </form>
-  {% include "messung/messung_edit.html" %}
+  {% if selected_messung %}
+    {% include "messung/messung_edit.html" %}
+  {% endif %}
 {% endblock %}
 {% block content %}
   <section class="card measurement-card">
