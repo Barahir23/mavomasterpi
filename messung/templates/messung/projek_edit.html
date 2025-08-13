@@ -1,11 +1,16 @@
-<form method="post" action="{% url 'projekt_edit' selected_projekt.id %}" class="edit-form" id="projekt-edit-form">
+<form method="post" action="{% url 'projekt_edit' selected_projekt.id %}" class="edit-form" id="projekt-edit-form" data-create-url="{% url 'projekt_create' %}">
   {% csrf_token %}
   <div class="form-header">
     <span class="form-title">Projekt</span>
+    <select class="dataset-select">
+      <option value="projekt">Projekt</option>
+      <option value="objekt">Objekt</option>
+      <option value="messung">Messung</option>
+    </select>
     <div class="form-actions">
-      <a href="{% url 'projekte_page' %}" class="icon-btn" title="Projekt hinzufügen">
+      <button type="button" class="icon-btn add-btn" title="Projekt hinzufügen">
         <span class="icon">{% include "icons/folder-plus.svg" %}</span>
-      </a>
+      </button>
       <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
         <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
       </button>

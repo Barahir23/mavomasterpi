@@ -117,5 +117,27 @@
       });
     }
   });
+
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const form = btn.closest('form');
+      if(form){
+        form.setAttribute('action', form.dataset.createUrl);
+        form.querySelectorAll('input:not([type="hidden"]), textarea').forEach(el => {
+          el.value = '';
+        });
+        const saveBtn = form.querySelector('.save-btn');
+        if(saveBtn){
+          saveBtn.disabled = false;
+          saveBtn.classList.add('unsaved');
+        }
+      }
+    });
+  });
+
+  const datasetValue = '{% if selected_messung %}messung{% elif selected_objekt %}objekt{% else %}projekt{% endif %}';
+  document.querySelectorAll('.dataset-select').forEach(sel => {
+    sel.value = datasetValue;
+  });
 </script>
 {% endblock %}
