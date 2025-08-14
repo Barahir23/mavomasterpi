@@ -9,9 +9,10 @@
       {% endfor %}
     </select>
     <div class="form-actions">
-      <button type="button" class="icon-btn add-btn" title="Messung hinzufügen">
-        <span class="icon">{% include "icons/document-plus.svg" %}</span>
-      </button>
+      <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}{% if selected_messung %}&messung={{ selected_messung.id }}{% endif %}"
+         class="icon-btn" title="Messung öffnen">
+        <span class="icon">{% include "icons/folder-open.svg" %}</span>
+      </a>
       <button type="submit" class="icon-btn save-btn" title="Speichern" disabled>
         <span class="icon">{% include "icons/folder-arrow-down.svg" %}</span>
       </button>
