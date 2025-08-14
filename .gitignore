@@ -19,6 +19,7 @@
 *.rar
 *.tar
 *.zip
+*.csv
 
 # Logs and databases #
 ######################
@@ -36,6 +37,7 @@ db.sqlite3
 ehthumbs.db
 Thumbs.db
 restartdaphne.sh
+*.sh
 
 # DIRS #
 ######################
