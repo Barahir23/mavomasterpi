@@ -26,8 +26,8 @@
     </div>
   </form>
   <div class="device-connection">
-    <button type="button" class="mm-btn mm-btn--primary" id="device-connect" title="Messgerät verbinden">
-      <span class="icon">{% include "icons/link.svg" %}</span>
+    <button type="button" class="mm-btn mm-btn--ghost" id="device-connect" title="Messgerät verbinden">
+      <span class="icon">{% include "icons/arrow-path-rounded-square.svg" %}</span>
     </button>
     <span id="device-status">{{ device_status }}</span>
   </div>
@@ -38,17 +38,21 @@
 {% block content %}
   <section class="card measurement-card">
     <div class="measurement-main">
-      <button type="button" class="mm-btn mm-btn--primary" id="single-measure" title="Einzelmessung">
+      <button type="button" class="mm-btn mm-btn--ghost" id="single-measure" title="Einzelmessung">
         <span class="icon">{% include "icons/camera.svg" %}</span>
       </button>
       <span id="realtime-value">0.00</span>
     </div>
     <div class="measurement-controls">
-      <button type="button" class="mm-btn mm-btn--primary" id="sequence-start" title="Messsequenz starten">
+      <button type="button" class="mm-btn mm-btn--ghost" id="sequence-start" title="Messsequenz starten">
         <span class="icon">{% include "icons/play.svg" %}</span>
       </button>
       <button type="button" class="mm-btn mm-btn--ghost" id="sequence-stop" title="Messsequenz stoppen">
         <span class="icon">{% include "icons/stop.svg" %}</span>
+      </button>
+      <select id="sequence-select"></select>
+      <button type="button" class="mm-btn mm-btn--ghost" id="sequence-add" title="Neue Messsequenz">
+        <span class="icon">{% include "icons/document-plus.svg" %}</span>
       </button>
     </div>
   </section>
@@ -60,8 +64,7 @@
           <th>Zeit</th>
           <th>Einzelmessung</th>
           <th>Kommentar</th>
-          <th>Sequenz_xy</th>
-          <th>Löschen</th>
+          <th class="delete-column"></th>
         </tr>
       </thead>
       <tbody id="measurement-table-body"></tbody>
