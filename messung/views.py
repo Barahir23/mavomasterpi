@@ -34,26 +34,43 @@ def messung_page(request):
     projekte = Projekt.objects.all().order_by('name')
     anforderungen = Anforderungen.objects.all().order_by('ref')
 
+    projekt_id = request.GET.get('projekt')
     objekt_id = request.GET.get('objekt')
     messung_id = request.GET.get('messung')
 
+    selected_projekt = None
     selected_objekt = None
     selected_messung = None
     messung_form = None
+    objekte = []
+
+    if projekt_id:
+        selected_projekt = get_object_or_404(Projekt, pk=projekt_id)
+        objekte = selected_projekt.objekte.all().order_by('name')
 
     if objekt_id:
-        selected_objekt = get_object_or_404(Objekt, pk=objekt_id)
+        if not selected_projekt:
+            selected_objekt = get_object_or_404(Objekt, pk=objekt_id)
+            selected_projekt = selected_objekt.projekt
+            objekte = selected_projekt.objekte.all().order_by('name')
+        else:
+            selected_objekt = get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
         if messung_id:
             selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
             messung_form = MessungForm(instance=selected_messung)
         else:
             selected_messung = Messdaten.objects.create(objekt=selected_objekt, name="Neue Messung")
-            return redirect(f"{reverse('messung:page')}?objekt={selected_objekt.id}&messung={selected_messung.id}")
+            return redirect(f"{reverse('messung:page')}?projekt={selected_projekt.id}&objekt={selected_objekt.id}&messung={selected_messung.id}")
+
+    device_status = 'Verbunden' if DEVICE and DEVICE.is_connected else 'Nicht verbunden'
 
     context = {
         'projekte': projekte,
+        'objekte': objekte,
+        'selected_projekt': selected_projekt,
         'anforderungen': anforderungen,
         'device_warning': device_warning,
+        'device_status': device_status,
         'selected_objekt': selected_objekt,
         'selected_messung': selected_messung,
         'messung_form': messung_form,
