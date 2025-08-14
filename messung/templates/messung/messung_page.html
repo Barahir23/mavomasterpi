@@ -5,23 +5,32 @@
   <link rel="stylesheet" href="{% static 'css/messung.css' %}">
 {% endblock %}
 {% block sidebar_context %}
-  <form id="selection-form" class="edit-form">
+  <form id="selection-form" class="edit-form" method="get">
     <div class="form-row">
       <label for="project-select">Projektauswahl</label>
       <select id="project-select" name="projekt">
         <option value="">– bitte wählen –</option>
         {% for projekt in projekte %}
-          <option value="{{ projekt.id }}">{{ projekt.name }}</option>
+          <option value="{{ projekt.id }}"{% if selected_projekt and projekt.id == selected_projekt.id %} selected{% endif %}>{{ projekt.name }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="form-row">
       <label for="object-select">Objektauswahl</label>
-      <select id="object-select" name="objekt" disabled>
+      <select id="object-select" name="objekt"{% if not objekte %} disabled{% endif %}>
         <option value="">– bitte wählen –</option>
+        {% for objekt in objekte %}
+          <option value="{{ objekt.id }}"{% if selected_objekt and objekt.id == selected_objekt.id %} selected{% endif %}>{{ objekt.name }}</option>
+        {% endfor %}
       </select>
     </div>
   </form>
+  <div class="device-connection">
+    <button type="button" class="mm-btn mm-btn--primary" id="device-connect" title="Messgerät verbinden">
+      <span class="icon">{% include "icons/link.svg" %}</span>
+    </button>
+    <span id="device-status">{{ device_status }}</span>
+  </div>
   {% if selected_messung %}
     {% include "messung/messung_edit.html" %}
   {% endif %}
@@ -29,7 +38,9 @@
 {% block content %}
   <section class="card measurement-card">
     <div class="measurement-main">
-      <button type="button" class="mm-btn mm-btn--primary" id="single-measure">Einzelmessung</button>
+      <button type="button" class="mm-btn mm-btn--primary" id="single-measure" title="Einzelmessung">
+        <span class="icon">{% include "icons/camera.svg" %}</span>
+      </button>
       <span id="realtime-value">0.00</span>
     </div>
     <div class="measurement-controls">
