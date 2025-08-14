@@ -94,12 +94,9 @@
     });
   });
 
-  {% if selected_objekt %}
-  collapse('#projekt-fields');
-  {% endif %}
-  {% if selected_messung %}
-  collapse('#objekt-fields');
-  {% endif %}
+    {% if selected_messung %}
+    collapse('#objekt-fields');
+    {% endif %}
 
   document.querySelectorAll('.edit-form').forEach(form => {
     const saveBtn = form.querySelector('.save-btn');
