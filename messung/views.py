@@ -67,28 +67,40 @@ def projekte_page(request):
     objekt_id = request.GET.get('objekt')
     messung_id = request.GET.get('messung')
 
-    selected_projekt = None
-    selected_objekt = None
-    selected_messung = None
-    objekte = []
-    messungen = []
-    projekt_form = None
-    objekt_form = None
-    messung_form = None
+    selected_projekt = get_object_or_404(Projekt, pk=projekt_id) if projekt_id else None
+    selected_objekt = (
+        get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
+        if objekt_id and selected_projekt else None
+    )
+    selected_messung = (
+        get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
+        if messung_id and selected_objekt else None
+    )
 
-    if projekt_id:
-        selected_projekt = get_object_or_404(Projekt, pk=projekt_id)
-        objekte = selected_projekt.objekte.all().order_by('name')
-        projekt_form = ProjektForm(instance=selected_projekt)
-        if objekt_id:
-            selected_objekt = get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
-            messungen = selected_objekt.messungen.all().order_by('-erstellt_am')
-            objekt_form = ObjektForm(instance=selected_objekt)
-            objekt_form.fields['projekt'].queryset = Projekt.objects.filter(pk=selected_projekt.pk)
-            objekt_form.fields['projekt'].widget = forms.HiddenInput()
-            if messung_id:
-                selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
-                messung_form = MessungForm(instance=selected_messung)
+    objekte = selected_projekt.objekte.all().order_by('name') if selected_projekt else []
+    messungen = (
+        selected_objekt.messungen.all().order_by('-erstellt_am')
+        if selected_objekt else []
+    )
+
+    projekt_form = ProjektForm(instance=selected_projekt) if selected_projekt else ProjektForm()
+    objekt_form = None
+    if selected_projekt:
+        objekt_form = (
+            ObjektForm(instance=selected_objekt)
+            if selected_objekt
+            else ObjektForm(initial={'projekt': selected_projekt})
+        )
+        objekt_form.fields['projekt'].queryset = Projekt.objects.filter(pk=selected_projekt.pk)
+        objekt_form.fields['projekt'].widget = forms.HiddenInput()
+
+    messung_form = None
+    if selected_objekt:
+        messung_form = (
+            MessungForm(instance=selected_messung)
+            if selected_messung
+            else MessungForm()
+        )
 
     context = {
         'projekte': projekte,
