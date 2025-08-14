@@ -15,3 +15,8 @@ class MessungPageTests(TestCase):
         self.assertEqual(response.status_code, 302)
         messung = Messdaten.objects.get(objekt=self.objekt)
         self.assertIn(f'messung={messung.id}', response['Location'])
+
+    def test_populates_objects_when_project_selected(self):
+        url = reverse('messung:page') + f'?projekt={self.projekt.id}'
+        response = self.client.get(url)
+        self.assertContains(response, f'option value="{self.objekt.id}"')
