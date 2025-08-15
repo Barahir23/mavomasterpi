@@ -33,6 +33,38 @@ document.addEventListener('DOMContentLoaded', () => {
     const sequenceOrder = [];
     let seqCounter = 0;
     let activeSeqKey = null;
+    let saveBtn = null;
+    const intervalInput = document.getElementById('sequence-interval');
+    const countInput = document.getElementById('sequence-count');
+    const durationSpan = document.getElementById('sequence-duration');
+    const countdownSpan = document.getElementById('sequence-countdown');
+    let countdownTimer = null;
+
+    function updateDuration() {
+      if (durationSpan && intervalInput && countInput) {
+        const interval = parseInt(intervalInput.value, 10) || 0;
+        const count = parseInt(countInput.value, 10) || 0;
+        durationSpan.textContent = `Dauer: ${interval * count}s`;
+      }
+    }
+    function startCountdown(sec) {
+      if (!countdownSpan) return;
+      clearInterval(countdownTimer);
+      let remaining = sec;
+      countdownSpan.textContent = remaining;
+      countdownTimer = setInterval(() => {
+        remaining--;
+        countdownSpan.textContent = remaining;
+        if (remaining <= 0) clearInterval(countdownTimer);
+      }, 1000);
+    }
+    function stopCountdown() {
+      clearInterval(countdownTimer);
+      if (countdownSpan) countdownSpan.textContent = '';
+    }
+    if (intervalInput) intervalInput.addEventListener('input', updateDuration);
+    if (countInput) countInput.addEventListener('input', updateDuration);
+    updateDuration();
 
     function addSequenceColumn(name) {
       const key = `seq${++seqCounter}`;
@@ -102,6 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
         singleTd.textContent = formatted;
       }
       tableBody.appendChild(row);
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.classList.add('unsaved');
+      }
     }
 
     const initialName = window.initialSequenceName;
@@ -136,10 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (msg.type === 'sequence.start') {
         if (activeSeqKey && sequences[activeSeqKey]) {
           sequences[activeSeqKey].id = msg.data.id;
+          const interval = parseInt(intervalInput?.value, 10) || 5;
+          startCountdown(interval);
         }
       } else if (msg.type === 'measurement.value' && tableBody) {
         const seqKey = msg.data.is_sequence ? sequenceOrder.find(k => sequences[k].id === msg.data.sequence_id) : null;
         appendRow(msg.data.time, msg.data.value, seqKey);
+        if (msg.data.is_sequence) {
+          const interval = parseInt(intervalInput?.value, 10) || 5;
+          startCountdown(interval);
+        }
+      } else if (msg.type === 'sequence.end') {
+        stopCountdown();
       }
     };
 
@@ -165,7 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (seqSelect && seqSelect.value) {
           activeSeqKey = seqSelect.value;
           const name = sequences[activeSeqKey]?.input.value || '';
-          fetch(`/messung/api/start/?name=${encodeURIComponent(name)}`).catch(err => console.error(err));
+          const interval = parseInt(intervalInput?.value, 10) || 5;
+          const count = parseInt(countInput?.value, 10) || 5;
+          fetch(`/messung/api/start/?name=${encodeURIComponent(name)}&interval=${interval}&count=${count}`).catch(err => console.error(err));
         }
       });
     }
@@ -174,12 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (seqStopBtn) {
       seqStopBtn.addEventListener('click', () => {
         fetch('/messung/api/stop/').catch(err => console.error(err));
+        stopCountdown();
       });
     }
 
     const editForm = document.getElementById('messung-edit-form');
     if (editForm) {
-      const saveBtn = editForm.querySelector('.save-btn');
+      saveBtn = editForm.querySelector('.save-btn');
       if (saveBtn) {
         saveBtn.disabled = true;
         editForm.addEventListener('input', () => {
@@ -187,6 +234,25 @@ document.addEventListener('DOMContentLoaded', () => {
           saveBtn.classList.add('unsaved');
         });
         editForm.addEventListener('submit', () => {
+          const hidden = document.getElementById('messdaten-input');
+          if (hidden) {
+            const data = [];
+            const seqIdx = sequenceOrder.indexOf(activeSeqKey);
+            Array.from(tableBody.rows).forEach(row => {
+              const time = row.children[0].textContent.trim();
+              const comment = row.children[2].querySelector('input').value;
+              let val = '';
+              if (seqIdx !== -1) {
+                val = row.children[3 + seqIdx].textContent;
+              } else {
+                val = row.children[1].textContent;
+              }
+              if (val !== '') {
+                data.push({ time, value: parseFloat(val), comment });
+              }
+            });
+            hidden.value = JSON.stringify(data);
+          }
           saveBtn.classList.remove('unsaved');
           saveBtn.disabled = true;
         });
@@ -221,6 +287,16 @@ document.addEventListener('DOMContentLoaded', () => {
           tmpForm.appendChild(csrfInput);
           document.body.appendChild(tmpForm);
           tmpForm.submit();
+        });
+      }
+
+      const nameField = editForm.querySelector('#id_name');
+      if (nameField) {
+        nameField.addEventListener('input', () => {
+          if (activeSeqKey && sequences[activeSeqKey]) {
+            sequences[activeSeqKey].input.value = nameField.value;
+            sequences[activeSeqKey].option.textContent = nameField.value;
+          }
         });
       }
     }
