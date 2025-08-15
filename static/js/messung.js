@@ -26,6 +26,81 @@ document.addEventListener('DOMContentLoaded', () => {
     const realtimeSpan = document.getElementById('realtime-value');
     const tableBody = document.getElementById('measurement-table-body');
     const headerRow = document.querySelector('.measurement-table thead tr');
+    if (headerRow && headerRow.children[1]) {
+      headerRow.children[1].classList.add('measurement-column');
+    }
+    function toggleCommentColumn(idx) {
+      const colIdx = 2 + idx * 2;
+      const th = headerRow.children[colIdx];
+      const hidden = th.style.display === 'none';
+      const display = hidden ? '' : 'none';
+      th.style.display = display;
+      Array.from(tableBody.rows).forEach(row => {
+        if (row.children[colIdx]) row.children[colIdx].style.display = display;
+      });
+    }
+    document.querySelectorAll('.comment-toggle').forEach(btn => {
+      btn.addEventListener('click', () => toggleCommentColumn(parseInt(btn.dataset.index, 10)));
+    });
+
+    const columnMenu = document.createElement('div');
+    columnMenu.id = 'column-context-menu';
+    columnMenu.innerHTML = '<ul></ul>';
+    document.body.appendChild(columnMenu);
+
+    document.addEventListener('click', () => {
+      columnMenu.style.display = 'none';
+    });
+
+    function computeArrayStats(values) {
+      if (!values.length) {
+        return { avg: null, min: null, max: null, u0: null };
+      }
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const sum = values.reduce((a, b) => a + b, 0);
+      const avg = sum / values.length;
+      const u0 = avg ? min / avg : null;
+      return { avg, min, max, u0 };
+    }
+
+    function getColumnValues(idx) {
+      return Array.from(tableBody.rows)
+        .map(row => {
+          const txt = row.children[idx]?.textContent;
+          return txt === '' ? null : parseFloat(txt);
+        })
+        .filter(v => v !== null && !isNaN(v));
+    }
+
+    function computeStatsFormatted(idx) {
+      const { avg, min, max, u0 } = computeArrayStats(getColumnValues(idx));
+      return {
+        avg: avg !== null ? avg.toFixed(2) : '-',
+        min: min !== null ? min.toFixed(2) : '-',
+        max: max !== null ? max.toFixed(2) : '-',
+        u0: u0 !== null ? u0.toFixed(2) : '-',
+      };
+    }
+
+    if (headerRow) {
+      headerRow.addEventListener('contextmenu', e => {
+        const th = e.target.closest('th');
+        if (!th || !th.classList.contains('measurement-column')) return;
+        e.preventDefault();
+        const idx = Array.from(headerRow.children).indexOf(th);
+        const stats = computeStatsFormatted(idx);
+        const list = columnMenu.querySelector('ul');
+        list.innerHTML = `
+          <li>Mittelwert: ${stats.avg}</li>
+          <li>Min: ${stats.min}</li>
+          <li>Max: ${stats.max}</li>
+          <li>U0: ${stats.u0}</li>`;
+        columnMenu.style.left = `${e.pageX}px`;
+        columnMenu.style.top = `${e.pageY}px`;
+        columnMenu.style.display = 'block';
+      });
+    }
 
     const seqSelect = document.getElementById('sequence-select');
     const seqAddBtn = document.getElementById('sequence-add');
@@ -34,6 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let seqCounter = 0;
     let activeSeqKey = null;
     let saveBtn = null;
+    function markUnsaved() {
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.classList.add('unsaved');
+      }
+    }
     const intervalInput = document.getElementById('sequence-interval');
     const countInput = document.getElementById('sequence-count');
     const durationSpan = document.getElementById('sequence-duration');
@@ -79,14 +160,33 @@ document.addEventListener('DOMContentLoaded', () => {
     function addSequenceColumn(name) {
       const key = `seq${++seqCounter}`;
       sequenceOrder.push(key);
-      const th = document.createElement('th');
+      const measIdx = sequenceOrder.length;
+      const thVal = document.createElement('th');
+      thVal.classList.add('measurement-column');
       const input = document.createElement('input');
       input.type = 'text';
       input.value = name || autoSeqName();
-      th.appendChild(input);
-      headerRow.insertBefore(th, headerRow.querySelector('.delete-column'));
+      thVal.appendChild(input);
+      const deleteTh = headerRow.querySelector('.delete-column');
+      headerRow.insertBefore(thVal, deleteTh);
+      const thComment = document.createElement('th');
+      thComment.classList.add('comment-column');
+      const cBtn = document.createElement('button');
+      cBtn.type = 'button';
+      cBtn.className = 'comment-toggle';
+      cBtn.dataset.index = measIdx;
+      cBtn.textContent = 'Kommentar';
+      cBtn.addEventListener('click', () => toggleCommentColumn(measIdx));
+      thComment.appendChild(cBtn);
+      headerRow.insertBefore(thComment, deleteTh);
       Array.from(tableBody.rows).forEach(row => {
         row.insertBefore(document.createElement('td'), row.lastElementChild);
+        const cTd = document.createElement('td');
+        const cInput = document.createElement('input');
+        cInput.type = 'text';
+        cInput.addEventListener('input', markUnsaved);
+        cTd.appendChild(cInput);
+        row.insertBefore(cTd, row.lastElementChild);
       });
       const option = document.createElement('option');
       option.value = key;
@@ -98,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (key === activeSeqKey && nameField) {
           nameField.value = input.value;
         }
+        markUnsaved();
       });
       seqSelect.value = key;
       activeSeqKey = key;
@@ -105,21 +206,21 @@ document.addEventListener('DOMContentLoaded', () => {
       return key;
     }
 
-    function appendRow(time, value, seqKey, comment = '') {
+    function appendRow(time, value = '', seqKey = null, comment = '') {
       const row = document.createElement('tr');
       const timeTd = document.createElement('td');
       timeTd.textContent = time;
       row.appendChild(timeTd);
-      const singleTd = document.createElement('td');
-      row.appendChild(singleTd);
-      const commentTd = document.createElement('td');
-      const commentInput = document.createElement('input');
-      commentInput.type = 'text';
-      commentInput.value = comment;
-      commentTd.appendChild(commentInput);
-      row.appendChild(commentTd);
-      sequenceOrder.forEach(() => {
-        row.appendChild(document.createElement('td'));
+      const order = ['single', ...sequenceOrder];
+      order.forEach(() => {
+        const valTd = document.createElement('td');
+        row.appendChild(valTd);
+        const cTd = document.createElement('td');
+        const cInput = document.createElement('input');
+        cInput.type = 'text';
+        cInput.addEventListener('input', markUnsaved);
+        cTd.appendChild(cInput);
+        row.appendChild(cTd);
       });
       const deleteTd = document.createElement('td');
       const delBtn = document.createElement('button');
@@ -140,32 +241,44 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       deleteTd.appendChild(delBtn);
       row.appendChild(deleteTd);
-      const formatted = Number(value).toFixed(2);
-      if (seqKey) {
-        const idx = sequenceOrder.indexOf(seqKey);
-        if (idx !== -1) {
-          row.children[3 + idx].textContent = formatted;
-        }
-      } else {
-        singleTd.textContent = formatted;
-      }
       tableBody.appendChild(row);
-      if (saveBtn) {
-        saveBtn.disabled = false;
-        saveBtn.classList.add('unsaved');
+      const orderIdx = order.indexOf(seqKey || 'single');
+      if (value !== '' && orderIdx !== -1) {
+        row.children[1 + orderIdx * 2].textContent = Number(value).toFixed(2);
+        row.children[2 + orderIdx * 2].querySelector('input').value = comment;
       }
+      Array.from(headerRow.children).forEach((th, idx) => {
+        if (th.style.display === 'none' && row.children[idx]) {
+          row.children[idx].style.display = 'none';
+        }
+      });
+      markUnsaved();
+      return row;
     }
 
     const initialTable = window.initialTable;
-    if (initialTable && initialTable.sequences) {
-      initialTable.sequences.forEach(name => addSequenceColumn(name));
-      initialTable.data.forEach(pt => {
-        appendRow(pt.time || '', pt.single || '', null, pt.comment || '');
-        const row = tableBody.lastElementChild;
-        sequenceOrder.forEach((key, idx) => {
-          const val = pt.sequences ? pt.sequences[idx] : null;
-          if (val !== null && val !== undefined && val !== '') {
-            row.children[3 + idx].textContent = Number(val).toFixed(2);
+    if (initialTable && initialTable.messungen) {
+      initialTable.messungen
+        .filter(m => m.name && m.name !== 'Einzelmessung')
+        .forEach(m => addSequenceColumn(m.name));
+      const dataMap = {};
+      const timeSet = new Set();
+      initialTable.messungen.forEach(m => {
+        const map = {};
+        (m.data || []).forEach(pt => {
+          map[pt.time] = pt;
+          timeSet.add(pt.time);
+        });
+        dataMap[m.name] = map;
+      });
+      Array.from(timeSet).sort().forEach(time => {
+        const row = appendRow(time || '');
+        const names = ['Einzelmessung', ...sequenceOrder.map(k => sequences[k].input.value)];
+        names.forEach((name, idx) => {
+          const pt = dataMap[name] ? dataMap[name][time] : null;
+          if (pt) {
+            row.children[1 + idx * 2].textContent = Number(pt.value).toFixed(2);
+            row.children[2 + idx * 2].querySelector('input').value = pt.comment || '';
           }
         });
       });
@@ -260,33 +373,37 @@ document.addEventListener('DOMContentLoaded', () => {
       saveBtn = editForm.querySelector('.save-btn');
       if (saveBtn) {
         saveBtn.disabled = true;
-        editForm.addEventListener('input', () => {
-          saveBtn.disabled = false;
-          saveBtn.classList.add('unsaved');
-        });
+        editForm.addEventListener('input', markUnsaved);
         editForm.addEventListener('submit', () => {
           const hidden = document.getElementById('messdaten-input');
           if (hidden) {
-            const rows = [];
-            Array.from(tableBody.rows).forEach(row => {
-              const time = row.children[0].textContent.trim();
-              const singleText = row.children[1].textContent;
-              const comment = row.children[2].querySelector('input').value;
-              const seqVals = sequenceOrder.map((key, idx) => {
-                const cellText = row.children[3 + idx].textContent;
-                return cellText === '' ? null : parseFloat(cellText);
+            const messungen = [];
+            const order = ['single', ...sequenceOrder];
+            order.forEach((key, idx) => {
+              const name = key === 'single' ? 'Einzelmessung' : sequences[key].input.value;
+              const colIdx = 1 + idx * 2;
+              const data = [];
+              Array.from(tableBody.rows).forEach(row => {
+                const time = row.children[0].textContent.trim();
+                const valText = row.children[colIdx].textContent;
+                const comment = row.children[colIdx + 1].querySelector('input').value;
+                if (valText !== '') {
+                  data.push({ time, value: parseFloat(valText), comment });
+                }
               });
-              if (time || singleText !== '' || seqVals.some(v => v !== null) || comment) {
-                rows.push({
-                  time,
-                  single: singleText === '' ? null : parseFloat(singleText),
-                  sequences: seqVals,
-                  comment
+              if (data.length) {
+                const stats = computeArrayStats(data.map(d => d.value));
+                messungen.push({
+                  name,
+                  data,
+                  avg: stats.avg,
+                  min: stats.min,
+                  max: stats.max,
+                  u0: stats.u0,
                 });
               }
             });
-            const seqNames = sequenceOrder.map(key => sequences[key].input.value);
-            hidden.value = JSON.stringify({ sequences: seqNames, data: rows });
+            hidden.value = JSON.stringify({ messungen });
           }
           saveBtn.classList.remove('unsaved');
           saveBtn.disabled = true;

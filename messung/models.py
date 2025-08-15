@@ -43,38 +43,11 @@ class Messdaten(models.Model):
     anforderung = models.ForeignKey(Anforderungen, on_delete=models.SET_NULL, blank=True, null=True)
     name = models.CharField(max_length=100, help_text="Name der Messung")
     messdaten = models.JSONField(default=list, help_text="Liste von Messpunkten")
-    kommentar = models.TextField(blank=True, null=True)
     device = models.CharField(max_length=255, blank=True, null=True)
     einheit = models.CharField(max_length=50, blank=True, null=True)
     messbedingungen = models.TextField(blank=True, null=True)
-    messhoehe = models.FloatField(blank=True, null=True)
-    min_wert = models.FloatField(blank=True, null=True)
-    max_wert = models.FloatField(blank=True, null=True)
-    avg_wert = models.FloatField(blank=True, null=True)
-    u0 = models.FloatField(blank=True, null=True, help_text="Gleichmässigkeit (min/avg)")
+    messhoehe = models.FloatField(default=0.75, blank=True, null=True)
     erstellt_am = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} für Objekt {self.objekt.name}"
-
-    def save(self, *args, **kwargs):
-        self.min_wert, self.max_wert, self.avg_wert, self.u0 = None, None, None, None
-        werte = []
-        if self.messdaten:
-            if isinstance(self.messdaten, list):
-                werte = [float(punkt['value']) for punkt in self.messdaten if 'value' in punkt]
-            elif isinstance(self.messdaten, dict):
-                for row in self.messdaten.get('data', []):
-                    single = row.get('single')
-                    if single not in (None, ''):
-                        werte.append(float(single))
-                    for val in row.get('sequences', []):
-                        if val not in (None, ''):
-                            werte.append(float(val))
-        if werte:
-            self.min_wert = min(werte)
-            self.max_wert = max(werte)
-            self.avg_wert = sum(werte) / len(werte)
-            if self.avg_wert:
-                self.u0 = self.min_wert / self.avg_wert
-        super().save(*args, **kwargs)
