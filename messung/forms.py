@@ -20,7 +20,7 @@ class ObjektForm(forms.ModelForm):
 class MessungForm(forms.ModelForm):
     class Meta:
         model = Messdaten
-        fields = ['anforderung', 'messbedingungen', 'messhoehe']
+        fields = ['name', 'anforderung', 'messbedingungen', 'messhoehe']
         widgets = {
             'messbedingungen': forms.Textarea(attrs={'rows': 1})
         }
