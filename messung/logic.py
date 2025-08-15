@@ -103,9 +103,6 @@ class MeasurementThread(threading.Thread):
         for i in range(self.count):
             if self._stop_event.is_set():
                 break
-            time.sleep(self.interval)
-            if self._stop_event.is_set():
-                break
             try:
                 value, unit = self.device.get_value()
                 timestamp = time.strftime('%H:%M:%S')
@@ -115,6 +112,7 @@ class MeasurementThread(threading.Thread):
             except ConnectionError as e:
                 print(f"Fehler im Mess-Thread: {e}")
                 break
+            time.sleep(self.interval)
         async_to_sync(self.channel_layer.group_send)('messung_group', {'type': 'sequence.end', 'data': {'id': self.sequence_id}})
         print("Mess-Thread beendet.")
 
