@@ -191,7 +191,7 @@ def messung_edit(request, messung_id):
         form = MessungForm(request.POST, instance=messung)
         if form.is_valid():
             form.save()
-    return redirect("projekte_page")
+    return redirect(f"{reverse('messung:page')}?projekt={messung.objekt.projekt.id}&objekt={messung.objekt.id}&messung={messung.id}")
 
 def messung_delete(request, messung_id):
     messung = get_object_or_404(Messdaten, pk=messung_id)
@@ -210,9 +210,11 @@ def messung_create(request, objekt_id):
         if form.is_valid():
             messung = form.save(commit=False)
             messung.objekt = objekt
+            if not messung.name:
+                messung.name = "Neue Messung"
             messung.save()
-            return redirect(f"{reverse('projekte_page')}?projekt={objekt.projekt.id}&objekt={objekt.id}&messung={messung.id}")
-    return redirect(f"{reverse('projekte_page')}?projekt={objekt.projekt.id}&objekt={objekt.id}")
+            return redirect(f"{reverse('messung:page')}?projekt={objekt.projekt.id}&objekt={objekt.id}&messung={messung.id}")
+    return redirect(f"{reverse('messung:page')}?projekt={objekt.projekt.id}&objekt={objekt.id}")
 
 def create_anforderung(request):
     if request.method == 'POST':
