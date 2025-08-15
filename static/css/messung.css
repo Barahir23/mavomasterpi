@@ -6,7 +6,7 @@
 .measurement-main {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 .measurement-controls {
   display: flex;
@@ -16,23 +16,12 @@
   font-size: 1.5rem;
 }
 
-.measurement-card .mm-btn {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  padding: 0;
-}
-.measurement-card .mm-btn .icon,
-.measurement-card .mm-btn .icon svg {
-  width: 20px;
-  height: 20px;
-}
+
 
 .device-connection {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-top: 1rem;
 }
 
 .measurement-table {

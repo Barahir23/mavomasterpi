@@ -5,6 +5,12 @@
   <link rel="stylesheet" href="{% static 'css/messung.css' %}">
 {% endblock %}
 {% block sidebar_context %}
+  <div class="device-connection">
+    <button type="button" class="icon-btn" id="device-connect" title="Messgerät verbinden">
+      <span class="icon">{% include "icons/arrow-path-rounded-square.svg" %}</span>
+    </button>
+    <span id="device-status">{{ device_status }}</span>
+  </div>
   <form id="selection-form" class="edit-form" method="get">
     <div class="form-row">
       <label for="project-select">Projektauswahl</label>
@@ -25,12 +31,6 @@
       </select>
     </div>
   </form>
-  <div class="device-connection">
-    <button type="button" class="mm-btn mm-btn--ghost" id="device-connect" title="Messgerät verbinden">
-      <span class="icon">{% include "icons/arrow-path-rounded-square.svg" %}</span>
-    </button>
-    <span id="device-status">{{ device_status }}</span>
-  </div>
   {% if selected_messung %}
     {% include "messung/messung_edit.html" %}
   {% endif %}
@@ -38,20 +38,20 @@
 {% block content %}
   <section class="card measurement-card">
     <div class="measurement-main">
-      <button type="button" class="mm-btn mm-btn--ghost" id="single-measure" title="Einzelmessung">
+      <button type="button" class="icon-btn" id="single-measure" title="Einzelmessung">
         <span class="icon">{% include "icons/camera.svg" %}</span>
       </button>
       <span id="realtime-value">0.00</span>
     </div>
     <div class="measurement-controls">
-      <button type="button" class="mm-btn mm-btn--ghost" id="sequence-start" title="Messsequenz starten">
+      <button type="button" class="icon-btn" id="sequence-start" title="Messsequenz starten">
         <span class="icon">{% include "icons/play.svg" %}</span>
       </button>
-      <button type="button" class="mm-btn mm-btn--ghost" id="sequence-stop" title="Messsequenz stoppen">
+      <button type="button" class="icon-btn" id="sequence-stop" title="Messsequenz stoppen">
         <span class="icon">{% include "icons/stop.svg" %}</span>
       </button>
       <select id="sequence-select"></select>
-      <button type="button" class="mm-btn mm-btn--ghost" id="sequence-add" title="Neue Messsequenz">
+      <button type="button" class="icon-btn" id="sequence-add" title="Neue Messsequenz">
         <span class="icon">{% include "icons/document-plus.svg" %}</span>
       </button>
     </div>
