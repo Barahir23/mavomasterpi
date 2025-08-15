@@ -17,7 +17,7 @@
           <a href="{% url 'projekte_page' %}?projekt={{ projekt.id }}">
             <h2>{{ projekt.code }}</br>{{ projekt.name }}</h2>
           </a>
-          <form method="post" action="{% url 'projekt_delete' projekt.id %}" onsubmit="return confirm('Möchten Sie wirklich löschen?');">
+          <form method="post" action="{% url 'projekt_delete' projekt.id %}">
             {% csrf_token %}
             <button type="submit" class="delete-btn" title="Löschen">
               <span class="icon">{% include "icons/trash.svg" %}</span>
@@ -35,7 +35,7 @@
             <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ objekt.id }}">
               <h3>{{ objekt.nummer }}</br>{{ objekt.name }}</h3>
             </a>
-            <form method="post" action="{% url 'objekt_delete' objekt.id %}" onsubmit="return confirm('Möchten Sie wirklich löschen?');">
+            <form method="post" action="{% url 'objekt_delete' objekt.id %}">
               {% csrf_token %}
               <button type="submit" class="delete-btn" title="Löschen">
                 <span class="icon">{% include "icons/trash.svg" %}</span>
@@ -54,7 +54,7 @@
             <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ selected_objekt.id }}&messung={{ messung.id }}">
               <h4>{{ messung.name }}</h4>
             </a>
-            <form method="post" action="{% url 'messung_delete' messung.id %}" onsubmit="return confirm('Möchten Sie wirklich löschen?');">
+            <form method="post" action="{% url 'messung_delete' messung.id %}">
               {% csrf_token %}
               <button type="submit" class="delete-btn" title="Löschen">
                 <span class="icon">{% include "icons/trash.svg" %}</span>
@@ -132,6 +132,23 @@
           body.classList.remove('collapsed');
           toggle.classList.remove('collapsed');
         }
+      }
+    });
+  });
+
+  document.querySelectorAll('.delete-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const form = btn.closest('form');
+      if (window.mmModal && form) {
+        window.mmModal.open({
+          title: 'Eintrag löschen?',
+          text: 'Soll dieser Eintrag wirklich gelöscht werden?',
+          okText: 'Löschen',
+          onConfirm: () => form.submit()
+        });
+      } else if (form) {
+        form.submit();
       }
     });
   });

@@ -63,6 +63,8 @@ def messung_page(request):
             return redirect(f"{reverse('messung:page')}?projekt={selected_projekt.id}&objekt={selected_objekt.id}&messung={selected_messung.id}")
 
     device_status = 'Verbunden' if DEVICE and DEVICE.is_connected else 'Nicht verbunden'
+    initial_name = selected_messung.name if selected_messung else ''
+    initial_data = json.dumps(selected_messung.messdaten) if selected_messung and selected_messung.messdaten else '[]'
 
     context = {
         'projekte': projekte,
@@ -74,6 +76,8 @@ def messung_page(request):
         'selected_objekt': selected_objekt,
         'selected_messung': selected_messung,
         'messung_form': messung_form,
+        'initial_sequence_name': initial_name,
+        'initial_sequence_data': initial_data,
     }
     return render(request, 'messung/messung_page.html', context)
 
@@ -336,14 +340,18 @@ def save_messungen(request):
     try:
         objekt_instanz = Objekt.objects.get(pk=objekt_id)
         anforderung_instanz = Anforderungen.objects.get(pk=anforderung_id) if anforderung_id else None
+        saved_count = 0
         for messung in messungen_data:
+            if not messung.get('messdaten'):
+                continue
             Messdaten.objects.create(
                 objekt=objekt_instanz, anforderung=anforderung_instanz, name=messung.get('name'),
                 messdaten=messung.get('messdaten', []), kommentar=messung.get('kommentar', ''),
                 device=device_info, einheit=messung.get('einheit', ''),
                 messbedingungen=messbedingungen, messhoehe=messhoehe
             )
-        return JsonResponse({'status': f'{len(messungen_data)} Messung(en) erfolgreich gespeichert'})
+            saved_count += 1
+        return JsonResponse({'status': f'{saved_count} Messung(en) erfolgreich gespeichert'})
     except (Objekt.DoesNotExist, Anforderungen.DoesNotExist):
         return JsonResponse({'error': 'Objekt oder Anforderung nicht gefunden'}, status=404)
     except Exception as e:
