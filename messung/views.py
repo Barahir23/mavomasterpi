@@ -351,7 +351,7 @@ def save_messungen(request):
     messbedingungen = data.get('messbedingungen', '')
     messhoehe = data.get('messhoehe')
     if messhoehe in (None, ''):
-        messhoehe = None
+        messhoehe = 0.75
     if not objekt_id or not messungen_data:
         return JsonResponse({'error': 'Fehlende Daten'}, status=400)
     try:
@@ -359,13 +359,18 @@ def save_messungen(request):
         anforderung_instanz = Anforderungen.objects.get(pk=anforderung_id) if anforderung_id else None
         saved_count = 0
         for messung in messungen_data:
-            if not messung.get('messdaten'):
+            data_points = messung.get('data') or messung.get('messdaten')
+            if not data_points:
                 continue
             Messdaten.objects.create(
-                objekt=objekt_instanz, anforderung=anforderung_instanz, name=messung.get('name'),
-                messdaten=messung.get('messdaten', []), kommentar=messung.get('kommentar', ''),
-                device=device_info, einheit=messung.get('einheit', ''),
-                messbedingungen=messbedingungen, messhoehe=messhoehe
+                objekt=objekt_instanz,
+                anforderung=anforderung_instanz,
+                name=messung.get('name'),
+                messdaten=data_points,
+                device=device_info,
+                einheit=messung.get('einheit', ''),
+                messbedingungen=messbedingungen,
+                messhoehe=messhoehe,
             )
             saved_count += 1
         return JsonResponse({'status': f'{saved_count} Messung(en) erfolgreich gespeichert'})
@@ -402,15 +407,27 @@ def export_messungen_xlsx(request, objekt_id):
     for messung in messungen:
         ws_druck[f'A{row_num}'] = messung.name or ""
         ws_druck[f'B{row_num}'] = messung.anforderung.ref if messung.anforderung else ""
-        ws_druck[f'C{row_num}'] = messung.avg_wert
-        ws_druck[f'D{row_num}'] = messung.min_wert
-        ws_druck[f'E{row_num}'] = messung.max_wert
-        ws_druck[f'F{row_num}'] = messung.u0
+        punkte = messung.messdaten
+        if isinstance(punkte, dict):
+            punkte = punkte.get('data', [])
+        werte = [float(p.get('value')) for p in punkte if p.get('value') not in (None, '')]
+        if werte:
+            avg = sum(werte) / len(werte)
+            min_wert = min(werte)
+            max_wert = max(werte)
+            u0 = min_wert / avg if avg else None
+        else:
+            avg = min_wert = max_wert = u0 = None
+        ws_druck[f'C{row_num}'] = avg
+        ws_druck[f'D{row_num}'] = min_wert
+        ws_druck[f'E{row_num}'] = max_wert
+        ws_druck[f'F{row_num}'] = u0
         row_num += 1
     ws_daten = wb.create_sheet(title="Messdaten")
-    headers_daten = ["Zeit", "Einzelmessung", "Kommentar"]
-    sequenz_namen = sorted(list(set(m.name for m in messungen if m.name and m.name != 'Einzelmessung')))
-    headers_daten.extend(sequenz_namen)
+    headers_daten = ["Zeit"]
+    namen = [m.name for m in messungen]
+    for n in namen:
+        headers_daten.extend([n, "Kommentar"])
     ws_daten.append(headers_daten)
     daten_pro_zeit = {}
     for messung in messungen:
@@ -419,18 +436,17 @@ def export_messungen_xlsx(request, objekt_id):
             punkte = punkte.get('data', [])
         for punkt in punkte:
             zeit = punkt.get('time')
-            wert = punkt.get('value')
             if not zeit:
                 continue
             if zeit not in daten_pro_zeit:
-                daten_pro_zeit[zeit] = {h: '' for h in headers_daten}
-            if messung.name == 'Einzelmessung':
-                daten_pro_zeit[zeit]['Einzelmessung'] = wert
-                daten_pro_zeit[zeit]['Kommentar'] = messung.kommentar or ""
-            elif messung.name in sequenz_namen:
-                daten_pro_zeit[zeit][messung.name] = wert
+                daten_pro_zeit[zeit] = {}
+            daten_pro_zeit[zeit][messung.name] = punkt.get('value', '')
+            daten_pro_zeit[zeit][f"{messung.name}_comment"] = punkt.get('comment', '')
     for zeit in sorted(daten_pro_zeit.keys()):
-        row_data = [zeit] + [daten_pro_zeit[zeit].get(h, '') for h in headers_daten[1:]]
+        row_data = [zeit]
+        for n in namen:
+            row_data.append(daten_pro_zeit[zeit].get(n, ''))
+            row_data.append(daten_pro_zeit[zeit].get(f"{n}_comment", ''))
         ws_daten.append(row_data)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     safe_filename = "".join([c for c in objekt.name if c.isalpha() or c.isdigit() or c.isspace()]).rstrip().replace(" ", "_")
