@@ -43,6 +43,7 @@ def messung_page(request):
     selected_messung = None
     messung_form = None
     objekte = []
+    messungen = []
 
     if projekt_id:
         selected_projekt = get_object_or_404(Projekt, pk=projekt_id)
@@ -55,16 +56,18 @@ def messung_page(request):
             objekte = selected_projekt.objekte.all().order_by('name')
         else:
             selected_objekt = get_object_or_404(Objekt, pk=objekt_id, projekt=selected_projekt)
+        messungen = selected_objekt.messungen.all().order_by('erstellt_am')
         if messung_id:
             selected_messung = get_object_or_404(Messdaten, pk=messung_id, objekt=selected_objekt)
             messung_form = MessungForm(instance=selected_messung)
         else:
-            selected_messung = Messdaten.objects.create(objekt=selected_objekt, name="Neue Messung")
+            laufnummer = selected_objekt.messungen.count() + 1
+            auto_name = f"Messung {laufnummer} ({datetime.now().strftime('%Y-%m-%d')})"
+            selected_messung = Messdaten.objects.create(objekt=selected_objekt, name=auto_name)
             return redirect(f"{reverse('messung:page')}?projekt={selected_projekt.id}&objekt={selected_objekt.id}&messung={selected_messung.id}")
 
     device_status = 'Verbunden' if DEVICE and DEVICE.is_connected else 'Nicht verbunden'
-    initial_name = selected_messung.name if selected_messung else ''
-    initial_data = json.dumps(selected_messung.messdaten) if selected_messung and selected_messung.messdaten else '[]'
+    initial_table = json.dumps(selected_messung.messdaten) if selected_messung and selected_messung.messdaten else 'null'
 
     context = {
         'projekte': projekte,
@@ -76,8 +79,8 @@ def messung_page(request):
         'selected_objekt': selected_objekt,
         'selected_messung': selected_messung,
         'messung_form': messung_form,
-        'initial_sequence_name': initial_name,
-        'initial_sequence_data': initial_data,
+        'messungen': messungen,
+        'initial_table': initial_table,
     }
     return render(request, 'messung/messung_page.html', context)
 
@@ -190,7 +193,13 @@ def messung_edit(request, messung_id):
     if request.method == "POST":
         form = MessungForm(request.POST, instance=messung)
         if form.is_valid():
-            form.save()
+            messung_obj = form.save(commit=False)
+            messdaten_json = request.POST.get('messdaten', '[]')
+            try:
+                messung_obj.messdaten = json.loads(messdaten_json)
+            except json.JSONDecodeError:
+                messung_obj.messdaten = []
+            messung_obj.save()
     return redirect(f"{reverse('messung:page')}?projekt={messung.objekt.projekt.id}&objekt={messung.objekt.id}&messung={messung.id}")
 
 def messung_delete(request, messung_id):
@@ -211,7 +220,13 @@ def messung_create(request, objekt_id):
             messung = form.save(commit=False)
             messung.objekt = objekt
             if not messung.name:
-                messung.name = "Neue Messung"
+                laufnummer = objekt.messungen.count() + 1
+                messung.name = f"Messung {laufnummer} ({datetime.now().strftime('%Y-%m-%d')})"
+            messdaten_json = request.POST.get('messdaten', '[]')
+            try:
+                messung.messdaten = json.loads(messdaten_json)
+            except json.JSONDecodeError:
+                messung.messdaten = []
             messung.save()
             return redirect(f"{reverse('messung:page')}?projekt={objekt.projekt.id}&objekt={objekt.id}&messung={messung.id}")
     return redirect(f"{reverse('messung:page')}?projekt={objekt.projekt.id}&objekt={objekt.id}")
@@ -399,7 +414,10 @@ def export_messungen_xlsx(request, objekt_id):
     ws_daten.append(headers_daten)
     daten_pro_zeit = {}
     for messung in messungen:
-        for punkt in messung.messdaten:
+        punkte = messung.messdaten
+        if isinstance(punkte, dict):
+            punkte = punkte.get('data', [])
+        for punkt in punkte:
             zeit = punkt.get('time')
             wert = punkt.get('value')
             if not zeit:

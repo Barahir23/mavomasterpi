@@ -1,5 +1,6 @@
 <form method="post" action="{% if selected_messung %}{% url 'messung_edit' selected_messung.id %}{% else %}{% url 'messung_create' selected_objekt.id %}{% endif %}" class="edit-form" id="messung-edit-form" data-create-url="{% url 'messung_create' selected_objekt.id %}">
   {% csrf_token %}
+  <input type="hidden" name="messdaten" id="messdaten-input">
   <div class="form-header">
     <span class="form-title">Messung</span>
     <select id="messung-select">
@@ -25,6 +26,9 @@
     </div>
   </div>
   <div id="messung-fields" class="accordion-body">
+    <div class="form-row">
+      {{ messung_form.name.label_tag }} {{ messung_form.name }}
+    </div>
     <div class="form-row">
       {{ messung_form.anforderung.label_tag }} {{ messung_form.anforderung }}
     </div>

@@ -59,12 +59,22 @@ class Messdaten(models.Model):
 
     def save(self, *args, **kwargs):
         self.min_wert, self.max_wert, self.avg_wert, self.u0 = None, None, None, None
-        if self.messdaten and isinstance(self.messdaten, list):
-            werte = [float(punkt['value']) for punkt in self.messdaten if 'value' in punkt]
-            if werte:
-                self.min_wert = min(werte)
-                self.max_wert = max(werte)
-                self.avg_wert = sum(werte) / len(werte)
-                if self.avg_wert:
-                    self.u0 = self.min_wert / self.avg_wert
+        werte = []
+        if self.messdaten:
+            if isinstance(self.messdaten, list):
+                werte = [float(punkt['value']) for punkt in self.messdaten if 'value' in punkt]
+            elif isinstance(self.messdaten, dict):
+                for row in self.messdaten.get('data', []):
+                    single = row.get('single')
+                    if single not in (None, ''):
+                        werte.append(float(single))
+                    for val in row.get('sequences', []):
+                        if val not in (None, ''):
+                            werte.append(float(val))
+        if werte:
+            self.min_wert = min(werte)
+            self.max_wert = max(werte)
+            self.avg_wert = sum(werte) / len(werte)
+            if self.avg_wert:
+                self.u0 = self.min_wert / self.avg_wert
         super().save(*args, **kwargs)
