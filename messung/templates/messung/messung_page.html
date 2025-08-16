@@ -37,28 +37,28 @@
 {% endblock %}
 {% block content %}
   <section class="card measurement-card">
-    <div class="sequence-row">
+    <div class="controls-row">
       <select id="sequence-select"></select>
       <button type="button" class="icon-btn" id="sequence-add" title="Neue Messreihe">
         <span class="icon">{% include "icons/document-plus.svg" %}</span>
       </button>
-    </div>
-    <div class="measurement-main">
-      <button type="button" class="icon-btn" id="single-measure" title="Einzelmessung">
-        <span class="icon">{% include "icons/camera.svg" %}</span>
-      </button>
-      <span id="realtime-value">0.00</span>
-    </div>
-    <div class="control-buttons">
-      <button type="button" class="icon-btn" id="sequence-start" title="Messreihe starten">
-        <span class="icon">{% include "icons/play.svg" %}</span>
-      </button>
-      <button type="button" class="icon-btn" id="sequence-stop" title="Messreihe stoppen">
-        <span class="icon">{% include "icons/stop.svg" %}</span>
-      </button>
-    </div>
-    <span id="sequence-duration"></span>
-    <div class="range-controls">
+      <div class="measurement-main">
+        <button type="button" class="icon-btn" id="single-measure" title="Einzelmessung">
+          <span class="icon">{% include "icons/camera.svg" %}</span>
+        </button>
+        <span id="realtime-value">0.00</span>
+      </div>
+      <div class="control-group">
+        <div class="control-buttons">
+          <button type="button" class="icon-btn" id="sequence-start" title="Messreihe starten">
+            <span class="icon">{% include "icons/play.svg" %}</span>
+          </button>
+          <button type="button" class="icon-btn" id="sequence-stop" title="Messreihe stoppen">
+            <span class="icon">{% include "icons/stop.svg" %}</span>
+          </button>
+        </div>
+        <span id="sequence-duration"></span>
+      </div>
       <div class="range-group">
         <label for="sequence-interval">Intervall (s): <span id="sequence-interval-display">5</span></label>
         <input type="range" id="sequence-interval" min="1" max="10" value="5">
@@ -72,6 +72,10 @@
 
   <section class="card">
     <table class="measurement-table">
+      <colgroup id="measurement-colgroup">
+        <col class="time-column">
+        <col class="delete-column">
+      </colgroup>
       <thead>
         <tr>
           <th class="time-column">Zeit</th>
