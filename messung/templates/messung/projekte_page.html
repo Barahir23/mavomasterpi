@@ -5,6 +5,9 @@
   {% if selected_projekt %}
     {% include "messung/objekt_edit.html" %}
   {% endif %}
+  {% if selected_objekt %}
+    {% include "messung/messung_edit.html" %}
+  {% endif %}
 {% endblock %}
 {% block content %}
   <div class="element-columns">
@@ -47,12 +50,9 @@
     <div class="column">
       {% if selected_objekt %}
         {% for messung in messungen %}
-          <section class="card element-card messung-card has-delete has-open{% if selected_messung and messung.id == selected_messung.id %} selected{% endif %}">
+          <section class="card element-card messung-card has-delete{% if selected_messung and messung.id == selected_messung.id %} selected{% endif %}">
             <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ selected_objekt.id }}&messung={{ messung.id }}">
               <h4>{{ messung.name }}</h4>
-            </a>
-            <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}&messung={{ messung.id }}" class="open-btn" title="Messung öffnen">
-              <span class="icon">{% include "icons/folder-open.svg" %}</span>
             </a>
             <form method="post" action="{% url 'messung_delete' messung.id %}">
               {% csrf_token %}
@@ -67,30 +67,6 @@
       {% endif %}
     </div>
   </div>
-  {% if selected_messung %}
-    <section class="card">
-      <table class="measurement-table">
-        <thead>
-          <tr>
-            <th>Zeit</th>
-            <th>Wert</th>
-            <th>Kommentar</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for punkt in messpunkte %}
-          <tr>
-            <td>{{ punkt.time }}</td>
-            <td>{{ punkt.value }}</td>
-            <td>{{ punkt.comment }}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="3">Keine Messdaten vorhanden.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </section>
-  {% endif %}
 {% endblock %}
 {% block extra_js %}
 {% if selected_projekt or selected_objekt or selected_messung %}
@@ -178,6 +154,7 @@
   });
 
   const selectedProjektId = {{ selected_projekt.id|default:"null" }};
+  const selectedObjektId = {{ selected_objekt.id|default:"null" }};
 
   const projektSelect = document.getElementById('projekt-select');
   if(projektSelect){
@@ -195,6 +172,16 @@
       const id = e.target.value;
       if(id){
         window.location.href = `?projekt=${selectedProjektId}&objekt=${id}`;
+      }
+    });
+  }
+
+  const messungSelect = document.getElementById('messung-select');
+  if(messungSelect){
+    messungSelect.addEventListener('change', e => {
+      const id = e.target.value;
+      if(id){
+        window.location.href = `?projekt=${selectedProjektId}&objekt=${selectedObjektId}&messung=${id}`;
       }
     });
   }

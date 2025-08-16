@@ -10,6 +10,10 @@
       {% endfor %}
     </select>
     <div class="form-actions">
+      <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}{% if selected_messung %}&messung={{ selected_messung.id }}{% endif %}"
+         class="icon-btn" title="Messung öffnen">
+        <span class="icon">{% include "icons/folder-open.svg" %}</span>
+      </a>
       <button type="button" class="icon-btn new-btn" title="Neue Messung">
         <span class="icon">{% include "icons/document-plus.svg" %}</span>
       </button>
