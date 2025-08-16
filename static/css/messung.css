@@ -97,3 +97,41 @@
 #column-context-menu li {
   padding: 0.2rem 0;
 }
+
+.anforderung-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1500;
+}
+
+.anforderung-modal .modal-content {
+  background: var(--color-bg, #fff);
+  padding: 1rem;
+  max-height: 80vh;
+  overflow: auto;
+  width: 80%;
+  max-width: 400px;
+}
+
+#anforderung-results .bereich {
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+#anforderung-results ul {
+  list-style: none;
+  margin: 0;
+  padding-left: 1rem;
+}
+
+#anforderung-results li {
+  cursor: pointer;
+  padding: 0.2rem 0;
+}

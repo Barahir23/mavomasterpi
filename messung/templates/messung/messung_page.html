@@ -86,6 +86,7 @@
 {% block extra_js %}
   <script>
     window.initialTable = {{ initial_table|safe }};
+    window.anforderungenData = {{ anforderungen_json|safe }};
   </script>
   <script src="{% static 'js/messung.js' %}"></script>
 {% endblock %}
