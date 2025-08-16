@@ -21,23 +21,20 @@ document.addEventListener('DOMContentLoaded', () => {
       form.submit();
     });
   }
-  if ('wakeLock' in navigator) {
-    let wakeLock = null;
-    const requestWakeLock = async () => {
+  const noSleep = new NoSleep();
+  let wakeLock = null;
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible') {
       try {
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => { wakeLock = null; });
-      } catch (err) {
-        console.error(err);
+        if (!wakeLock) {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => { wakeLock = null; });
+        }
+      } catch {
+        noSleep.enable();
       }
-    };
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && !wakeLock) {
-        requestWakeLock();
-      }
-    });
-    requestWakeLock();
-  }
+    }
+  });
 
   const statusSpan = document.getElementById('device-status');
     const realtimeSpan = document.getElementById('realtime-value');
@@ -354,10 +351,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const connectBtn = document.getElementById('device-connect');
   if (connectBtn) {
-    connectBtn.addEventListener('click', () => {
-      fetch('/messung/api/connect/')
-        .then(() => fetch('/messung/api/polling/start/'))
-        .catch(err => console.error(err));
+    connectBtn.addEventListener('click', async () => {
+      try {
+        await fetch('/messung/api/connect/');
+        await fetch('/messung/api/polling/start/');
+      } catch (err) {
+        console.error(err);
+      }
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      } catch (err) {
+        console.warn('Wake Lock failed, using NoSleep.', err);
+        noSleep.enable();
+      }
     });
   }
 
