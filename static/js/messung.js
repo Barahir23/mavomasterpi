@@ -40,20 +40,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const realtimeSpan = document.getElementById('realtime-value');
     const tableBody = document.getElementById('measurement-table-body');
     const headerRow = document.querySelector('.measurement-table thead tr');
-    const colGroup = document.getElementById('measurement-colgroup');
     const eyeIcon = '<span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M2.03555 12.3224C1.96647 12.1151 1.9664 11.8907 2.03536 11.6834C3.42372 7.50972 7.36079 4.5 12.0008 4.5C16.6387 4.5 20.5742 7.50692 21.9643 11.6776C22.0334 11.8849 22.0335 12.1093 21.9645 12.3166C20.5761 16.4903 16.6391 19.5 11.9991 19.5C7.36119 19.5 3.42564 16.4931 2.03555 12.3224Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path class="svg-icon" stroke="var(--svg-icon)" d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
     const eyeSlashIcon = '<span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M3.97993 8.22257C3.05683 9.31382 2.35242 10.596 1.93436 12.0015C3.22565 16.338 7.24311 19.5 11.9991 19.5C12.9917 19.5 13.9521 19.3623 14.8623 19.1049M6.22763 6.22763C7.88389 5.13558 9.86771 4.5 12 4.5C16.756 4.5 20.7734 7.66205 22.0647 11.9985C21.3528 14.3919 19.8106 16.4277 17.772 17.772M6.22763 6.22763L3 3M6.22763 6.22763L9.87868 9.87868M17.772 17.772L21 21M17.772 17.772L14.1213 14.1213M14.1213 14.1213C14.6642 13.5784 15 12.8284 15 12C15 10.3431 13.6569 9 12 9C11.1716 9 10.4216 9.33579 9.87868 9.87868M14.1213 14.1213L9.87868 9.87868"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
 
     function toggleCommentColumn(idx, btn) {
       const colIdx = 2 + idx * 2;
       const th = headerRow.children[colIdx];
-      const col = colGroup.children[colIdx];
-      const hidden = th.style.visibility === 'collapse';
-      const vis = hidden ? 'visible' : 'collapse';
-      th.style.visibility = vis;
-      if (col) col.style.visibility = vis;
+      const hidden = th.style.display === 'none';
+      const display = hidden ? '' : 'none';
+      th.style.display = display;
       Array.from(tableBody.rows).forEach(row => {
-        if (row.children[colIdx]) row.children[colIdx].style.visibility = vis;
+        if (row.children[colIdx]) row.children[colIdx].style.display = display;
       });
       if (btn) btn.innerHTML = hidden ? eyeSlashIcon : eyeIcon;
     }
@@ -184,96 +181,35 @@ document.addEventListener('DOMContentLoaded', () => {
       const laufnummer = Object.keys(sequences).length + 1;
       return `Messreihe ${laufnummer} (${date})`;
     }
-    function cleanupEmptyRows() {
-      Array.from(tableBody.rows).forEach(row => {
-        const hasValue = sequenceOrder.some((_, i) => {
-          const cell = row.children[1 + i * 2];
-          return cell && cell.textContent !== '';
-        });
-        if (!hasValue) row.remove();
-      });
-    }
-    function removeSequenceColumn(key) {
-      const idx = sequenceOrder.indexOf(key);
-      if (idx === -1) return;
-      const colIdx = 1 + idx * 2;
-      headerRow.removeChild(headerRow.children[colIdx]);
-      headerRow.removeChild(headerRow.children[colIdx]);
-      if (colGroup) {
-        colGroup.removeChild(colGroup.children[colIdx]);
-        colGroup.removeChild(colGroup.children[colIdx]);
-      }
-      Array.from(tableBody.rows).forEach(row => {
-        row.removeChild(row.children[colIdx]);
-        row.removeChild(row.children[colIdx]);
-      });
-      sequences[key].option.remove();
-      delete sequences[key];
-      sequenceOrder.splice(idx, 1);
-      headerRow.querySelectorAll('.comment-toggle').forEach((btn, i) => {
-        btn.dataset.index = i;
-      });
-      cleanupEmptyRows();
-      activeSeqKey = sequenceOrder[sequenceOrder.length - 1] || null;
-      if (seqSelect) seqSelect.value = activeSeqKey || '';
-      markUnsaved();
-    }
 
       function addSequenceColumn(name) {
         const key = `seq${++seqCounter}`;
         sequenceOrder.push(key);
         const measIdx = sequenceOrder.length - 1;
-
-        const deleteCol = colGroup.querySelector('.delete-column');
-        const valCol = document.createElement('col');
-        valCol.className = 'value-column';
-        colGroup.insertBefore(valCol, deleteCol);
-        const commentCol = document.createElement('col');
-        commentCol.className = 'comment-column';
-        commentCol.style.visibility = 'collapse';
-        colGroup.insertBefore(commentCol, deleteCol);
-
         const thVal = document.createElement('th');
         thVal.classList.add('measurement-column');
         const input = document.createElement('input');
         input.type = 'text';
         input.value = name || autoSeqName();
         thVal.appendChild(input);
-        const delBtn = document.createElement('button');
-        delBtn.type = 'button';
-        delBtn.className = 'icon-btn delete-sequence';
-        delBtn.innerHTML = '<span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M14.7404 9L14.3942 18M9.60577 18L9.25962 9M19.2276 5.79057C19.5696 5.84221 19.9104 5.89747 20.25 5.95629M19.2276 5.79057L18.1598 19.6726C18.0696 20.8448 17.0921 21.75 15.9164 21.75H8.08357C6.90786 21.75 5.93037 20.8448 5.8402 19.6726L4.77235 5.79057M19.2276 5.79057C18.0812 5.61744 16.9215 5.48485 15.75 5.39432M3.75 5.95629C4.08957 5.89747 4.43037 5.84221 4.77235 5.79057M4.77235 5.79057C5.91878 5.61744 7.07849 5.48485 8.25 5.39432M15.75 5.39432V4.47819C15.75 3.29882 14.8393 2.31423 13.6606 2.27652C13.1092 2.25889 12.5556 2.25 12 2.25C11.4444 2.25 10.8908 2.25889 10.3394 2.27652C9.16065 2.31423 8.25 3.29882 8.25 4.47819V5.39432M15.75 5.39432C14.5126 5.2987 13.262 5.25 12 5.25C10.738 5.25 9.48744 5.2987 8.25 5.39432" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-        delBtn.addEventListener('click', () => {
-          if (window.mmModal && window.mmModal.open) {
-            window.mmModal.open({
-              title: 'Messreihe löschen?',
-              text: 'Soll die Messreihe entfernt werden?',
-              okText: 'Löschen',
-              onConfirm: () => removeSequenceColumn(key)
-            });
-          } else {
-            removeSequenceColumn(key);
-          }
-        });
-        thVal.appendChild(delBtn);
         const cBtn = document.createElement('button');
         cBtn.type = 'button';
         cBtn.className = 'icon-btn comment-toggle';
         cBtn.dataset.index = measIdx;
         cBtn.innerHTML = eyeIcon;
-        cBtn.addEventListener('click', () => toggleCommentColumn(parseInt(cBtn.dataset.index, 10), cBtn));
+        cBtn.addEventListener('click', () => toggleCommentColumn(measIdx, cBtn));
         thVal.appendChild(cBtn);
         const deleteTh = headerRow.querySelector('.delete-column');
         headerRow.insertBefore(thVal, deleteTh);
         const thComment = document.createElement('th');
         thComment.classList.add('comment-column');
-        thComment.style.visibility = 'collapse';
+        thComment.style.display = 'none';
         headerRow.insertBefore(thComment, deleteTh);
         Array.from(tableBody.rows).forEach(row => {
           const valTd = document.createElement('td');
           row.insertBefore(valTd, row.lastElementChild);
           const cTd = document.createElement('td');
-          cTd.style.visibility = 'collapse';
+          cTd.style.display = 'none';
           const cInput = document.createElement('input');
           cInput.type = 'text';
           cInput.addEventListener('input', markUnsaved);
@@ -299,11 +235,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const timeTd = document.createElement('td');
         timeTd.textContent = time;
         row.appendChild(timeTd);
-        sequenceOrder.forEach((_, idx) => {
+        sequenceOrder.forEach(() => {
           const valTd = document.createElement('td');
           row.appendChild(valTd);
           const cTd = document.createElement('td');
-          cTd.style.visibility = headerRow.children[2 + idx * 2]?.style.visibility || 'collapse';
           const cInput = document.createElement('input');
           cInput.type = 'text';
           cInput.addEventListener('input', markUnsaved);
@@ -336,8 +271,8 @@ document.addEventListener('DOMContentLoaded', () => {
           row.children[2 + orderIdx * 2].querySelector('input').value = comment;
         }
       Array.from(headerRow.children).forEach((th, idx) => {
-        if (th.style.visibility === 'collapse' && row.children[idx]) {
-          row.children[idx].style.visibility = 'collapse';
+        if (th.style.display === 'none' && row.children[idx]) {
+          row.children[idx].style.display = 'none';
         }
       });
       markUnsaved();
