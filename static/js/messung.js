@@ -464,5 +464,23 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       requestWakeLock();
     }
+
+    if ('wakeLock' in navigator) {
+      let wakeLock = null;
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => { wakeLock = null; });
+        } catch (err) {
+          console.error(err);
+        }
+      };
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !wakeLock) {
+          requestWakeLock();
+        }
+      });
+      requestWakeLock();
+    }
   });
 
