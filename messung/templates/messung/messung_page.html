@@ -80,11 +80,13 @@
     <table class="measurement-table">
       <colgroup id="measurement-colgroup">
         <col class="time-column">
+        <col class="filler-column">
         <col class="delete-column">
       </colgroup>
       <thead>
         <tr>
           <th class="time-column">Zeit</th>
+          <th class="filler-column"></th>
           <th class="delete-column"></th>
         </tr>
       </thead>
@@ -92,6 +94,8 @@
     </table>
   </section>
   <div id="sequence-overlay"><span id="sequence-countdown"></span></div>
+  {# Stats context menu #}
+  {% include "context_stats_menu.html" %}
 {% endblock %}
 {% block extra_js %}
   <script>
