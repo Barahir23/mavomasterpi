@@ -120,14 +120,6 @@ def projekte_page(request):
         objekt_form.fields['projekt'].queryset = Projekt.objects.filter(pk=selected_projekt.pk)
         objekt_form.fields['projekt'].widget = forms.HiddenInput()
 
-    messung_form = None
-    if selected_objekt:
-        messung_form = (
-            MessungForm(instance=selected_messung)
-            if selected_messung
-            else MessungForm()
-        )
-
     context = {
         'projekte': projekte,
         'selected_projekt': selected_projekt,
@@ -137,8 +129,14 @@ def projekte_page(request):
         'objekt_form': objekt_form,
         'messungen': messungen,
         'selected_messung': selected_messung,
-        'messung_form': messung_form,
     }
+
+    messpunkte = []
+    if selected_messung:
+        data = selected_messung.messdaten
+        messpunkte = data.get('data', []) if isinstance(data, dict) else data
+
+    context['messpunkte'] = messpunkte
     return render(request, 'messung/projekte_page.html', context)
 
 
