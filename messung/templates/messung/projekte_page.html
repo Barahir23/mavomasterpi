@@ -74,33 +74,23 @@
   {% if selected_messung %}
     <section class="card">
       <table class="measurement-table">
-        <colgroup id="measurement-colgroup">
-          <col class="time-column">
-          {% for name in sequence_names %}
-            <col class="value-column">
-            <col class="comment-column" style="visibility: collapse;">
-          {% endfor %}
-        </colgroup>
         <thead>
           <tr>
             <th class="time-column">Zeit</th>
             {% for name in sequence_names %}
-              <th class="measurement-column">
-                {{ name }}
-                <button type="button" class="icon-btn comment-toggle" data-index="{{ forloop.counter0 }}"></button>
-              </th>
-              <th class="comment-column" style="visibility: collapse;">Kommentar</th>
+              <th>{{ name }}</th>
+              <th>Kommentar</th>
             {% endfor %}
           </tr>
         </thead>
-        <tbody id="measurement-table-body">
+        <tbody>
           {% if table_rows %}
             {% for row in table_rows %}
               <tr>
                 <td>{{ row.time }}</td>
                 {% for val in row.values %}
                   <td>{{ val.value }}</td>
-                  <td class="comment-column" style="visibility: collapse;">{{ val.comment }}</td>
+                  <td>{{ val.comment }}</td>
                 {% endfor %}
               </tr>
             {% endfor %}
@@ -111,7 +101,6 @@
       </table>
     </section>
   {% endif %}
-  {% include "context_stats_menu.html" %}
 {% endblock %}
 {% block extra_js %}
 {% if selected_projekt or selected_objekt or selected_messung %}
@@ -220,5 +209,4 @@
     });
   }
 </script>
-<script src="{% static 'js/projekte.js' %}"></script>
 {% endblock %}

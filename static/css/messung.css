@@ -124,11 +124,8 @@ input[type=range]::-moz-range-thumb {
   padding: 0.2rem;
 }
 
-/* Ensure delete buttons stay on the far right */
-.measurement-table .delete-column {
-  text-align: right;
-  width: 1%;
-  white-space: nowrap;
+.measurement-table td.delete-column {
+  text-align: center;
 }
 
 #sequence-overlay {
@@ -155,15 +152,13 @@ input[type=range]::-moz-range-thumb {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
-#column-context-menu table {
-  border-collapse: collapse;
+#column-context-menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
-#column-context-menu th,
-#column-context-menu td {
-  padding: 0.2rem 0.5rem;
-}
-#column-context-menu th {
-  text-align: left;
+#column-context-menu li {
+  padding: 0.2rem 0;
 }
 
 .anforderung-modal {
