@@ -130,7 +130,7 @@ input[type=range]::-moz-range-thumb {
 }
 .measurement-table .delete-column {
   text-align: right;
-  width: 1%;
+  width: 50px;
   white-space: nowrap;
 }
 
