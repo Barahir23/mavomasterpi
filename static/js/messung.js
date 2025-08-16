@@ -26,10 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const realtimeSpan = document.getElementById('realtime-value');
     const tableBody = document.getElementById('measurement-table-body');
     const headerRow = document.querySelector('.measurement-table thead tr');
-    if (headerRow && headerRow.children[1]) {
-      headerRow.children[1].classList.add('measurement-column');
-    }
-    function toggleCommentColumn(idx) {
+    const eyeIcon = '<span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M2.03555 12.3224C1.96647 12.1151 1.9664 11.8907 2.03536 11.6834C3.42372 7.50972 7.36079 4.5 12.0008 4.5C16.6387 4.5 20.5742 7.50692 21.9643 11.6776C22.0334 11.8849 22.0335 12.1093 21.9645 12.3166C20.5761 16.4903 16.6391 19.5 11.9991 19.5C7.36119 19.5 3.42564 16.4931 2.03555 12.3224Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path class="svg-icon" stroke="var(--svg-icon)" d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+    const eyeSlashIcon = '<span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M3.97993 8.22257C3.05683 9.31382 2.35242 10.596 1.93436 12.0015C3.22565 16.338 7.24311 19.5 11.9991 19.5C12.9917 19.5 13.9521 19.3623 14.8623 19.1049M6.22763 6.22763C7.88389 5.13558 9.86771 4.5 12 4.5C16.756 4.5 20.7734 7.66205 22.0647 11.9985C21.3528 14.3919 19.8106 16.4277 17.772 17.772M6.22763 6.22763L3 3M6.22763 6.22763L9.87868 9.87868M17.772 17.772L21 21M17.772 17.772L14.1213 14.1213M14.1213 14.1213C14.6642 13.5784 15 12.8284 15 12C15 10.3431 13.6569 9 12 9C11.1716 9 10.4216 9.33579 9.87868 9.87868M14.1213 14.1213L9.87868 9.87868"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+
+    function toggleCommentColumn(idx, btn) {
       const colIdx = 2 + idx * 2;
       const th = headerRow.children[colIdx];
       const hidden = th.style.display === 'none';
@@ -38,19 +38,21 @@ document.addEventListener('DOMContentLoaded', () => {
       Array.from(tableBody.rows).forEach(row => {
         if (row.children[colIdx]) row.children[colIdx].style.display = display;
       });
+      if (btn) btn.innerHTML = hidden ? eyeSlashIcon : eyeIcon;
     }
-    document.querySelectorAll('.comment-toggle').forEach(btn => {
-      btn.addEventListener('click', () => toggleCommentColumn(parseInt(btn.dataset.index, 10)));
-    });
 
-    const columnMenu = document.createElement('div');
-    columnMenu.id = 'column-context-menu';
-    columnMenu.innerHTML = '<ul></ul>';
-    document.body.appendChild(columnMenu);
+      const columnMenu = document.createElement('div');
+      columnMenu.id = 'column-context-menu';
+      columnMenu.innerHTML = '<ul></ul>';
+      document.body.appendChild(columnMenu);
 
-    document.addEventListener('click', () => {
-      columnMenu.style.display = 'none';
-    });
+      let contextIdx = null;
+      let statsTimer = null;
+      document.addEventListener('click', () => {
+        columnMenu.style.display = 'none';
+        contextIdx = null;
+        clearInterval(statsTimer);
+      });
 
     function computeArrayStats(values) {
       if (!values.length) {
@@ -83,24 +85,30 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    if (headerRow) {
-      headerRow.addEventListener('contextmenu', e => {
-        const th = e.target.closest('th');
-        if (!th || !th.classList.contains('measurement-column')) return;
-        e.preventDefault();
-        const idx = Array.from(headerRow.children).indexOf(th);
-        const stats = computeStatsFormatted(idx);
-        const list = columnMenu.querySelector('ul');
-        list.innerHTML = `
-          <li>Mittelwert: ${stats.avg}</li>
-          <li>Min: ${stats.min}</li>
-          <li>Max: ${stats.max}</li>
-          <li>U0: ${stats.u0}</li>`;
-        columnMenu.style.left = `${e.pageX}px`;
-        columnMenu.style.top = `${e.pageY}px`;
-        columnMenu.style.display = 'block';
-      });
-    }
+      if (headerRow) {
+        headerRow.addEventListener('contextmenu', e => {
+          const th = e.target.closest('th');
+          if (!th || !th.classList.contains('measurement-column')) return;
+          e.preventDefault();
+          const idx = Array.from(headerRow.children).indexOf(th);
+          const list = columnMenu.querySelector('ul');
+          const updateStats = () => {
+            const stats = computeStatsFormatted(idx);
+            list.innerHTML = `
+              <li>Mittelwert: ${stats.avg}</li>
+              <li>Min: ${stats.min}</li>
+              <li>Max: ${stats.max}</li>
+              <li>U0: ${stats.u0}</li>`;
+          };
+          contextIdx = idx;
+          updateStats();
+          columnMenu.style.left = `${e.pageX}px`;
+          columnMenu.style.top = `${e.pageY}px`;
+          columnMenu.style.display = 'block';
+          clearInterval(statsTimer);
+          statsTimer = setInterval(updateStats, 500);
+        });
+      }
 
     const seqSelect = document.getElementById('sequence-select');
     const seqAddBtn = document.getElementById('sequence-add');
@@ -117,17 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const intervalInput = document.getElementById('sequence-interval');
     const countInput = document.getElementById('sequence-count');
+    const intervalDisplay = document.getElementById('sequence-interval-display');
+    const countDisplay = document.getElementById('sequence-count-display');
     const durationSpan = document.getElementById('sequence-duration');
     const countdownSpan = document.getElementById('sequence-countdown');
     const countdownOverlay = document.getElementById('sequence-overlay');
     let countdownTimer = null;
-    let nameField = null;
 
     function updateDuration() {
       if (durationSpan && intervalInput && countInput) {
         const interval = parseInt(intervalInput.value, 10) || 0;
         const count = parseInt(countInput.value, 10) || 0;
         durationSpan.textContent = `Dauer: ${interval * count}s`;
+        if (intervalDisplay) intervalDisplay.textContent = interval;
+        if (countDisplay) countDisplay.textContent = count;
       }
     }
     function startCountdown(sec) {
@@ -154,75 +165,73 @@ document.addEventListener('DOMContentLoaded', () => {
     function autoSeqName() {
       const date = new Date().toISOString().split('T')[0];
       const laufnummer = Object.keys(sequences).length + 1;
-      return `Messung ${laufnummer} (${date})`;
+      return `Messreihe ${laufnummer} (${date})`;
     }
 
-    function addSequenceColumn(name) {
-      const key = `seq${++seqCounter}`;
-      sequenceOrder.push(key);
-      const measIdx = sequenceOrder.length;
-      const thVal = document.createElement('th');
-      thVal.classList.add('measurement-column');
-      const input = document.createElement('input');
-      input.type = 'text';
-      input.value = name || autoSeqName();
-      thVal.appendChild(input);
-      const deleteTh = headerRow.querySelector('.delete-column');
-      headerRow.insertBefore(thVal, deleteTh);
-      const thComment = document.createElement('th');
-      thComment.classList.add('comment-column');
-      const cBtn = document.createElement('button');
-      cBtn.type = 'button';
-      cBtn.className = 'comment-toggle';
-      cBtn.dataset.index = measIdx;
-      cBtn.textContent = 'Kommentar';
-      cBtn.addEventListener('click', () => toggleCommentColumn(measIdx));
-      thComment.appendChild(cBtn);
-      headerRow.insertBefore(thComment, deleteTh);
-      Array.from(tableBody.rows).forEach(row => {
-        row.insertBefore(document.createElement('td'), row.lastElementChild);
-        const cTd = document.createElement('td');
-        const cInput = document.createElement('input');
-        cInput.type = 'text';
-        cInput.addEventListener('input', markUnsaved);
-        cTd.appendChild(cInput);
-        row.insertBefore(cTd, row.lastElementChild);
-      });
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = input.value;
-      seqSelect.appendChild(option);
-      sequences[key] = { input, option, id: null };
-      input.addEventListener('input', () => {
+      function addSequenceColumn(name) {
+        const key = `seq${++seqCounter}`;
+        sequenceOrder.push(key);
+        const measIdx = sequenceOrder.length - 1;
+        const thVal = document.createElement('th');
+        thVal.classList.add('measurement-column');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = name || autoSeqName();
+        thVal.appendChild(input);
+        const cBtn = document.createElement('button');
+        cBtn.type = 'button';
+        cBtn.className = 'icon-btn comment-toggle';
+        cBtn.dataset.index = measIdx;
+        cBtn.innerHTML = eyeIcon;
+        cBtn.addEventListener('click', () => toggleCommentColumn(measIdx, cBtn));
+        thVal.appendChild(cBtn);
+        const deleteTh = headerRow.querySelector('.delete-column');
+        headerRow.insertBefore(thVal, deleteTh);
+        const thComment = document.createElement('th');
+        thComment.classList.add('comment-column');
+        thComment.style.display = 'none';
+        headerRow.insertBefore(thComment, deleteTh);
+        Array.from(tableBody.rows).forEach(row => {
+          const valTd = document.createElement('td');
+          row.insertBefore(valTd, row.lastElementChild);
+          const cTd = document.createElement('td');
+          cTd.style.display = 'none';
+          const cInput = document.createElement('input');
+          cInput.type = 'text';
+          cInput.addEventListener('input', markUnsaved);
+          cTd.appendChild(cInput);
+          row.insertBefore(cTd, row.lastElementChild);
+        });
+        const option = document.createElement('option');
+        option.value = key;
         option.textContent = input.value;
-        if (key === activeSeqKey && nameField) {
-          nameField.value = input.value;
-        }
-        markUnsaved();
-      });
-      seqSelect.value = key;
-      activeSeqKey = key;
-      if (nameField) nameField.value = input.value;
-      return key;
-    }
+        seqSelect.appendChild(option);
+        sequences[key] = { input, option, id: null };
+        input.addEventListener('input', () => {
+          option.textContent = input.value;
+          markUnsaved();
+        });
+        seqSelect.value = key;
+        activeSeqKey = key;
+        return key;
+      }
 
-    function appendRow(time, value = '', seqKey = null, comment = '') {
-      const row = document.createElement('tr');
-      const timeTd = document.createElement('td');
-      timeTd.textContent = time;
-      row.appendChild(timeTd);
-      const order = ['single', ...sequenceOrder];
-      order.forEach(() => {
-        const valTd = document.createElement('td');
-        row.appendChild(valTd);
-        const cTd = document.createElement('td');
-        const cInput = document.createElement('input');
-        cInput.type = 'text';
-        cInput.addEventListener('input', markUnsaved);
-        cTd.appendChild(cInput);
-        row.appendChild(cTd);
-      });
-      const deleteTd = document.createElement('td');
+      function appendRow(time, value = '', seqKey = null, comment = '') {
+        const row = document.createElement('tr');
+        const timeTd = document.createElement('td');
+        timeTd.textContent = time;
+        row.appendChild(timeTd);
+        sequenceOrder.forEach(() => {
+          const valTd = document.createElement('td');
+          row.appendChild(valTd);
+          const cTd = document.createElement('td');
+          const cInput = document.createElement('input');
+          cInput.type = 'text';
+          cInput.addEventListener('input', markUnsaved);
+          cTd.appendChild(cInput);
+          row.appendChild(cTd);
+        });
+        const deleteTd = document.createElement('td');
       const delBtn = document.createElement('button');
       delBtn.type = 'button';
       delBtn.className = 'icon-btn delete-row';
@@ -241,12 +250,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       deleteTd.appendChild(delBtn);
       row.appendChild(deleteTd);
-      tableBody.appendChild(row);
-      const orderIdx = order.indexOf(seqKey || 'single');
-      if (value !== '' && orderIdx !== -1) {
-        row.children[1 + orderIdx * 2].textContent = Number(value).toFixed(2);
-        row.children[2 + orderIdx * 2].querySelector('input').value = comment;
-      }
+        tableBody.appendChild(row);
+        const orderIdx = sequenceOrder.indexOf(seqKey);
+        if (value !== '' && orderIdx !== -1) {
+          row.children[1 + orderIdx * 2].textContent = Number(value).toFixed(2);
+          row.children[2 + orderIdx * 2].querySelector('input').value = comment;
+        }
       Array.from(headerRow.children).forEach((th, idx) => {
         if (th.style.display === 'none' && row.children[idx]) {
           row.children[idx].style.display = 'none';
@@ -256,51 +265,46 @@ document.addEventListener('DOMContentLoaded', () => {
       return row;
     }
 
-    const initialTable = window.initialTable;
-    if (initialTable && initialTable.messungen) {
-      initialTable.messungen
-        .filter(m => m.name && m.name !== 'Einzelmessung')
-        .forEach(m => addSequenceColumn(m.name));
-      const dataMap = {};
-      const timeSet = new Set();
-      initialTable.messungen.forEach(m => {
-        const map = {};
-        (m.data || []).forEach(pt => {
-          map[pt.time] = pt;
-          timeSet.add(pt.time);
+      const initialTable = window.initialTable;
+      if (initialTable && initialTable.messungen) {
+        initialTable.messungen
+          .filter(m => m.name && m.name !== 'Einzelmessung')
+          .forEach(m => addSequenceColumn(m.name));
+        const dataMap = {};
+        const timeSet = new Set();
+        initialTable.messungen.forEach(m => {
+          const map = {};
+          (m.data || []).forEach(pt => {
+            map[pt.time] = pt;
+            timeSet.add(pt.time);
+          });
+          dataMap[m.name] = map;
         });
-        dataMap[m.name] = map;
-      });
-      Array.from(timeSet).sort().forEach(time => {
-        const row = appendRow(time || '');
-        const names = ['Einzelmessung', ...sequenceOrder.map(k => sequences[k].input.value)];
-        names.forEach((name, idx) => {
-          const pt = dataMap[name] ? dataMap[name][time] : null;
-          if (pt) {
-            row.children[1 + idx * 2].textContent = Number(pt.value).toFixed(2);
-            row.children[2 + idx * 2].querySelector('input').value = pt.comment || '';
-          }
+        Array.from(timeSet).sort().forEach(time => {
+          const row = appendRow(time || '');
+          const names = sequenceOrder.map(k => sequences[k].input.value);
+          names.forEach((name, idx) => {
+            const pt = dataMap[name] ? dataMap[name][time] : null;
+            if (pt) {
+              row.children[1 + idx * 2].textContent = Number(pt.value).toFixed(2);
+              row.children[2 + idx * 2].querySelector('input').value = pt.comment || '';
+            }
+          });
         });
-      });
-      if (sequenceOrder.length) {
-        activeSeqKey = sequenceOrder[sequenceOrder.length - 1];
-        seqSelect.value = activeSeqKey;
-        if (nameField) nameField.value = sequences[activeSeqKey].input.value;
+        if (sequenceOrder.length) {
+          activeSeqKey = sequenceOrder[sequenceOrder.length - 1];
+          seqSelect.value = activeSeqKey;
+        }
+      } else {
+        addSequenceColumn();
       }
-    } else {
-      addSequenceColumn();
-    }
 
     if (seqAddBtn && seqSelect) {
       seqAddBtn.addEventListener('click', () => {
-        const key = addSequenceColumn();
-        if (nameField) nameField.value = sequences[key].input.value;
+        addSequenceColumn();
       });
       seqSelect.addEventListener('change', () => {
         activeSeqKey = seqSelect.value;
-        if (nameField && sequences[activeSeqKey]) {
-          nameField.value = sequences[activeSeqKey].input.value;
-        }
       });
     }
 
@@ -319,14 +323,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const interval = parseInt(intervalInput?.value, 10) || 5;
           startCountdown(interval);
         }
-      } else if (msg.type === 'measurement.value' && tableBody) {
-        const seqKey = msg.data.is_sequence ? sequenceOrder.find(k => sequences[k].id === msg.data.sequence_id) : null;
-        appendRow(msg.data.time, msg.data.value, seqKey);
-        if (msg.data.is_sequence) {
-          const interval = parseInt(intervalInput?.value, 10) || 5;
-          startCountdown(interval);
-        }
-      } else if (msg.type === 'sequence.end') {
+        } else if (msg.type === 'measurement.value' && tableBody) {
+          const seqKey = msg.data.is_sequence ? sequenceOrder.find(k => sequences[k].id === msg.data.sequence_id) : activeSeqKey;
+          appendRow(msg.data.time, msg.data.value, seqKey);
+          if (msg.data.is_sequence) {
+            const interval = parseInt(intervalInput?.value, 10) || 5;
+            startCountdown(interval);
+          }
+        } else if (msg.type === 'sequence.end') {
         stopCountdown();
       }
     };
@@ -378,9 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
           const hidden = document.getElementById('messdaten-input');
           if (hidden) {
             const messungen = [];
-            const order = ['single', ...sequenceOrder];
-            order.forEach((key, idx) => {
-              const name = key === 'single' ? 'Einzelmessung' : sequences[key].input.value;
+            sequenceOrder.forEach((key, idx) => {
+              const name = sequences[key].input.value;
               const colIdx = 1 + idx * 2;
               const data = [];
               Array.from(tableBody.rows).forEach(row => {
@@ -442,18 +445,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      nameField = editForm.querySelector('#id_name');
-      if (nameField) {
-        if (activeSeqKey && sequences[activeSeqKey]) {
-          nameField.value = sequences[activeSeqKey].input.value;
+    }
+
+    if ('wakeLock' in navigator) {
+      let wakeLock = null;
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => { wakeLock = null; });
+        } catch (err) {
+          console.error(err);
         }
-        nameField.addEventListener('input', () => {
-          if (activeSeqKey && sequences[activeSeqKey]) {
-            sequences[activeSeqKey].input.value = nameField.value;
-            sequences[activeSeqKey].option.textContent = nameField.value;
-          }
-        });
-      }
+      };
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !wakeLock) {
+          requestWakeLock();
+        }
+      });
+      requestWakeLock();
     }
   });
 
