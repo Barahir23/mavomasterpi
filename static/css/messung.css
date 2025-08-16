@@ -7,7 +7,6 @@
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 1rem;
 }
 .sequence-row,
 .measurement-main,
@@ -15,17 +14,6 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-.controls-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.control-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
 }
 .range-controls {
   display: flex;
@@ -39,35 +27,6 @@
 .range-group label,
 #sequence-duration {
   font-size: 0.45rem;
-}
-
-input[type=range] {
-  -webkit-appearance: none;
-  background: transparent;
-}
-input[type=range]::-webkit-slider-runnable-track {
-  height: 4px;
-  background: var(--secondary-700);
-}
-input[type=range]::-moz-range-track {
-  height: 4px;
-  background: var(--secondary-700);
-}
-input[type=range]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  background: var(--primary);
-  border: 1px solid var(--color-border);
-  border-radius: 0;
-  margin-top: -4px;
-}
-input[type=range]::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  background: var(--primary);
-  border: 1px solid var(--color-border);
-  border-radius: 0;
 }
 
 
@@ -96,19 +55,6 @@ input[type=range]::-moz-range-thumb {
 
 .measurement-table th {
   text-align: left;
-}
-
-.measurement-table th.measurement-column {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-}
-.measurement-table th.measurement-column input {
-  width: auto;
-  margin: 0;
-}
-.measurement-table th.measurement-column .icon-btn {
-  margin-left: 0.25rem;
 }
 
 .comment-toggle {
