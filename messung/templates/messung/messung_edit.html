@@ -30,7 +30,16 @@
       {{ messung_form.name.label_tag }} {{ messung_form.name }}
     </div>
     <div class="form-row">
-      {{ messung_form.anforderung.label_tag }} {{ messung_form.anforderung }}
+      {{ messung_form.anforderung.label_tag }}
+      <input type="hidden" name="anforderung" id="id_anforderung" value="{{ messung_form.anforderung.value|default:'' }}">
+      <button type="button" class="icon-btn" id="anforderung-open" title="Anforderung wählen">
+        <span class="icon">{% include "icons/magnifying-glass.svg" %}</span>
+      </button>
+      <span id="anforderung-display">
+        {% if selected_messung and selected_messung.anforderung %}
+          {{ selected_messung.anforderung.ref }}{% if selected_messung.anforderung.typ %} {{ selected_messung.anforderung.typ }}{% endif %}
+        {% else %}–{% endif %}
+      </span>
     </div>
     <div class="form-row">
       {{ messung_form.messbedingungen.label_tag }} {{ messung_form.messbedingungen }}
@@ -40,3 +49,11 @@
     </div>
   </div>
 </form>
+
+<div id="anforderung-modal" class="anforderung-modal">
+  <div class="modal-content">
+    <input type="text" id="anforderung-search" placeholder="Suche...">
+    <div id="anforderung-results"></div>
+    <button type="button" id="anforderung-close" class="icon-btn">Schließen</button>
+  </div>
+</div>

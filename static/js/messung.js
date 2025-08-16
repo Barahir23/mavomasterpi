@@ -21,8 +21,25 @@ document.addEventListener('DOMContentLoaded', () => {
       form.submit();
     });
   }
+  if ('wakeLock' in navigator) {
+    let wakeLock = null;
+    const requestWakeLock = async () => {
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !wakeLock) {
+        requestWakeLock();
+      }
+    });
+    requestWakeLock();
+  }
 
-    const statusSpan = document.getElementById('device-status');
+  const statusSpan = document.getElementById('device-status');
     const realtimeSpan = document.getElementById('realtime-value');
     const tableBody = document.getElementById('measurement-table-body');
     const headerRow = document.querySelector('.measurement-table thead tr');
@@ -413,6 +430,74 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
+      const anforderungBtn = document.getElementById('anforderung-open');
+      const anforderungDisplay = document.getElementById('anforderung-display');
+      const anforderungInput = document.getElementById('id_anforderung');
+      const anforderungModal = document.getElementById('anforderung-modal');
+      const anforderungSearch = document.getElementById('anforderung-search');
+      const anforderungResults = document.getElementById('anforderung-results');
+      const anforderungClose = document.getElementById('anforderung-close');
+
+      function renderAnforderungen(list) {
+        const grouped = {};
+        list.forEach(a => {
+          const b = a.bereich || 'Allgemein';
+          (grouped[b] = grouped[b] || []).push(a);
+        });
+        anforderungResults.innerHTML = '';
+        Object.keys(grouped).sort().forEach(b => {
+          const bDiv = document.createElement('div');
+          bDiv.className = 'bereich';
+          bDiv.textContent = b;
+          anforderungResults.appendChild(bDiv);
+          const ul = document.createElement('ul');
+          grouped[b].sort((x, y) => (x.typ || '').localeCompare(y.typ || ''));
+          grouped[b].forEach(a => {
+            const li = document.createElement('li');
+            const label = [a.ref, a.typ].filter(Boolean).join(' ');
+            li.textContent = label;
+            li.addEventListener('click', () => {
+              if (anforderungInput) anforderungInput.value = a.id;
+              if (anforderungDisplay) anforderungDisplay.textContent = label;
+              anforderungModal.style.display = 'none';
+              markUnsaved();
+            });
+            ul.appendChild(li);
+          });
+          anforderungResults.appendChild(ul);
+        });
+      }
+
+      if (anforderungBtn && anforderungModal) {
+        anforderungBtn.addEventListener('click', () => {
+          renderAnforderungen(window.anforderungenData || []);
+          anforderungModal.style.display = 'flex';
+          if (anforderungSearch) {
+            anforderungSearch.value = '';
+            anforderungSearch.focus();
+          }
+        });
+      }
+      if (anforderungClose) {
+        anforderungClose.addEventListener('click', () => {
+          anforderungModal.style.display = 'none';
+        });
+      }
+      if (anforderungModal) {
+        anforderungModal.addEventListener('click', e => {
+          if (e.target === anforderungModal) anforderungModal.style.display = 'none';
+        });
+      }
+      if (anforderungSearch) {
+        anforderungSearch.addEventListener('input', () => {
+          const term = anforderungSearch.value.toLowerCase();
+          const filtered = (window.anforderungenData || []).filter(a =>
+            `${a.ref} ${a.typ || ''} ${a.bereich || ''}`.toLowerCase().includes(term)
+          );
+          renderAnforderungen(filtered);
+        });
+      }
+
       const messungSelect = document.getElementById('messung-select');
       if (messungSelect) {
         messungSelect.addEventListener('change', e => {
@@ -445,42 +530,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-    }
-
-    if ('wakeLock' in navigator) {
-      let wakeLock = null;
-      const requestWakeLock = async () => {
-        try {
-          wakeLock = await navigator.wakeLock.request('screen');
-          wakeLock.addEventListener('release', () => { wakeLock = null; });
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && !wakeLock) {
-          requestWakeLock();
-        }
-      });
-      requestWakeLock();
-    }
-
-    if ('wakeLock' in navigator) {
-      let wakeLock = null;
-      const requestWakeLock = async () => {
-        try {
-          wakeLock = await navigator.wakeLock.request('screen');
-          wakeLock.addEventListener('release', () => { wakeLock = null; });
-        } catch (err) {
-          console.error(err);
-        }
-      };
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible' && !wakeLock) {
-          requestWakeLock();
-        }
-      });
-      requestWakeLock();
     }
   });
 

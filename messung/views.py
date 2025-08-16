@@ -32,7 +32,8 @@ def messung_page(request):
         device_warning = True
 
     projekte = Projekt.objects.all().order_by('name')
-    anforderungen = Anforderungen.objects.all().order_by('ref')
+    anforderungen_qs = Anforderungen.objects.all().order_by('ref')
+    anforderungen_json = json.dumps(list(anforderungen_qs.values('id', 'ref', 'bereich', 'typ')))
 
     projekt_id = request.GET.get('projekt')
     objekt_id = request.GET.get('objekt')
@@ -73,7 +74,8 @@ def messung_page(request):
         'projekte': projekte,
         'objekte': objekte,
         'selected_projekt': selected_projekt,
-        'anforderungen': anforderungen,
+        'anforderungen': anforderungen_qs,
+        'anforderungen_json': anforderungen_json,
         'device_warning': device_warning,
         'device_status': device_status,
         'selected_objekt': selected_objekt,
