@@ -120,14 +120,6 @@ def projekte_page(request):
         objekt_form.fields['projekt'].queryset = Projekt.objects.filter(pk=selected_projekt.pk)
         objekt_form.fields['projekt'].widget = forms.HiddenInput()
 
-    messung_form = None
-    if selected_objekt:
-        messung_form = (
-            MessungForm(instance=selected_messung)
-            if selected_messung
-            else MessungForm()
-        )
-
     context = {
         'projekte': projekte,
         'selected_projekt': selected_projekt,
@@ -137,8 +129,37 @@ def projekte_page(request):
         'objekt_form': objekt_form,
         'messungen': messungen,
         'selected_messung': selected_messung,
-        'messung_form': messung_form,
     }
+
+    sequence_names = []
+    table_rows = []
+    table_colspan = 1
+    if selected_messung:
+        data = selected_messung.messdaten or {}
+        if isinstance(data, list):
+            data = {'messungen': [{'name': '', 'data': data}]}
+        messungen_data = data.get('messungen', []) if isinstance(data, dict) else []
+        sequence_names = [m.get('name', f"Messung {i+1}") for i, m in enumerate(messungen_data)]
+        time_set = set()
+        data_maps = []
+        for m in messungen_data:
+            pts = m.get('data', [])
+            m_map = {pt.get('time'): pt for pt in pts}
+            data_maps.append(m_map)
+            time_set.update(m_map.keys())
+        for t in sorted(time_set):
+            row = {'time': t, 'values': []}
+            for m_map in data_maps:
+                pt = m_map.get(t, {})
+                row['values'].append({'value': pt.get('value'), 'comment': pt.get('comment')})
+            table_rows.append(row)
+        table_colspan = 1 + len(sequence_names) * 2
+
+    context.update({
+        'sequence_names': sequence_names,
+        'table_rows': table_rows,
+        'table_colspan': table_colspan,
+    })
     return render(request, 'messung/projekte_page.html', context)
 
 
