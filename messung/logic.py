@@ -132,17 +132,28 @@ class RealtimePollingThread(threading.Thread):
 
     def run(self):
         print("Echtzeit-Polling-Thread gestartet.")
+        retry_count = 0
         while not self._stop_event.is_set():
             try:
                 value, unit = self.device.get_value()
                 message = {'type': 'realtime.value', 'data': {'value': value, 'unit': unit}}
                 async_to_sync(self.channel_layer.group_send)('messung_group', message)
+                retry_count = 0
             except ConnectionError as e:
                 print(f"Fehler im Polling-Thread: {e}")
-                async_to_sync(self.channel_layer.group_send)(
-                    'messung_group',
-                    {'type': 'status.update', 'data': {'text': 'Geräteverbindung verloren', 'is_connected': False, 'is_running': False}}
-                )
-                break
+                retry_count += 1
+                success, msg, info = self.device.connect()
+                if success:
+                    async_to_sync(self.channel_layer.group_send)(
+                        'messung_group',
+                        {'type': 'status.update', 'data': {'text': msg, 'is_connected': True, 'is_running': False, 'device_info': info}}
+                    )
+                    retry_count = 0
+                elif retry_count >= 5:
+                    async_to_sync(self.channel_layer.group_send)(
+                        'messung_group',
+                        {'type': 'status.update', 'data': {'text': 'Geräteverbindung verloren', 'is_connected': False, 'is_running': False}}
+                    )
+                    break
             time.sleep(1)
         print("Echtzeit-Polling-Thread beendet.")
