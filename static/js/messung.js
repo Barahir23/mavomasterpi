@@ -125,17 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     const intervalInput = document.getElementById('sequence-interval');
     const countInput = document.getElementById('sequence-count');
+    const intervalDisplay = document.getElementById('sequence-interval-display');
+    const countDisplay = document.getElementById('sequence-count-display');
     const durationSpan = document.getElementById('sequence-duration');
     const countdownSpan = document.getElementById('sequence-countdown');
     const countdownOverlay = document.getElementById('sequence-overlay');
     let countdownTimer = null;
-    let nameField = null;
 
     function updateDuration() {
       if (durationSpan && intervalInput && countInput) {
         const interval = parseInt(intervalInput.value, 10) || 0;
         const count = parseInt(countInput.value, 10) || 0;
         durationSpan.textContent = `Dauer: ${interval * count}s`;
+        if (intervalDisplay) intervalDisplay.textContent = interval;
+        if (countDisplay) countDisplay.textContent = count;
       }
     }
     function startCountdown(sec) {
@@ -162,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function autoSeqName() {
       const date = new Date().toISOString().split('T')[0];
       const laufnummer = Object.keys(sequences).length + 1;
-      return `Messung ${laufnummer} (${date})`;
+      return `Messreihe ${laufnummer} (${date})`;
     }
 
       function addSequenceColumn(name) {
@@ -206,14 +209,10 @@ document.addEventListener('DOMContentLoaded', () => {
         sequences[key] = { input, option, id: null };
         input.addEventListener('input', () => {
           option.textContent = input.value;
-          if (key === activeSeqKey && nameField) {
-            nameField.value = input.value;
-          }
           markUnsaved();
         });
         seqSelect.value = key;
         activeSeqKey = key;
-        if (nameField) nameField.value = input.value;
         return key;
       }
 
@@ -295,7 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sequenceOrder.length) {
           activeSeqKey = sequenceOrder[sequenceOrder.length - 1];
           seqSelect.value = activeSeqKey;
-          if (nameField) nameField.value = sequences[activeSeqKey].input.value;
         }
       } else {
         addSequenceColumn();
@@ -303,14 +301,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (seqAddBtn && seqSelect) {
       seqAddBtn.addEventListener('click', () => {
-        const key = addSequenceColumn();
-        if (nameField) nameField.value = sequences[key].input.value;
+        addSequenceColumn();
       });
       seqSelect.addEventListener('change', () => {
         activeSeqKey = seqSelect.value;
-        if (nameField && sequences[activeSeqKey]) {
-          nameField.value = sequences[activeSeqKey].input.value;
-        }
       });
     }
 
@@ -451,18 +445,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      nameField = editForm.querySelector('#id_name');
-      if (nameField) {
-        if (activeSeqKey && sequences[activeSeqKey]) {
-          nameField.value = sequences[activeSeqKey].input.value;
+    }
+
+    if ('wakeLock' in navigator) {
+      let wakeLock = null;
+      const requestWakeLock = async () => {
+        try {
+          wakeLock = await navigator.wakeLock.request('screen');
+          wakeLock.addEventListener('release', () => { wakeLock = null; });
+        } catch (err) {
+          console.error(err);
         }
-        nameField.addEventListener('input', () => {
-          if (activeSeqKey && sequences[activeSeqKey]) {
-            sequences[activeSeqKey].input.value = nameField.value;
-            sequences[activeSeqKey].option.textContent = nameField.value;
-          }
-        });
-      }
+      };
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && !wakeLock) {
+          requestWakeLock();
+        }
+      });
+      requestWakeLock();
     }
 
     if ('wakeLock' in navigator) {

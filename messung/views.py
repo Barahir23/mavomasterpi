@@ -312,7 +312,7 @@ def start_sequence(request):
     if not (DEVICE and DEVICE.is_connected):
         return JsonResponse({'error': 'Gerät nicht verbunden'}, status=400)
     if MEASUREMENT_THREAD and MEASUREMENT_THREAD.is_alive():
-        return JsonResponse({'error': 'Sequenz läuft bereits'}, status=400)
+        return JsonResponse({'error': 'Messreihe läuft bereits'}, status=400)
     sequenz_name = request.GET.get('name', '')
     try:
         interval = int(request.GET.get('interval', 1))
@@ -321,16 +321,16 @@ def start_sequence(request):
         return JsonResponse({'error': 'Ungültige Parameter'}, status=400)
     MEASUREMENT_THREAD = MeasurementThread(interval=interval, count=count, sequenz_name=sequenz_name, device_instance=DEVICE)
     MEASUREMENT_THREAD.start()
-    send_status_update("Messsequenz gestartet...", True, True, device_info=DEVICE.device_info)
+    send_status_update("Messreihe gestartet...", True, True, device_info=DEVICE.device_info)
     return JsonResponse({'status': 'ok'})
 
 
 def stop_sequence(request):
     global MEASUREMENT_THREAD, DEVICE
     if not (MEASUREMENT_THREAD and MEASUREMENT_THREAD.is_alive()):
-        return JsonResponse({'error': 'Keine Sequenz zum Stoppen'}, status=400)
+        return JsonResponse({'error': 'Keine Messreihe zum Stoppen'}, status=400)
     MEASUREMENT_THREAD.stop()
-    send_status_update("Messsequenz gestoppt.", True, False, device_info=DEVICE.device_info)
+    send_status_update("Messreihe gestoppt.", True, False, device_info=DEVICE.device_info)
     return JsonResponse({'status': 'ok'})
 
 

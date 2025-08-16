@@ -1,21 +1,33 @@
-.measurement-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.measurement-main {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.measurement-controls {
-  display: flex;
-  gap: 0.5rem;
-}
 #realtime-value {
   font-size: 1.5rem;
 }
 
+.measurement-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sequence-row,
+.measurement-main,
+.control-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.range-controls {
+  display: flex;
+  gap: 1rem;
+}
+.range-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.range-group label,
+#sequence-duration {
+  font-size: 0.45rem;
+}
 
 
 .device-connection {

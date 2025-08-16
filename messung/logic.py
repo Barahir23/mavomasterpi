@@ -89,7 +89,7 @@ class MeasurementThread(threading.Thread):
         self.channel_layer = get_channel_layer()
         self.interval = interval
         self.count = count
-        self.sequenz_name = sequenz_name if sequenz_name else f"Sequenz_{int(time.time())}"
+        self.sequenz_name = sequenz_name if sequenz_name else f"Messreihe_{int(time.time())}"
         self.sequence_id = f"seq_{int(time.time())}"
         self.device = device_instance
 
