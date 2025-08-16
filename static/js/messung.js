@@ -61,15 +61,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (btn) btn.innerHTML = hidden ? eyeSlashIcon : eyeIcon;
     }
 
-    const columnMenu = document.getElementById('column-context-menu');
-    if (columnMenu) document.body.appendChild(columnMenu);
-    const statsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
+      const columnMenu = document.createElement('div');
+      columnMenu.id = 'column-context-menu';
+      columnMenu.innerHTML = '<ul></ul>';
+      document.body.appendChild(columnMenu);
 
-    let statsTimer = null;
-    document.addEventListener('click', () => {
-      if (columnMenu) columnMenu.style.display = 'none';
-      clearInterval(statsTimer);
-    });
+      let contextIdx = null;
+      let statsTimer = null;
+      document.addEventListener('click', () => {
+        columnMenu.style.display = 'none';
+        contextIdx = null;
+        clearInterval(statsTimer);
+      });
 
     function computeArrayStats(values) {
       if (!values.length) {
@@ -102,31 +105,30 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-    if (headerRow && columnMenu) {
-      const updateStats = () => {
-        if (!statsBody) return;
-        const html = sequenceOrder.map((key, i) => {
-          const colIdx = 1 + i * 2;
-          const th = headerRow.children[colIdx];
-          const nameInput = th.querySelector('input');
-          const name = nameInput ? nameInput.value : th.textContent.trim();
-          const stats = computeStatsFormatted(colIdx);
-          return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
-        }).join('');
-        statsBody.innerHTML = html;
-      };
-      headerRow.addEventListener('contextmenu', e => {
-        const th = e.target.closest('th');
-        if (!th || !th.classList.contains('measurement-column')) return;
-        e.preventDefault();
-        updateStats();
-        columnMenu.style.left = `${e.pageX}px`;
-        columnMenu.style.top = `${e.pageY}px`;
-        columnMenu.style.display = 'block';
-        clearInterval(statsTimer);
-        statsTimer = setInterval(updateStats, 500);
-      });
-    }
+      if (headerRow) {
+        headerRow.addEventListener('contextmenu', e => {
+          const th = e.target.closest('th');
+          if (!th || !th.classList.contains('measurement-column')) return;
+          e.preventDefault();
+          const idx = Array.from(headerRow.children).indexOf(th);
+          const list = columnMenu.querySelector('ul');
+          const updateStats = () => {
+            const stats = computeStatsFormatted(idx);
+            list.innerHTML = `
+              <li>Mittelwert: ${stats.avg}</li>
+              <li>Min: ${stats.min}</li>
+              <li>Max: ${stats.max}</li>
+              <li>U0: ${stats.u0}</li>`;
+          };
+          contextIdx = idx;
+          updateStats();
+          columnMenu.style.left = `${e.pageX}px`;
+          columnMenu.style.top = `${e.pageY}px`;
+          columnMenu.style.display = 'block';
+          clearInterval(statsTimer);
+          statsTimer = setInterval(updateStats, 500);
+        });
+      }
 
     const seqSelect = document.getElementById('sequence-select');
     const seqAddBtn = document.getElementById('sequence-add');
