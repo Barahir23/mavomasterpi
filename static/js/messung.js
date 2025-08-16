@@ -42,6 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const headerRow = document.querySelector('.measurement-table thead tr');
   const colGroup = document.getElementById('measurement-colgroup');
 
+  const sequences = {};
+  const sequenceOrder = [];
+  let seqCounter = 0;
+  let activeSeqKey = null;
+  let saveBtn = null;
+
   const nf2 = new Intl.NumberFormat('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const nf0 = new Intl.NumberFormat('de-CH');
     const eyeIcon = '<span class="icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M2.03555 12.3224C1.96647 12.1151 1.9664 11.8907 2.03536 11.6834C3.42372 7.50972 7.36079 4.5 12.0008 4.5C16.6387 4.5 20.5742 7.50692 21.9643 11.6776C22.0334 11.8849 22.0335 12.1093 21.9645 12.3166C20.5761 16.4903 16.6391 19.5 11.9991 19.5C7.36119 19.5 3.42564 16.4931 2.03555 12.3224Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path class="svg-icon" stroke="var(--svg-icon)" d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
@@ -61,18 +67,18 @@ document.addEventListener('DOMContentLoaded', () => {
       if (btn) btn.innerHTML = hidden ? eyeSlashIcon : eyeIcon;
     }
 
-      const columnMenu = document.createElement('div');
-      columnMenu.id = 'column-context-menu';
-      columnMenu.innerHTML = '<ul></ul>';
+    const columnMenu = document.getElementById('column-context-menu');
+    if (columnMenu) {
       document.body.appendChild(columnMenu);
+      columnMenu.style.display = 'none';
+    }
+    const statsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
 
-      let contextIdx = null;
-      let statsTimer = null;
-      document.addEventListener('click', () => {
-        columnMenu.style.display = 'none';
-        contextIdx = null;
-        clearInterval(statsTimer);
-      });
+    let statsTimer = null;
+    document.addEventListener('click', () => {
+      if (columnMenu) columnMenu.style.display = 'none';
+      clearInterval(statsTimer);
+    });
 
     function computeArrayStats(values) {
       if (!values.length) {
@@ -105,38 +111,34 @@ document.addEventListener('DOMContentLoaded', () => {
       };
     }
 
-      if (headerRow) {
-        headerRow.addEventListener('contextmenu', e => {
-          const th = e.target.closest('th');
-          if (!th || !th.classList.contains('measurement-column')) return;
-          e.preventDefault();
-          const idx = Array.from(headerRow.children).indexOf(th);
-          const list = columnMenu.querySelector('ul');
-          const updateStats = () => {
-            const stats = computeStatsFormatted(idx);
-            list.innerHTML = `
-              <li>Mittelwert: ${stats.avg}</li>
-              <li>Min: ${stats.min}</li>
-              <li>Max: ${stats.max}</li>
-              <li>U0: ${stats.u0}</li>`;
-          };
-          contextIdx = idx;
-          updateStats();
-          columnMenu.style.left = `${e.pageX}px`;
-          columnMenu.style.top = `${e.pageY}px`;
-          columnMenu.style.display = 'block';
-          clearInterval(statsTimer);
-          statsTimer = setInterval(updateStats, 500);
-        });
-      }
+    if (headerRow && columnMenu) {
+      const updateStats = () => {
+        if (!statsBody) return;
+        const html = sequenceOrder.map((key, i) => {
+          const colIdx = 1 + i * 2;
+          const th = headerRow.children[colIdx];
+          const nameInput = th.querySelector('input');
+          const name = nameInput ? nameInput.value : th.textContent.trim();
+          const stats = computeStatsFormatted(colIdx);
+          return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
+        }).join('');
+        statsBody.innerHTML = html;
+      };
+      headerRow.addEventListener('contextmenu', e => {
+        const th = e.target.closest('th');
+        if (!th || !th.classList.contains('measurement-column')) return;
+        e.preventDefault();
+        updateStats();
+        columnMenu.style.left = `${e.pageX}px`;
+        columnMenu.style.top = `${e.pageY}px`;
+        columnMenu.style.display = 'block';
+        clearInterval(statsTimer);
+        statsTimer = setInterval(updateStats, 500);
+      });
+    }
 
     const seqSelect = document.getElementById('sequence-select');
     const seqAddBtn = document.getElementById('sequence-add');
-    const sequences = {};
-    const sequenceOrder = [];
-    let seqCounter = 0;
-    let activeSeqKey = null;
-    let saveBtn = null;
     function markUnsaved() {
       if (saveBtn) {
         saveBtn.disabled = false;
@@ -227,14 +229,14 @@ document.addEventListener('DOMContentLoaded', () => {
         sequenceOrder.push(key);
         const measIdx = sequenceOrder.length - 1;
 
-        const deleteCol = colGroup.querySelector('.delete-column');
+        const fillerCol = colGroup.querySelector('.filler-column');
         const valCol = document.createElement('col');
         valCol.className = 'value-column';
-        colGroup.insertBefore(valCol, deleteCol);
+        colGroup.insertBefore(valCol, fillerCol);
         const commentCol = document.createElement('col');
         commentCol.className = 'comment-column';
         commentCol.style.visibility = 'collapse';
-        colGroup.insertBefore(commentCol, deleteCol);
+        colGroup.insertBefore(commentCol, fillerCol);
 
         const thVal = document.createElement('th');
         thVal.classList.add('measurement-column');
@@ -266,23 +268,24 @@ document.addEventListener('DOMContentLoaded', () => {
         cBtn.innerHTML = eyeIcon;
         cBtn.addEventListener('click', () => toggleCommentColumn(parseInt(cBtn.dataset.index, 10), cBtn));
         thVal.appendChild(cBtn);
-        const deleteTh = headerRow.querySelector('.delete-column');
-        headerRow.insertBefore(thVal, deleteTh);
+        const fillerTh = headerRow.querySelector('.filler-column');
+        headerRow.insertBefore(thVal, fillerTh);
         const thComment = document.createElement('th');
         thComment.classList.add('comment-column');
         thComment.textContent = 'Kommentar';
         thComment.style.visibility = 'collapse';
-        headerRow.insertBefore(thComment, deleteTh);
+        headerRow.insertBefore(thComment, fillerTh);
         Array.from(tableBody.rows).forEach(row => {
+          const fillerCell = row.querySelector('.filler-cell');
           const valTd = document.createElement('td');
-          row.insertBefore(valTd, row.lastElementChild);
+          row.insertBefore(valTd, fillerCell);
           const cTd = document.createElement('td');
           cTd.style.visibility = 'collapse';
           const cInput = document.createElement('input');
           cInput.type = 'text';
           cInput.addEventListener('input', markUnsaved);
           cTd.appendChild(cInput);
-          row.insertBefore(cTd, row.lastElementChild);
+          row.insertBefore(cTd, fillerCell);
         });
         const option = document.createElement('option');
         option.value = key;
@@ -314,26 +317,29 @@ document.addEventListener('DOMContentLoaded', () => {
           cTd.appendChild(cInput);
           row.appendChild(cTd);
         });
+        const fillerTd = document.createElement('td');
+        fillerTd.className = 'filler-cell';
+        row.appendChild(fillerTd);
         const deleteTd = document.createElement('td');
-      deleteTd.classList.add('delete-column');
-      const delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.className = 'icon-btn delete-row';
-      delBtn.innerHTML = '<span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M14.7404 9L14.3942 18M9.60577 18L9.25962 9M19.2276 5.79057C19.5696 5.84221 19.9104 5.89747 20.25 5.95629M19.2276 5.79057L18.1598 19.6726C18.0696 20.8448 17.0921 21.75 15.9164 21.75H8.08357C6.90786 21.75 5.93037 20.8448 5.8402 19.6726L4.77235 5.79057M19.2276 5.79057C18.0812 5.61744 16.9215 5.48485 15.75 5.39432M3.75 5.95629C4.08957 5.89747 4.43037 5.84221 4.77235 5.79057M4.77235 5.79057C5.91878 5.61744 7.07849 5.48485 8.25 5.39432M15.75 5.39432V4.47819C15.75 3.29882 14.8393 2.31423 13.6606 2.27652C13.1092 2.25889 12.5556 2.25 12 2.25C11.4444 2.25 10.8908 2.25889 10.3394 2.27652C9.16065 2.31423 8.25 3.29882 8.25 4.47819V5.39432M15.75 5.39432C14.5126 5.2987 13.262 5.25 12 5.25C10.738 5.25 9.48744 5.2987 8.25 5.39432" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
-      delBtn.addEventListener('click', () => {
-        if (window.mmModal && window.mmModal.open) {
-          window.mmModal.open({
-            title: 'Messwert löschen?',
-            text: 'Soll der Messwert entfernt werden?',
-            okText: 'Löschen',
-            onConfirm: () => row.remove()
-          });
-        } else {
-          row.remove();
-        }
-      });
-      deleteTd.appendChild(delBtn);
-      row.appendChild(deleteTd);
+        deleteTd.classList.add('delete-column');
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'icon-btn delete-row';
+        delBtn.innerHTML = '<span class="icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path class="svg-icon" stroke="var(--svg-icon)" d="M14.7404 9L14.3942 18M9.60577 18L9.25962 9M19.2276 5.79057C19.5696 5.84221 19.9104 5.89747 20.25 5.95629M19.2276 5.79057L18.1598 19.6726C18.0696 20.8448 17.0921 21.75 15.9164 21.75H8.08357C6.90786 21.75 5.93037 20.8448 5.8402 19.6726L4.77235 5.79057M19.2276 5.79057C18.0812 5.61744 16.9215 5.48485 15.75 5.39432M3.75 5.95629C4.08957 5.89747 4.43037 5.84221 4.77235 5.79057M4.77235 5.79057C5.91878 5.61744 7.07849 5.48485 8.25 5.39432M15.75 5.39432V4.47819C15.75 3.29882 14.8393 2.31423 13.6606 2.27652C13.1092 2.25889 12.5556 2.25 12 2.25C11.4444 2.25 10.8908 2.25889 10.3394 2.27652C9.16065 2.31423 8.25 3.29882 8.25 4.47819V5.39432M15.75 5.39432C14.5126 5.2987 13.262 5.25 12 5.25C10.738 5.25 9.48744 5.2987 8.25 5.39432" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+        delBtn.addEventListener('click', () => {
+          if (window.mmModal && window.mmModal.open) {
+            window.mmModal.open({
+              title: 'Messwert löschen?',
+              text: 'Soll der Messwert entfernt werden?',
+              okText: 'Löschen',
+              onConfirm: () => row.remove()
+            });
+          } else {
+            row.remove();
+          }
+        });
+        deleteTd.appendChild(delBtn);
+        row.appendChild(deleteTd);
         tableBody.appendChild(row);
         const orderIdx = sequenceOrder.indexOf(seqKey);
         if (value !== '' && orderIdx !== -1) {
