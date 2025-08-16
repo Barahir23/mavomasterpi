@@ -134,12 +134,6 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 .card.card-sub { margin-left:1rem; }
 .card.has-delete .edit-btn { right:2.5rem; }
 .card.has-delete { padding-right:2.5rem; }
-.card .open-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
-.card .open-btn:hover { background:#2c2c2c; }
-.card .open-btn .icon, .card .open-btn .icon svg { width:20px; height:20px; }
-.card.has-delete .open-btn { right:2.5rem; }
-.card.has-open { padding-right:2.5rem; }
-.card.has-delete.has-open { padding-right:5rem; }
 .card .delete-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
 .card .delete-btn:hover { background:#2c2c2c; }
 .card .delete-btn .icon, .card .delete-btn .icon svg { width:20px; height:20px; }
