@@ -79,7 +79,7 @@
   </div>
   {% if selected_messung %}
     <section class="card">
-      {% include "measurement_table.html" with sequence_names=sequence_names table_rows=table_rows table_colspan=table_colspan show_comments=True %}
+      {% include "measurement_table.html" with sequence_names=sequence_names table_rows=table_rows table_colspan=table_colspan show_comments=show_comments %}
     </section>
   {% endif %}
   {% include "context_stats_menu.html" %}

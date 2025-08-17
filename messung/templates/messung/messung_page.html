@@ -14,7 +14,7 @@
   <form id="selection-form" class="edit-form" method="get">
     <div class="form-row">
       <label for="project-select">Projektauswahl</label>
-      <select id="project-select" name="projekt">
+      <select id="project-select" name="projekt" onchange="this.form.submit()">
         <option value="">– bitte wählen –</option>
         {% for projekt in projekte %}
           <option value="{{ projekt.id }}"{% if selected_projekt and projekt.id == selected_projekt.id %} selected{% endif %}>{{ projekt.name }}</option>
@@ -23,7 +23,7 @@
     </div>
     <div class="form-row">
       <label for="object-select">Objektauswahl</label>
-      <select id="object-select" name="objekt"{% if not objekte %} disabled{% endif %}>
+      <select id="object-select" name="objekt" onchange="this.form.submit()"{% if not objekte %} disabled{% endif %}>
         <option value="">– bitte wählen –</option>
         {% for objekt in objekte %}
           <option value="{{ objekt.id }}"{% if selected_objekt and objekt.id == selected_objekt.id %} selected{% endif %}>{{ objekt.name }}</option>
@@ -81,17 +81,15 @@
   </section>
 
   <section class="card">
-    {% include "measurement_table.html" %}
+    {% include "measurement_table.html" with show_comments=show_comments %}
   </section>
   <div id="sequence-overlay"><span id="sequence-countdown"></span></div>
   {# Stats context menu #}
   {% include "context_stats_menu.html" %}
 {% endblock %}
 {% block extra_js %}
-  <script>
-    window.initialTable = {{ initial_table|safe }};
-    window.anforderungenData = {{ anforderungen_json|safe }};
-  </script>
+  {{ initial_table|json_script:"initial-table" }}
+  {{ anforderungen_list|json_script:"anforderungen-data" }}
   <script src="{% static 'js/NoSleep.min.js' %}"></script>
   <script type="module" src="{% static 'js/messung.js' %}"></script>
 {% endblock %}
