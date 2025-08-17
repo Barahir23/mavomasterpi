@@ -185,7 +185,7 @@ input[type=range]::-moz-range-thumb {
 #anforderung-modal .mm-modal__dialog {
   max-height: 80vh;
   width: 80%;
-  max-width: 400px;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
 }
