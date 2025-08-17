@@ -103,5 +103,5 @@
     window.anforderungenData = {{ anforderungen_json|safe }};
   </script>
   <script src="{% static 'js/NoSleep.min.js' %}"></script>
-  <script src="{% static 'js/messung.js' %}"></script>
+  <script type="module" src="{% static 'js/messung.js' %}"></script>
 {% endblock %}
