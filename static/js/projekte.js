@@ -18,6 +18,13 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
+  headerRow.querySelectorAll('.title-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const title = btn.parentElement.querySelector('.seq-title');
+      if (title) title.classList.toggle('hidden');
+    });
+  });
+
   const columnMenu = document.getElementById('column-context-menu');
   if (columnMenu) {
     document.body.appendChild(columnMenu);
@@ -34,8 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const rows = Array.from(headerRow.querySelectorAll('.measurement-column'));
     const html = rows
       .map((th, i) => {
-        const name = th.childNodes[0].textContent.trim();
-        const colIdx = 1 + i * 2;
+        const name = th.querySelector('.seq-title') ? th.querySelector('.seq-title').textContent.trim() : th.textContent.trim();
+        const colIdx = 2 + i * 2;
         const stats = computeStatsFormatted(tableBody, colIdx, nf2);
         return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
       })

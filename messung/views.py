@@ -133,7 +133,7 @@ def projekte_page(request):
 
     sequence_names = []
     table_rows = []
-    table_colspan = 1
+    table_colspan = 2
     if selected_messung:
         data = selected_messung.messdaten or {}
         if isinstance(data, list):
@@ -153,7 +153,7 @@ def projekte_page(request):
                 pt = m_map.get(t, {})
                 row['values'].append({'value': pt.get('value'), 'comment': pt.get('comment')})
             table_rows.append(row)
-        table_colspan = 1 + len(sequence_names) * 2
+        table_colspan = 2 + len(sequence_names) * 2
 
     context.update({
         'sequence_names': sequence_names,
