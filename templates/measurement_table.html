@@ -1,5 +1,6 @@
 <table class="measurement-table">
   <colgroup id="measurement-colgroup">
+    <col class="delete-column" style="width:50px;">
     <col class="time-column">
     {% if sequence_names %}
       {% for name in sequence_names %}
@@ -8,18 +9,24 @@
           <col class="comment-column" style="visibility: collapse;">
         {% endif %}
       {% endfor %}
-    {% else %}
-      <col class="filler-column">
-      <col class="delete-column" style="width:50px;">
     {% endif %}
+    <col class="filler-column">
   </colgroup>
   <thead>
     <tr>
-      <th class="time-column">Zeit</th>
+      <th class="delete-column"></th>
+      <th class="time-column"><span class="icon">{% include "icons/clock.svg" %}</span></th>
       {% if sequence_names %}
         {% for name in sequence_names %}
           <th class="measurement-column">
-            {{ name }}
+            <button type="button" class="icon-btn title-toggle" data-index="{{ forloop.counter0 }}">
+              <span class="icon">
+                {% with num=forloop.counter|stringformat:"d" %}
+                  {% with path="icons/circle-number-"|add:num|add:".svg" %}{% include path %}{% endwith %}
+                {% endwith %}
+              </span>
+            </button>
+            <span class="seq-title">{{ name }}</span>
             {% if show_comments %}
               <button type="button" class="icon-btn comment-toggle" data-index="{{ forloop.counter0 }}"></button>
             {% endif %}
@@ -28,27 +35,30 @@
             <th class="comment-column" style="visibility: collapse;">Kommentar</th>
           {% endif %}
         {% endfor %}
-      {% else %}
-        <th class="filler-column"></th>
-        <th class="delete-column"></th>
       {% endif %}
+      <th class="filler-column"></th>
     </tr>
   </thead>
   <tbody id="measurement-table-body">
     {% if table_rows %}
       {% for row in table_rows %}
         <tr>
-          <td>{{ row.time }}</td>
+          <td class="delete-column"></td>
+          <td class="time-column">{{ row.time }}</td>
           {% for val in row.values %}
             <td>{{ val.value }}</td>
             {% if show_comments %}
               <td class="comment-column" style="visibility: collapse;">{{ val.comment }}</td>
             {% endif %}
           {% endfor %}
+          <td class="filler-cell"></td>
         </tr>
       {% endfor %}
     {% elif table_colspan %}
-      <tr><td colspan="{{ table_colspan }}">Keine Messdaten vorhanden.</td></tr>
+      <tr>
+        <td class="delete-column"></td>
+        <td colspan="{{ table_colspan }}">Keine Messdaten vorhanden.</td>
+      </tr>
     {% endif %}
   </tbody>
 </table>

@@ -99,8 +99,8 @@ input[type=range]::-moz-range-thumb {
   border-bottom: 1px solid var(--color-border);
 }
 
-.measurement-table th:first-child,
-.measurement-table td:first-child {
+.measurement-table th.time-column,
+.measurement-table td.time-column {
   width: 6rem;
   white-space: nowrap;
 }
@@ -118,22 +118,28 @@ input[type=range]::-moz-range-thumb {
   width: auto;
   margin: 0;
 }
-.measurement-table th.measurement-column .icon-btn {
+.measurement-table th.measurement-column .title-toggle {
+  margin-right: 0.25rem;
+}
+.measurement-table th.measurement-column .comment-toggle {
   margin-left: 0.25rem;
+}
+.measurement-table .hidden {
+  display: none;
 }
 
 .comment-toggle {
   padding: 0.2rem;
 }
 
-/* Ensure delete buttons stay on the far right */
+/* Flexible filler column */
 .measurement-table .filler-column {
   width: 100%;
 }
 .measurement-table .delete-column {
-  text-align: right;
   width: 50px;
   white-space: nowrap;
+  text-align: center;
 }
 
 #sequence-overlay {
