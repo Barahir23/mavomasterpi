@@ -1,6 +1,5 @@
 import time
 import threading
-import math
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import serial
