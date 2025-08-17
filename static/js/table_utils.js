@@ -5,12 +5,12 @@ export function toggleCommentColumn(headerRow, tableBody, colGroup, idx, btn, ey
   const colIdx = 3 + idx * 2;
   const th = headerRow.children[colIdx];
   const col = colGroup.children[colIdx];
-  const hidden = th.style.visibility === 'collapse';
-  const vis = hidden ? 'visible' : 'collapse';
-  th.style.visibility = vis;
-  if (col) col.style.visibility = vis;
+  const hidden = th.style.display === 'none';
+  const disp = hidden ? '' : 'none';
+  th.style.display = disp;
+  if (col) col.style.display = disp;
   Array.from(tableBody.rows).forEach(row => {
-    if (row.children[colIdx]) row.children[colIdx].style.visibility = vis;
+    if (row.children[colIdx]) row.children[colIdx].style.display = disp;
   });
   if (btn) btn.innerHTML = hidden ? eyeSlashIcon : eyeIcon;
 }
