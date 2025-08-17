@@ -77,21 +77,7 @@
   </section>
 
   <section class="card">
-    <table class="measurement-table">
-      <colgroup id="measurement-colgroup">
-        <col class="time-column">
-        <col class="filler-column">
-        <col class="delete-column" style="width:50px;">
-      </colgroup>
-      <thead>
-        <tr>
-          <th class="time-column">Zeit</th>
-          <th class="filler-column"></th>
-          <th class="delete-column"></th>
-        </tr>
-      </thead>
-      <tbody id="measurement-table-body"></tbody>
-    </table>
+    {% include "measurement_table.html" %}
   </section>
   <div id="sequence-overlay"><span id="sequence-countdown"></span></div>
   {# Stats context menu #}
