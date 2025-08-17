@@ -1,4 +1,4 @@
-import { toggleCommentColumn, computeArrayStats, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
+import { toggleCommentColumn, computeArrayStats, getColumnValues, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
 
 // Hinweis: Keine Browser-Prompts zur Sicherstellung der mobilen Kompatibilität.
 // page-specific scripts
@@ -84,6 +84,8 @@ document.addEventListener('DOMContentLoaded', () => {
       headerRow.addEventListener('contextmenu', e => {
         const th = e.target.closest('th');
         if (!th || !th.classList.contains('measurement-column')) return;
+        const colIdx = Array.from(headerRow.children).indexOf(th);
+        if (getColumnValues(tableBody, colIdx).length === 0) return;
         e.preventDefault();
         updateStats();
         columnMenu.style.left = `${e.pageX}px`;

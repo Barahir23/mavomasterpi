@@ -1,4 +1,4 @@
-import { toggleCommentColumn, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
+import { toggleCommentColumn, getColumnValues, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
 
 // Table utilities for projects page
 
@@ -47,6 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     headerRow.addEventListener('contextmenu', e => {
       const th = e.target.closest('th');
       if (!th || !th.classList.contains('measurement-column')) return;
+      const colIdx = Array.from(headerRow.children).indexOf(th);
+      if (getColumnValues(tableBody, colIdx).length === 0) return;
       e.preventDefault();
       updateStatsMenu();
       columnMenu.style.left = `${e.pageX}px`;
