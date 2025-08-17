@@ -1,5 +1,9 @@
 import { toggleCommentColumn, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
 
+function numberIcon(num) {
+  return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="svg-icon" stroke="var(--svg-icon)" stroke-width="1.5" cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="var(--svg-icon)" font-family="sans-serif">${num}</text></svg>`;
+}
+
 // Hinweis: Keine Browser-Prompts zur Sicherstellung der mobilen Kompatibilität.
 // page-specific scripts
 
@@ -160,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function cleanupEmptyRows() {
       Array.from(tableBody.rows).forEach(row => {
         const hasValue = sequenceOrder.some((_, i) => {
-          const cell = row.children[1 + i * 2];
+          const cell = row.children[2 + i * 2];
           return cell && cell.textContent !== '';
         });
         if (!hasValue) row.remove();
@@ -169,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function removeSequenceColumn(key) {
       const idx = sequenceOrder.indexOf(key);
       if (idx === -1) return;
-      const colIdx = 1 + idx * 2;
+      const colIdx = 2 + idx * 2;
       headerRow.removeChild(headerRow.children[colIdx]);
       headerRow.removeChild(headerRow.children[colIdx]);
       if (colGroup) {
@@ -185,6 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
       sequenceOrder.splice(idx, 1);
       headerRow.querySelectorAll('.comment-toggle').forEach((btn, i) => {
         btn.dataset.index = i;
+      });
+      headerRow.querySelectorAll('.title-toggle').forEach((btn, i) => {
+        btn.dataset.index = i;
+        btn.innerHTML = `<span class="icon">${numberIcon(i + 1)}</span>`;
       });
       cleanupEmptyRows();
       activeSeqKey = sequenceOrder[sequenceOrder.length - 1] || null;
@@ -208,9 +216,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const thVal = document.createElement('th');
         thVal.classList.add('measurement-column');
+        const tBtn = document.createElement('button');
+        tBtn.type = 'button';
+        tBtn.className = 'icon-btn title-toggle';
+        tBtn.dataset.index = measIdx;
+        tBtn.innerHTML = `<span class="icon">${numberIcon(measIdx + 1)}</span>`;
+        thVal.appendChild(tBtn);
         const input = document.createElement('input');
         input.type = 'text';
         input.value = name || autoSeqName();
+        input.classList.add('seq-title');
         thVal.appendChild(input);
         const delBtn = document.createElement('button');
         delBtn.type = 'button';
@@ -238,6 +253,9 @@ document.addEventListener('DOMContentLoaded', () => {
           toggleCommentColumn(headerRow, tableBody, colGroup, parseInt(cBtn.dataset.index, 10), cBtn, eyeIcon, eyeSlashIcon)
         );
         thVal.appendChild(cBtn);
+        tBtn.addEventListener('click', () => {
+          input.classList.toggle('hidden');
+        });
         const fillerTh = headerRow.querySelector('.filler-column');
         headerRow.insertBefore(thVal, fillerTh);
         const thComment = document.createElement('th');
@@ -273,23 +291,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       function appendRow(time, value = '', seqKey = null, comment = '') {
         const row = document.createElement('tr');
-        const timeTd = document.createElement('td');
-        timeTd.textContent = time;
-        row.appendChild(timeTd);
-        sequenceOrder.forEach((_, idx) => {
-          const valTd = document.createElement('td');
-          row.appendChild(valTd);
-          const cTd = document.createElement('td');
-          cTd.style.visibility = headerRow.children[2 + idx * 2]?.style.visibility || 'collapse';
-          const cInput = document.createElement('input');
-          cInput.type = 'text';
-          cInput.addEventListener('input', markUnsaved);
-          cTd.appendChild(cInput);
-          row.appendChild(cTd);
-        });
-        const fillerTd = document.createElement('td');
-        fillerTd.className = 'filler-cell';
-        row.appendChild(fillerTd);
         const deleteTd = document.createElement('td');
         deleteTd.classList.add('delete-column');
         const delBtn = document.createElement('button');
@@ -310,11 +311,28 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         deleteTd.appendChild(delBtn);
         row.appendChild(deleteTd);
+        const timeTd = document.createElement('td');
+        timeTd.textContent = time;
+        row.appendChild(timeTd);
+        sequenceOrder.forEach((_, idx) => {
+          const valTd = document.createElement('td');
+          row.appendChild(valTd);
+          const cTd = document.createElement('td');
+          cTd.style.visibility = headerRow.children[3 + idx * 2]?.style.visibility || 'collapse';
+          const cInput = document.createElement('input');
+          cInput.type = 'text';
+          cInput.addEventListener('input', markUnsaved);
+          cTd.appendChild(cInput);
+          row.appendChild(cTd);
+        });
+        const fillerTd = document.createElement('td');
+        fillerTd.className = 'filler-cell';
+        row.appendChild(fillerTd);
         tableBody.appendChild(row);
         const orderIdx = sequenceOrder.indexOf(seqKey);
         if (value !== '' && orderIdx !== -1) {
-          row.children[1 + orderIdx * 2].textContent = nf2.format(Number(value));
-          row.children[2 + orderIdx * 2].querySelector('input').value = comment;
+          row.children[2 + orderIdx * 2].textContent = nf2.format(Number(value));
+          row.children[3 + orderIdx * 2].querySelector('input').value = comment;
         }
       Array.from(headerRow.children).forEach((th, idx) => {
         if (th.style.visibility === 'collapse' && row.children[idx]) {
@@ -346,8 +364,8 @@ document.addEventListener('DOMContentLoaded', () => {
           names.forEach((name, idx) => {
             const pt = dataMap[name] ? dataMap[name][time] : null;
             if (pt) {
-              row.children[1 + idx * 2].textContent = nf2.format(Number(pt.value));
-              row.children[2 + idx * 2].querySelector('input').value = pt.comment || '';
+              row.children[2 + idx * 2].textContent = nf2.format(Number(pt.value));
+              row.children[3 + idx * 2].querySelector('input').value = pt.comment || '';
             }
           });
         });
@@ -454,10 +472,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const messungen = [];
             sequenceOrder.forEach((key, idx) => {
               const name = sequences[key].input.value;
-              const colIdx = 1 + idx * 2;
+              const colIdx = 2 + idx * 2;
               const data = [];
               Array.from(tableBody.rows).forEach(row => {
-                const time = row.children[0].textContent.trim();
+                const time = row.children[1].textContent.trim();
                 const valText = row.children[colIdx].textContent;
                 const comment = row.children[colIdx + 1].querySelector('input').value;
                 if (valText !== '') {
