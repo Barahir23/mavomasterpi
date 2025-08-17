@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   const statsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
 
-  document.addEventListener('click', () => {
-    if (columnMenu) columnMenu.style.display = 'none';
+  document.addEventListener('click', e => {
+    if (e.button !== 2 && columnMenu) columnMenu.style.display = 'none';
   });
 
   function updateStatsMenu() {

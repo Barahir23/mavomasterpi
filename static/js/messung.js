@@ -61,9 +61,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const statsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
 
     let statsTimer = null;
-    document.addEventListener('click', () => {
-      if (columnMenu) columnMenu.style.display = 'none';
-      clearInterval(statsTimer);
+    document.addEventListener('click', e => {
+      if (e.button !== 2) {
+        if (columnMenu) columnMenu.style.display = 'none';
+        clearInterval(statsTimer);
+      }
     });
 
     if (headerRow && columnMenu) {
