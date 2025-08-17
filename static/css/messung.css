@@ -25,14 +25,16 @@
   align-items: center;
   gap: 0.5rem;
 }
+.controls-center,
+.controls-right {
+  gap: 1rem;
+}
 .controls-center {
   flex: 1;
   justify-content: center;
-  gap: 1rem;
 }
 .controls-right {
   margin-left: auto;
-  gap: 1rem;
 }
 .control-group {
   display: flex;
