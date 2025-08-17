@@ -182,26 +182,18 @@ input[type=range]::-moz-range-thumb {
   text-align: left;
 }
 
-.anforderung-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 1500;
-}
-
-.anforderung-modal .modal-content {
-  background: var(--color-bg, #fff);
-  padding: 1rem;
+#anforderung-modal .mm-modal__dialog {
   max-height: 80vh;
-  overflow: auto;
   width: 80%;
   max-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+#anforderung-results {
+  flex: 1;
+  overflow: auto;
+  margin-top: 0.5rem;
 }
 
 #anforderung-results .bereich {
