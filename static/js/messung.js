@@ -1,4 +1,4 @@
-import { toggleCommentColumn, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
+import { computeArrayStats } from './table_utils.js';
 
 function numberIcon(num) {
   return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="svg-icon" stroke="var(--svg-icon)" stroke-width="1.5" cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="var(--svg-icon)" font-family="sans-serif">${num}</text></svg>`;
@@ -8,25 +8,6 @@ function numberIcon(num) {
 // page-specific scripts
 
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('selection-form');
-  const projectSelect = document.getElementById('project-select');
-  const objectSelect = document.getElementById('object-select');
-
-  if (projectSelect && form) {
-    projectSelect.addEventListener('change', () => {
-      if (objectSelect) {
-        objectSelect.disabled = true;
-        objectSelect.selectedIndex = 0;
-      }
-      form.submit();
-    });
-  }
-
-  if (objectSelect && form) {
-    objectSelect.addEventListener('change', () => {
-      form.submit();
-    });
-  }
   const noSleep = new NoSleep();
   let wakeLock = null;
   document.addEventListener('visibilitychange', async () => {
@@ -53,61 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
   let seqCounter = 0;
   let activeSeqKey = null;
   let saveBtn = null;
+  const hasComments = !!document.querySelector('.comment-column');
+  const anforderungenEl = document.getElementById('anforderungen-data');
+  const anforderungenData = anforderungenEl ? JSON.parse(anforderungenEl.textContent) : [];
 
   const nf2 = new Intl.NumberFormat('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const nf0 = new Intl.NumberFormat('de-CH');
 
-    const columnMenu = document.getElementById('column-context-menu');
-    if (columnMenu) {
-      document.body.appendChild(columnMenu);
-      columnMenu.style.display = 'none';
-    }
-    const menuStatsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
-    const sidebarStatsBody = document.querySelector('#sidebar-stats tbody');
-
-    const renderStats = () => {
-      if (!headerRow) return;
-      const cols = Array.from(headerRow.querySelectorAll('.measurement-column'));
-      const html = cols
-        .map(th => {
-          const nameInput = th.querySelector('input');
-          const name = nameInput ? nameInput.value : th.textContent.trim();
-          const colIdx = Array.from(headerRow.children).indexOf(th);
-          const stats = computeStatsFormatted(tableBody, colIdx, nf2);
-          return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
-        })
-        .join('');
-      if (menuStatsBody) menuStatsBody.innerHTML = html;
-      if (sidebarStatsBody) sidebarStatsBody.innerHTML = html;
-    };
-
-    let statsTimer = null;
-    document.addEventListener('click', e => {
-      if (e.button !== 2) {
-        if (columnMenu) columnMenu.style.display = 'none';
-        clearInterval(statsTimer);
-      }
-    });
-
-    if (headerRow) {
-      if (columnMenu) {
-        headerRow.addEventListener('contextmenu', e => {
-          const th = e.target.closest('th');
-          if (!th || !th.classList.contains('measurement-column')) return;
-          e.preventDefault();
-          renderStats();
-          columnMenu.style.left = `${e.pageX}px`;
-          columnMenu.style.top = `${e.pageY}px`;
-          columnMenu.style.display = 'block';
-          clearInterval(statsTimer);
-          statsTimer = setInterval(renderStats, 500);
-        });
-      }
-      if (sidebarStatsBody) {
-        renderStats();
-        setInterval(renderStats, 500);
-      }
-    }
 
     const seqSelect = document.getElementById('sequence-select');
     const seqAddBtn = document.getElementById('sequence-add');
@@ -173,23 +106,26 @@ document.addEventListener('DOMContentLoaded', () => {
     function removeSequenceColumn(key) {
       const idx = sequenceOrder.indexOf(key);
       if (idx === -1) return;
-      const colIdx = 2 + idx * 2;
+      const colIdx = 2 + idx * (hasComments ? 2 : 1);
       headerRow.removeChild(headerRow.children[colIdx]);
-      headerRow.removeChild(headerRow.children[colIdx]);
+      if (hasComments) {
+        headerRow.removeChild(headerRow.children[colIdx]);
+      }
       if (colGroup) {
         colGroup.removeChild(colGroup.children[colIdx]);
-        colGroup.removeChild(colGroup.children[colIdx]);
+        if (hasComments) {
+          colGroup.removeChild(colGroup.children[colIdx]);
+        }
       }
       Array.from(tableBody.rows).forEach(row => {
         row.removeChild(row.children[colIdx]);
-        row.removeChild(row.children[colIdx]);
+        if (hasComments) {
+          row.removeChild(row.children[colIdx]);
+        }
       });
       sequences[key].option.remove();
       delete sequences[key];
       sequenceOrder.splice(idx, 1);
-      headerRow.querySelectorAll('.comment-toggle').forEach((btn, i) => {
-        btn.dataset.index = i;
-      });
       headerRow.querySelectorAll('.title-toggle').forEach((btn, i) => {
         btn.dataset.index = i;
         btn.innerHTML = `<span class="icon">${numberIcon(i + 1)}</span>`;
@@ -209,10 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const valCol = document.createElement('col');
         valCol.className = 'value-column';
         colGroup.insertBefore(valCol, fillerCol);
-        const commentCol = document.createElement('col');
-        commentCol.className = 'comment-column';
-        commentCol.style.display = 'none';
-        colGroup.insertBefore(commentCol, fillerCol);
+        if (hasComments) {
+          const commentCol = document.createElement('col');
+          commentCol.className = 'comment-column';
+          colGroup.insertBefore(commentCol, fillerCol);
+        }
 
         const thVal = document.createElement('th');
         thVal.classList.add('measurement-column');
@@ -244,36 +181,29 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
         thVal.appendChild(delBtn);
-        const cBtn = document.createElement('button');
-        cBtn.type = 'button';
-        cBtn.className = 'icon-btn comment-toggle';
-        cBtn.dataset.index = measIdx;
-        cBtn.innerHTML = eyeIcon;
-        cBtn.addEventListener('click', () =>
-          toggleCommentColumn(headerRow, tableBody, colGroup, parseInt(cBtn.dataset.index, 10), cBtn, eyeIcon, eyeSlashIcon)
-        );
-        thVal.appendChild(cBtn);
         tBtn.addEventListener('click', () => {
           input.classList.toggle('hidden');
         });
         const fillerTh = headerRow.querySelector('.filler-column');
         headerRow.insertBefore(thVal, fillerTh);
-        const thComment = document.createElement('th');
-        thComment.classList.add('comment-column');
-        thComment.textContent = 'Kommentar';
-        thComment.style.display = 'none';
-        headerRow.insertBefore(thComment, fillerTh);
+        if (hasComments) {
+          const thComment = document.createElement('th');
+          thComment.classList.add('comment-column');
+          thComment.textContent = 'Kommentar';
+          headerRow.insertBefore(thComment, fillerTh);
+        }
         Array.from(tableBody.rows).forEach(row => {
           const fillerCell = row.querySelector('.filler-cell');
           const valTd = document.createElement('td');
           row.insertBefore(valTd, fillerCell);
-          const cTd = document.createElement('td');
-          cTd.style.display = 'none';
-          const cInput = document.createElement('input');
-          cInput.type = 'text';
-          cInput.addEventListener('input', markUnsaved);
-          cTd.appendChild(cInput);
-          row.insertBefore(cTd, fillerCell);
+          if (hasComments) {
+            const cTd = document.createElement('td');
+            const cInput = document.createElement('input');
+            cInput.type = 'text';
+            cInput.addEventListener('input', markUnsaved);
+            cTd.appendChild(cInput);
+            row.insertBefore(cTd, fillerCell);
+          }
         });
         const option = document.createElement('option');
         option.value = key;
@@ -343,7 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
       return row;
     }
 
-      const initialTable = window.initialTable;
+      const initialEl = document.getElementById('initial-table');
+      const initialTable = initialEl ? JSON.parse(initialEl.textContent) : null;
       if (initialTable && initialTable.messungen) {
         initialTable.messungen
           .filter(m => m.name && m.name !== 'Einzelmessung')
@@ -540,7 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const openAnforderungModal = () => {
-        renderAnforderungen(window.anforderungenData || []);
+        renderAnforderungen(anforderungenData);
         anforderungModal.setAttribute('aria-hidden', 'false');
         if (anforderungSearch) {
           anforderungSearch.value = '';
@@ -567,7 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (anforderungSearch) {
         anforderungSearch.addEventListener('input', () => {
           const term = anforderungSearch.value.toLowerCase();
-          const filtered = (window.anforderungenData || []).filter(a =>
+          const filtered = anforderungenData.filter(a =>
             `${a.ref} ${a.typ || ''} ${a.bereich || ''}`.toLowerCase().includes(term)
           );
           renderAnforderungen(filtered);

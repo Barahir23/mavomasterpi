@@ -20,6 +20,22 @@ from .logic import (
 )
 
 
+def compute_stats(messungen):
+    stats = []
+    for m in messungen:
+        values = [pt.get('value') for pt in m.get('data', []) if pt.get('value') is not None]
+        if not values:
+            stats.append({'name': m.get('name', ''), 'avg': '-', 'min': '-', 'max': '-', 'u0': '-'})
+            continue
+        avg = sum(values) / len(values)
+        mn = min(values)
+        mx = max(values)
+        u0 = mn / avg if avg else None
+        fmt = lambda v: f"{v:.2f}" if v is not None else '-'
+        stats.append({'name': m.get('name', ''), 'avg': fmt(avg), 'min': fmt(mn), 'max': fmt(mx), 'u0': fmt(u0)})
+    return stats
+
+
 def messung_page(request):
     try:
         result = subprocess.run(['lsusb'], capture_output=True, text=True, check=True)
@@ -33,11 +49,12 @@ def messung_page(request):
 
     projekte = Projekt.objects.all().order_by('name')
     anforderungen_qs = Anforderungen.objects.all().order_by('ref')
-    anforderungen_json = json.dumps(list(anforderungen_qs.values('id', 'ref', 'bereich', 'typ')))
+    anforderungen_list = list(anforderungen_qs.values('id', 'ref', 'bereich', 'typ'))
 
     projekt_id = request.GET.get('projekt')
     objekt_id = request.GET.get('objekt')
     messung_id = request.GET.get('messung')
+    show_comments = request.GET.get('show_comments') == '1'
 
     selected_projekt = None
     selected_objekt = None
@@ -68,14 +85,15 @@ def messung_page(request):
             return redirect(f"{reverse('messung:page')}?projekt={selected_projekt.id}&objekt={selected_objekt.id}&messung={selected_messung.id}")
 
     device_status = 'Verbunden' if DEVICE and DEVICE.is_connected else 'Nicht verbunden'
-    initial_table = json.dumps(selected_messung.messdaten) if selected_messung and selected_messung.messdaten else 'null'
+    initial_table = selected_messung.messdaten if selected_messung and selected_messung.messdaten else {}
+    stats_rows = compute_stats(initial_table.get('messungen', [])) if initial_table else []
 
     context = {
         'projekte': projekte,
         'objekte': objekte,
         'selected_projekt': selected_projekt,
         'anforderungen': anforderungen_qs,
-        'anforderungen_json': anforderungen_json,
+        'anforderungen_list': anforderungen_list,
         'device_warning': device_warning,
         'device_status': device_status,
         'selected_objekt': selected_objekt,
@@ -83,6 +101,8 @@ def messung_page(request):
         'messung_form': messung_form,
         'messungen': messungen,
         'initial_table': initial_table,
+        'stats_rows': stats_rows,
+        'show_comments': show_comments,
     }
     return render(request, 'messung/messung_page.html', context)
 
@@ -129,11 +149,13 @@ def projekte_page(request):
         'objekt_form': objekt_form,
         'messungen': messungen,
         'selected_messung': selected_messung,
+        'show_comments': show_comments,
     }
 
     sequence_names = []
     table_rows = []
     table_colspan = 2
+    stats_rows = []
     if selected_messung:
         data = selected_messung.messdaten or {}
         if isinstance(data, list):
@@ -153,12 +175,14 @@ def projekte_page(request):
                 pt = m_map.get(t, {})
                 row['values'].append({'value': pt.get('value'), 'comment': pt.get('comment')})
             table_rows.append(row)
-        table_colspan = 2 + len(sequence_names) * 2
+        table_colspan = 2 + len(sequence_names) * (2 if show_comments else 1)
+        stats_rows = compute_stats(messungen_data)
 
     context.update({
         'sequence_names': sequence_names,
         'table_rows': table_rows,
         'table_colspan': table_colspan,
+        'stats_rows': stats_rows,
     })
     return render(request, 'messung/projekte_page.html', context)
 

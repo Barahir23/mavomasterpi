@@ -6,7 +6,7 @@
       {% for name in sequence_names %}
         <col class="value-column">
         {% if show_comments %}
-          <col class="comment-column" style="display: none;">
+          <col class="comment-column">
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -19,20 +19,10 @@
       {% if sequence_names %}
         {% for name in sequence_names %}
           <th class="measurement-column">
-            <button type="button" class="icon-btn title-toggle" data-index="{{ forloop.counter0 }}">
-              <span class="icon">
-                {% with num=forloop.counter|stringformat:"d" %}
-                  {% with path="icons/circle-number-"|add:num|add:".svg" %}{% include path %}{% endwith %}
-                {% endwith %}
-              </span>
-            </button>
             <span class="seq-title">{{ name }}</span>
-            {% if show_comments %}
-              <button type="button" class="icon-btn comment-toggle" data-index="{{ forloop.counter0 }}"></button>
-            {% endif %}
           </th>
           {% if show_comments %}
-            <th class="comment-column" style="display: none;">Kommentar</th>
+            <th class="comment-column">Kommentar</th>
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -48,7 +38,7 @@
           {% for val in row.values %}
             <td>{{ val.value }}</td>
             {% if show_comments %}
-              <td class="comment-column" style="display: none;">{{ val.comment }}</td>
+              <td class="comment-column">{{ val.comment }}</td>
             {% endif %}
           {% endfor %}
           <td class="filler-cell"></td>
