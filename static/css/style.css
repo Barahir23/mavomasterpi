@@ -128,21 +128,28 @@ html.sidebar-collapsed .footer-btn, body.sidebar-collapsed .footer-btn {
 .card { background: var(--color-surface); border:1px solid var(--color-border); border-radius:12px; padding:.75rem; position:relative; }
 .card.selected { border-color: var(--primary); }
 .card h2, .card h3 { color: var(--primary);  }
-.card .edit-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
-.card .edit-btn:hover { background:#2c2c2c; }
-.card .edit-btn .icon, .card .edit-btn .icon svg { width:20px; height:20px; }
+.card .action-btn {
+  position:absolute;
+  top:.5rem;
+  right:.5rem;
+  background:transparent;
+  border:none;
+  width:28px;
+  height:28px;
+  border-radius:6px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+.card .action-btn:hover { background:#2c2c2c; }
+.card .action-btn .icon, .card .action-btn .icon svg { width:20px; height:20px; }
 .card.card-sub { margin-left:1rem; }
 .card.has-delete .edit-btn { right:2.5rem; }
 .card.has-delete { padding-right:2.5rem; }
-.card .open-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
-.card .open-btn:hover { background:#2c2c2c; }
-.card .open-btn .icon, .card .open-btn .icon svg { width:20px; height:20px; }
 .card.has-delete .open-btn { right:2.5rem; }
 .card.has-open { padding-right:2.5rem; }
 .card.has-delete.has-open { padding-right:5rem; }
-.card .delete-btn { position:absolute; top:.5rem; right:.5rem; background:transparent; border:none; width:28px; height:28px; border-radius:6px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
-.card .delete-btn:hover { background:#2c2c2c; }
-.card .delete-btn .icon, .card .delete-btn .icon svg { width:20px; height:20px; }
 .element-card { margin-bottom:10px; min-height:50px; max-height:100px; height:auto; overflow:auto; }
 .element-columns { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
 .element-columns .column { overflow:auto; max-height:80vh; }
