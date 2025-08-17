@@ -33,7 +33,12 @@
       </button>
       <span id="anforderung-display">
         {% if selected_messung and selected_messung.anforderung %}
-          {{ selected_messung.anforderung.ref }}{% if selected_messung.anforderung.typ %} {{ selected_messung.anforderung.typ }}{% endif %}
+          {% with a=selected_messung.anforderung %}
+            {{ a.ref }}{% if a.typ %} {{ a.typ }}{% endif %}{% if a.avg or a.avgmod or a.u0 %} (
+            {% if a.avg %}{{ a.avg|floatformat:2 }}{% endif %}
+            {% if a.avgmod %}{% if a.avg %} / {% endif %}{{ a.avgmod|floatformat:2 }}{% endif %}
+            {% if a.u0 %}{% if a.avg or a.avgmod %} / {% endif %}{{ a.u0|floatformat:2 }}{% endif %}){% endif %}
+          {% endwith %}
         {% else %}–{% endif %}
       </span>
     </div>
