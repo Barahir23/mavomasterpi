@@ -1,9 +1,5 @@
 import { toggleCommentColumn, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
 
-function numberIcon(num) {
-  return `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle class="svg-icon" stroke="var(--svg-icon)" stroke-width="1.5" cx="12" cy="12" r="9"/><text x="12" y="16" text-anchor="middle" font-size="12" fill="var(--svg-icon)" font-family="sans-serif">${num}</text></svg>`;
-}
-
 // Table utilities for projects page
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -22,8 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   });
 
-  headerRow.querySelectorAll('.title-toggle').forEach((btn, idx) => {
-    btn.innerHTML = numberIcon(idx + 1);
+  headerRow.querySelectorAll('.title-toggle').forEach(btn => {
     btn.addEventListener('click', () => {
       const title = btn.parentElement.querySelector('.seq-title');
       if (title) title.classList.toggle('hidden');
@@ -44,8 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderStats() {
     const rows = Array.from(headerRow.querySelectorAll('.measurement-column'));
-    const fmt = v => (v !== null && v !== undefined ? nf2.format(v) : '-');
-    const seqRows = rows
+    const html = rows
       .map((th, i) => {
         const name = th.querySelector('.seq-title') ? th.querySelector('.seq-title').textContent.trim() : th.textContent.trim();
         const colIdx = 2 + i * 2;
@@ -53,10 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
       })
       .join('');
-    const baseRow = window.anforderungStats
-      ? `<tr><td>Vorgabe</td><td>${fmt(window.anforderungStats.avg)}</td><td>${fmt(window.anforderungStats.emin)}</td><td>${fmt(window.anforderungStats.emax)}</td><td>${fmt(window.anforderungStats.u0)}</td></tr>`
-      : '';
-    const html = baseRow + seqRows;
     if (menuStatsBody) menuStatsBody.innerHTML = html;
     if (sidebarStatsBody) sidebarStatsBody.innerHTML = html;
   }

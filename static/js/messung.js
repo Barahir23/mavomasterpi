@@ -68,8 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderStats = () => {
       if (!headerRow) return;
       const cols = Array.from(headerRow.querySelectorAll('.measurement-column'));
-      const fmt = v => (v !== null && v !== undefined ? nf2.format(v) : '-');
-      const seqRows = cols
+      const html = cols
         .map(th => {
           const nameInput = th.querySelector('input');
           const name = nameInput ? nameInput.value : th.textContent.trim();
@@ -78,10 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
           return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
         })
         .join('');
-      const baseRow = window.anforderungStats
-        ? `<tr><td>Vorgabe</td><td>${fmt(window.anforderungStats.avg)}</td><td>${fmt(window.anforderungStats.emin)}</td><td>${fmt(window.anforderungStats.emax)}</td><td>${fmt(window.anforderungStats.u0)}</td></tr>`
-        : '';
-      const html = baseRow + seqRows;
       if (menuStatsBody) menuStatsBody.innerHTML = html;
       if (sidebarStatsBody) sidebarStatsBody.innerHTML = html;
     };
@@ -521,7 +516,6 @@ document.addEventListener('DOMContentLoaded', () => {
           (grouped[b] = grouped[b] || []).push(a);
         });
         anforderungResults.innerHTML = '';
-        const fmt = v => (v !== null && v !== undefined ? nf2.format(v) : null);
         Object.keys(grouped).sort().forEach(b => {
           const bDiv = document.createElement('div');
           bDiv.className = 'bereich';
@@ -532,15 +526,13 @@ document.addEventListener('DOMContentLoaded', () => {
           grouped[b].forEach(a => {
             const li = document.createElement('li');
             const label = [a.ref, a.typ].filter(Boolean).join(' ');
-            const values = [fmt(a.avg), fmt(a.avgmod), fmt(a.u0)].filter(Boolean).join(' / ');
-            const text = values ? `${label} (${values})` : label;
-            li.textContent = text;
-            li.addEventListener('click', () => {
-              if (anforderungInput) anforderungInput.value = a.id;
-              if (anforderungDisplay) anforderungDisplay.textContent = text;
-              closeAnforderungModal();
-              markUnsaved();
-            });
+            li.textContent = label;
+              li.addEventListener('click', () => {
+                if (anforderungInput) anforderungInput.value = a.id;
+                if (anforderungDisplay) anforderungDisplay.textContent = label;
+                closeAnforderungModal();
+                markUnsaved();
+              });
             ul.appendChild(li);
           });
           anforderungResults.appendChild(ul);

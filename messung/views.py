@@ -33,9 +33,7 @@ def messung_page(request):
 
     projekte = Projekt.objects.all().order_by('name')
     anforderungen_qs = Anforderungen.objects.all().order_by('ref')
-    anforderungen_json = json.dumps(
-        list(anforderungen_qs.values('id', 'ref', 'bereich', 'typ', 'avg', 'avgmod', 'u0'))
-    )
+    anforderungen_json = json.dumps(list(anforderungen_qs.values('id', 'ref', 'bereich', 'typ')))
 
     projekt_id = request.GET.get('projekt')
     objekt_id = request.GET.get('objekt')
@@ -72,13 +70,6 @@ def messung_page(request):
     device_status = 'Verbunden' if DEVICE and DEVICE.is_connected else 'Nicht verbunden'
     initial_table = json.dumps(selected_messung.messdaten) if selected_messung and selected_messung.messdaten else 'null'
 
-    anforderung_stats = None
-    if selected_messung and selected_messung.anforderung:
-        a = selected_messung.anforderung
-        emin = a.avg - a.avgmod if a.avg is not None and a.avgmod is not None else None
-        emax = a.avg + a.avgmod if a.avg is not None and a.avgmod is not None else None
-        anforderung_stats = {'avg': a.avg, 'emin': emin, 'emax': emax, 'u0': a.u0}
-
     context = {
         'projekte': projekte,
         'objekte': objekte,
@@ -92,7 +83,6 @@ def messung_page(request):
         'messung_form': messung_form,
         'messungen': messungen,
         'initial_table': initial_table,
-        'anforderung_stats': json.dumps(anforderung_stats) if anforderung_stats else 'null',
     }
     return render(request, 'messung/messung_page.html', context)
 
@@ -165,18 +155,10 @@ def projekte_page(request):
             table_rows.append(row)
         table_colspan = 2 + len(sequence_names) * 2
 
-    anforderung_stats = None
-    if selected_messung and selected_messung.anforderung:
-        a = selected_messung.anforderung
-        emin = a.avg - a.avgmod if a.avg is not None and a.avgmod is not None else None
-        emax = a.avg + a.avgmod if a.avg is not None and a.avgmod is not None else None
-        anforderung_stats = {'avg': a.avg, 'emin': emin, 'emax': emax, 'u0': a.u0}
-
     context.update({
         'sequence_names': sequence_names,
         'table_rows': table_rows,
         'table_colspan': table_colspan,
-        'anforderung_stats': json.dumps(anforderung_stats) if anforderung_stats else 'null',
     })
     return render(request, 'messung/projekte_page.html', context)
 
