@@ -20,7 +20,7 @@
           </a>
           <form method="post" action="{% url 'projekt_delete' projekt.id %}">
             {% csrf_token %}
-            <button type="submit" class="delete-btn" title="Löschen">
+            <button type="submit" class="delete-btn action-btn" title="Löschen">
               <span class="icon">{% include "icons/trash.svg" %}</span>
             </button>
           </form>
@@ -38,7 +38,7 @@
             </a>
             <form method="post" action="{% url 'objekt_delete' objekt.id %}">
               {% csrf_token %}
-              <button type="submit" class="delete-btn" title="Löschen">
+              <button type="submit" class="delete-btn action-btn" title="Löschen">
                 <span class="icon">{% include "icons/trash.svg" %}</span>
               </button>
             </form>
@@ -55,12 +55,12 @@
             <a href="{% url 'projekte_page' %}?projekt={{ selected_projekt.id }}&objekt={{ selected_objekt.id }}&messung={{ messung.id }}">
               <h4>{{ messung.name }}</h4>
             </a>
-            <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}&messung={{ messung.id }}" class="open-btn" title="Messung öffnen">
+            <a href="{% url 'messung:page' %}?objekt={{ selected_objekt.id }}&messung={{ messung.id }}" class="open-btn action-btn" title="Messung öffnen">
               <span class="icon">{% include "icons/folder-open.svg" %}</span>
             </a>
             <form method="post" action="{% url 'messung_delete' messung.id %}">
               {% csrf_token %}
-              <button type="submit" class="delete-btn" title="Löschen">
+              <button type="submit" class="delete-btn action-btn" title="Löschen">
                 <span class="icon">{% include "icons/trash.svg" %}</span>
               </button>
             </form>
