@@ -6,7 +6,7 @@
       {% for name in sequence_names %}
         <col class="value-column">
         {% if show_comments %}
-          <col class="comment-column" style="display: none;">
+          <col class="comment-column" style="visibility: collapse;">
         {% endif %}
       {% endfor %}
     {% endif %}
@@ -32,7 +32,7 @@
             {% endif %}
           </th>
           {% if show_comments %}
-            <th class="comment-column" style="display: none;">Kommentar</th>
+            <th class="comment-column" style="visibility: collapse;">Kommentar</th>
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -48,7 +48,7 @@
           {% for val in row.values %}
             <td>{{ val.value }}</td>
             {% if show_comments %}
-              <td class="comment-column" style="display: none;">{{ val.comment }}</td>
+              <td class="comment-column" style="visibility: collapse;">{{ val.comment }}</td>
             {% endif %}
           {% endfor %}
           <td class="filler-cell"></td>
