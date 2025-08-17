@@ -23,14 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(columnMenu);
     columnMenu.style.display = 'none';
   }
-  const statsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
+  const menuStatsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
+  const sidebarStatsBody = document.querySelector('#sidebar-stats tbody');
 
   document.addEventListener('click', e => {
     if (e.button !== 2 && columnMenu) columnMenu.style.display = 'none';
   });
 
-  function updateStatsMenu() {
-    if (!statsBody) return;
+  function renderStats() {
     const rows = Array.from(headerRow.querySelectorAll('.measurement-column'));
     const html = rows
       .map((th, i) => {
@@ -40,18 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
       })
       .join('');
-    statsBody.innerHTML = html;
+    if (menuStatsBody) menuStatsBody.innerHTML = html;
+    if (sidebarStatsBody) sidebarStatsBody.innerHTML = html;
   }
 
-  if (headerRow && columnMenu) {
-    headerRow.addEventListener('contextmenu', e => {
-      const th = e.target.closest('th');
-      if (!th || !th.classList.contains('measurement-column')) return;
-      e.preventDefault();
-      updateStatsMenu();
-      columnMenu.style.left = `${e.pageX}px`;
-      columnMenu.style.top = `${e.pageY}px`;
-      columnMenu.style.display = 'block';
-    });
+  if (headerRow) {
+    if (columnMenu) {
+      headerRow.addEventListener('contextmenu', e => {
+        const th = e.target.closest('th');
+        if (!th || !th.classList.contains('measurement-column')) return;
+        e.preventDefault();
+        renderStats();
+        columnMenu.style.left = `${e.pageX}px`;
+        columnMenu.style.top = `${e.pageY}px`;
+        columnMenu.style.display = 'block';
+      });
+    }
+    if (sidebarStatsBody) {
+      renderStats();
+      setInterval(renderStats, 500);
+    }
   }
 });

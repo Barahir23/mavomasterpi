@@ -33,6 +33,10 @@
   </form>
   {% if selected_messung %}
     {% include "messung/messung_edit.html" %}
+    <div class="card" id="sidebar-stats">
+      <h3>Statuswerte</h3>
+      {% include "stats_table.html" %}
+    </div>
   {% endif %}
 {% endblock %}
 {% block content %}
