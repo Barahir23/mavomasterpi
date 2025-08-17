@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         colGroup.insertBefore(valCol, fillerCol);
         const commentCol = document.createElement('col');
         commentCol.className = 'comment-column';
-        commentCol.style.visibility = 'collapse';
+        commentCol.style.display = 'none';
         colGroup.insertBefore(commentCol, fillerCol);
 
         const thVal = document.createElement('th');
@@ -261,14 +261,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const thComment = document.createElement('th');
         thComment.classList.add('comment-column');
         thComment.textContent = 'Kommentar';
-        thComment.style.visibility = 'collapse';
+        thComment.style.display = 'none';
         headerRow.insertBefore(thComment, fillerTh);
         Array.from(tableBody.rows).forEach(row => {
           const fillerCell = row.querySelector('.filler-cell');
           const valTd = document.createElement('td');
           row.insertBefore(valTd, fillerCell);
           const cTd = document.createElement('td');
-          cTd.style.visibility = 'collapse';
+          cTd.style.display = 'none';
           const cInput = document.createElement('input');
           cInput.type = 'text';
           cInput.addEventListener('input', markUnsaved);
@@ -318,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const valTd = document.createElement('td');
           row.appendChild(valTd);
           const cTd = document.createElement('td');
-          cTd.style.visibility = headerRow.children[3 + idx * 2]?.style.visibility || 'collapse';
+          cTd.style.display = headerRow.children[3 + idx * 2]?.style.display || 'none';
           const cInput = document.createElement('input');
           cInput.type = 'text';
           cInput.addEventListener('input', markUnsaved);
@@ -335,8 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
           row.children[3 + orderIdx * 2].querySelector('input').value = comment;
         }
       Array.from(headerRow.children).forEach((th, idx) => {
-        if (th.style.visibility === 'collapse' && row.children[idx]) {
-          row.children[idx].style.visibility = 'collapse';
+        if (th.style.display === 'none' && row.children[idx]) {
+          row.children[idx].style.display = 'none';
         }
       });
       markUnsaved();
