@@ -1,0 +1,54 @@
+<table class="measurement-table">
+  <colgroup id="measurement-colgroup">
+    <col class="time-column">
+    {% if sequence_names %}
+      {% for name in sequence_names %}
+        <col class="value-column">
+        {% if show_comments %}
+          <col class="comment-column" style="visibility: collapse;">
+        {% endif %}
+      {% endfor %}
+    {% else %}
+      <col class="filler-column">
+      <col class="delete-column" style="width:50px;">
+    {% endif %}
+  </colgroup>
+  <thead>
+    <tr>
+      <th class="time-column">Zeit</th>
+      {% if sequence_names %}
+        {% for name in sequence_names %}
+          <th class="measurement-column">
+            {{ name }}
+            {% if show_comments %}
+              <button type="button" class="icon-btn comment-toggle" data-index="{{ forloop.counter0 }}"></button>
+            {% endif %}
+          </th>
+          {% if show_comments %}
+            <th class="comment-column" style="visibility: collapse;">Kommentar</th>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <th class="filler-column"></th>
+        <th class="delete-column"></th>
+      {% endif %}
+    </tr>
+  </thead>
+  <tbody id="measurement-table-body">
+    {% if table_rows %}
+      {% for row in table_rows %}
+        <tr>
+          <td>{{ row.time }}</td>
+          {% for val in row.values %}
+            <td>{{ val.value }}</td>
+            {% if show_comments %}
+              <td class="comment-column" style="visibility: collapse;">{{ val.comment }}</td>
+            {% endif %}
+          {% endfor %}
+        </tr>
+      {% endfor %}
+    {% elif table_colspan %}
+      <tr><td colspan="{{ table_colspan }}">Keine Messdaten vorhanden.</td></tr>
+    {% endif %}
+  </tbody>
+</table>

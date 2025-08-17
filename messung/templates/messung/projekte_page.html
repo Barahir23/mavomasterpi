@@ -73,42 +73,7 @@
   </div>
   {% if selected_messung %}
     <section class="card">
-      <table class="measurement-table">
-        <colgroup id="measurement-colgroup">
-          <col class="time-column">
-          {% for name in sequence_names %}
-            <col class="value-column">
-            <col class="comment-column" style="visibility: collapse;">
-          {% endfor %}
-        </colgroup>
-        <thead>
-          <tr>
-            <th class="time-column">Zeit</th>
-            {% for name in sequence_names %}
-              <th class="measurement-column">
-                {{ name }}
-                <button type="button" class="icon-btn comment-toggle" data-index="{{ forloop.counter0 }}"></button>
-              </th>
-              <th class="comment-column" style="visibility: collapse;">Kommentar</th>
-            {% endfor %}
-          </tr>
-        </thead>
-        <tbody id="measurement-table-body">
-          {% if table_rows %}
-            {% for row in table_rows %}
-              <tr>
-                <td>{{ row.time }}</td>
-                {% for val in row.values %}
-                  <td>{{ val.value }}</td>
-                  <td class="comment-column" style="visibility: collapse;">{{ val.comment }}</td>
-                {% endfor %}
-              </tr>
-            {% endfor %}
-          {% else %}
-            <tr><td colspan="{{ table_colspan }}">Keine Messdaten vorhanden.</td></tr>
-          {% endif %}
-        </tbody>
-      </table>
+      {% include "measurement_table.html" with sequence_names=sequence_names table_rows=table_rows table_colspan=table_colspan show_comments=True %}
     </section>
   {% endif %}
   {% include "context_stats_menu.html" %}
