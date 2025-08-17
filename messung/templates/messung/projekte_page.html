@@ -9,6 +9,12 @@
   {% if selected_projekt %}
     {% include "messung/objekt_edit.html" %}
   {% endif %}
+  {% if selected_messung %}
+    <div class="card" id="sidebar-stats">
+      <h3>Statuswerte</h3>
+      {% include "stats_table.html" %}
+    </div>
+  {% endif %}
 {% endblock %}
 {% block content %}
   <div class="element-columns">

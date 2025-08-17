@@ -171,6 +171,17 @@ input[type=range]::-moz-range-thumb {
   text-align: left;
 }
 
+#sidebar-stats table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+#sidebar-stats th,
+#sidebar-stats td {
+  padding: 0.2rem 0.5rem;
+  text-align: left;
+}
+
 .anforderung-modal {
   position: fixed;
   top: 0;

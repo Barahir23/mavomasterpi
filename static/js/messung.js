@@ -58,7 +58,24 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(columnMenu);
       columnMenu.style.display = 'none';
     }
-    const statsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
+    const menuStatsBody = columnMenu ? columnMenu.querySelector('tbody') : null;
+    const sidebarStatsBody = document.querySelector('#sidebar-stats tbody');
+
+    const renderStats = () => {
+      if (!headerRow) return;
+      const cols = Array.from(headerRow.querySelectorAll('.measurement-column'));
+      const html = cols
+        .map(th => {
+          const nameInput = th.querySelector('input');
+          const name = nameInput ? nameInput.value : th.textContent.trim();
+          const colIdx = Array.from(headerRow.children).indexOf(th);
+          const stats = computeStatsFormatted(tableBody, colIdx, nf2);
+          return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
+        })
+        .join('');
+      if (menuStatsBody) menuStatsBody.innerHTML = html;
+      if (sidebarStatsBody) sidebarStatsBody.innerHTML = html;
+    };
 
     let statsTimer = null;
     document.addEventListener('click', e => {
@@ -68,32 +85,24 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
 
-    if (headerRow && columnMenu) {
-      const updateStats = () => {
-        if (!statsBody) return;
-        const cols = Array.from(headerRow.querySelectorAll('.measurement-column'));
-        const html = cols
-          .map(th => {
-            const nameInput = th.querySelector('input');
-            const name = nameInput ? nameInput.value : th.textContent.trim();
-            const colIdx = Array.from(headerRow.children).indexOf(th);
-            const stats = computeStatsFormatted(tableBody, colIdx, nf2);
-            return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
-          })
-          .join('');
-        statsBody.innerHTML = html;
-      };
-      headerRow.addEventListener('contextmenu', e => {
-        const th = e.target.closest('th');
-        if (!th || !th.classList.contains('measurement-column')) return;
-        e.preventDefault();
-        updateStats();
-        columnMenu.style.left = `${e.pageX}px`;
-        columnMenu.style.top = `${e.pageY}px`;
-        columnMenu.style.display = 'block';
-        clearInterval(statsTimer);
-        statsTimer = setInterval(updateStats, 500);
-      });
+    if (headerRow) {
+      if (columnMenu) {
+        headerRow.addEventListener('contextmenu', e => {
+          const th = e.target.closest('th');
+          if (!th || !th.classList.contains('measurement-column')) return;
+          e.preventDefault();
+          renderStats();
+          columnMenu.style.left = `${e.pageX}px`;
+          columnMenu.style.top = `${e.pageY}px`;
+          columnMenu.style.display = 'block';
+          clearInterval(statsTimer);
+          statsTimer = setInterval(renderStats, 500);
+        });
+      }
+      if (sidebarStatsBody) {
+        renderStats();
+        setInterval(renderStats, 500);
+      }
     }
 
     const seqSelect = document.getElementById('sequence-select');
