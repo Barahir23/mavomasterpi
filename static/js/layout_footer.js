@@ -3,15 +3,22 @@
 (function () {
   var STORAGE_KEY='mm.sidebar.collapsed';
 
-  function hasClass(e,c){return e&&(e.classList?e.classList.contains(c):new RegExp('(^|\\s)'+c+'(\\s|$)').test(e.className));}
-  function toggleClass(e,c){if(!e)return;if(e.classList)e.classList.toggle(c);else hasClass(e,c)?e.className=e.className.replace(new RegExp('(^|\\s)'+c+'(\\s|$)'),' ').trim():e.className+=(e.className?' ':'')+c;}
+  function setSidebarCollapsed(collapsed){
+    var method=collapsed?'add':'remove';
+    document.documentElement.classList[method]('sidebar-collapsed');
+    if(document.body)document.body.classList[method]('sidebar-collapsed');
+    try{localStorage.setItem(STORAGE_KEY,collapsed?'1':'0');}catch(e){}
+    var toggle=document.getElementById('sidebar-toggle');
+    if(toggle)toggle.setAttribute('aria-expanded',collapsed?'false':'true');
+  }
+
+  var collapsed=false;
+  try{collapsed=localStorage.getItem(STORAGE_KEY)==='1';}catch(e){}
+  setSidebarCollapsed(collapsed);
 
   var toggle=document.getElementById('sidebar-toggle');
   if(toggle){toggle.addEventListener('click',function(){
-    toggleClass(document.documentElement,'sidebar-collapsed');
-    toggleClass(document.body,'sidebar-collapsed');
-    try{localStorage.setItem(STORAGE_KEY,hasClass(document.documentElement,'sidebar-collapsed')?'1':'0');}catch(e){}
-    toggle.setAttribute('aria-expanded',hasClass(document.documentElement,'sidebar-collapsed')?'false':'true');
+    setSidebarCollapsed(!document.documentElement.classList.contains('sidebar-collapsed'));
   },{passive:true});}
 
   // Modal
