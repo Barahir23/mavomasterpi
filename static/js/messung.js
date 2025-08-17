@@ -1,4 +1,4 @@
-import { toggleCommentColumn, computeArrayStats, getColumnValues, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
+import { toggleCommentColumn, computeStatsFormatted, eyeIcon, eyeSlashIcon } from './table_utils.js';
 
 // Hinweis: Keine Browser-Prompts zur Sicherstellung der mobilen Kompatibilität.
 // page-specific scripts
@@ -69,12 +69,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (headerRow && columnMenu) {
       const updateStats = () => {
         if (!statsBody) return;
-        const html = sequenceOrder
-          .map((key, i) => {
-            const colIdx = 1 + i * 2;
-            const th = headerRow.children[colIdx];
+        const cols = Array.from(headerRow.querySelectorAll('.measurement-column'));
+        const html = cols
+          .map(th => {
             const nameInput = th.querySelector('input');
             const name = nameInput ? nameInput.value : th.textContent.trim();
+            const colIdx = Array.from(headerRow.children).indexOf(th);
             const stats = computeStatsFormatted(tableBody, colIdx, nf2);
             return `<tr><td>${name}</td><td>${stats.avg}</td><td>${stats.min}</td><td>${stats.max}</td><td>${stats.u0}</td></tr>`;
           })
@@ -84,8 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
       headerRow.addEventListener('contextmenu', e => {
         const th = e.target.closest('th');
         if (!th || !th.classList.contains('measurement-column')) return;
-        const colIdx = Array.from(headerRow.children).indexOf(th);
-        if (getColumnValues(tableBody, colIdx).length === 0) return;
         e.preventDefault();
         updateStats();
         columnMenu.style.left = `${e.pageX}px`;
