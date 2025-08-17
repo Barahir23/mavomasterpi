@@ -509,36 +509,41 @@ document.addEventListener('DOMContentLoaded', () => {
             const li = document.createElement('li');
             const label = [a.ref, a.typ].filter(Boolean).join(' ');
             li.textContent = label;
-            li.addEventListener('click', () => {
-              if (anforderungInput) anforderungInput.value = a.id;
-              if (anforderungDisplay) anforderungDisplay.textContent = label;
-              anforderungModal.style.display = 'none';
-              markUnsaved();
-            });
+              li.addEventListener('click', () => {
+                if (anforderungInput) anforderungInput.value = a.id;
+                if (anforderungDisplay) anforderungDisplay.textContent = label;
+                closeAnforderungModal();
+                markUnsaved();
+              });
             ul.appendChild(li);
           });
           anforderungResults.appendChild(ul);
         });
       }
 
+      const openAnforderungModal = () => {
+        renderAnforderungen(window.anforderungenData || []);
+        anforderungModal.setAttribute('aria-hidden', 'false');
+        if (anforderungSearch) {
+          anforderungSearch.value = '';
+          anforderungSearch.focus();
+        }
+      };
+      const closeAnforderungModal = () => {
+        anforderungModal.setAttribute('aria-hidden', 'true');
+      };
+
       if (anforderungBtn && anforderungModal) {
-        anforderungBtn.addEventListener('click', () => {
-          renderAnforderungen(window.anforderungenData || []);
-          anforderungModal.style.display = 'flex';
-          if (anforderungSearch) {
-            anforderungSearch.value = '';
-            anforderungSearch.focus();
-          }
-        });
+        anforderungBtn.addEventListener('click', openAnforderungModal);
       }
       if (anforderungClose) {
-        anforderungClose.addEventListener('click', () => {
-          anforderungModal.style.display = 'none';
-        });
+        anforderungClose.addEventListener('click', closeAnforderungModal);
       }
       if (anforderungModal) {
         anforderungModal.addEventListener('click', e => {
-          if (e.target === anforderungModal) anforderungModal.style.display = 'none';
+          if (e.target && e.target.hasAttribute('data-mm-close')) {
+            closeAnforderungModal();
+          }
         });
       }
       if (anforderungSearch) {

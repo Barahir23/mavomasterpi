@@ -46,10 +46,14 @@
   </div>
 </form>
 
-<div id="anforderung-modal" class="anforderung-modal">
-  <div class="modal-content">
+<div id="anforderung-modal" class="mm-modal" aria-hidden="true">
+  <div class="mm-modal__backdrop" data-mm-close></div>
+  <div class="mm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="anforderung-modal-title">
+    <h3 id="anforderung-modal-title" class="mm-modal__title">Anforderungen</h3>
     <input type="text" id="anforderung-search" placeholder="Suche...">
     <div id="anforderung-results"></div>
-    <button type="button" id="anforderung-close" class="icon-btn">Schließen</button>
+    <div class="mm-modal__actions">
+      <button type="button" id="anforderung-close" class="mm-btn mm-btn--primary" data-mm-close>Schließen</button>
+    </div>
   </div>
 </div>
